@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>유통기한 조사</title>
+<!-- iOS Safari 등 BarcodeDetector 미지원 브라우저를 위한 대체 스캔 라이브러리.
+     네이티브 API가 있으면 이 라이브러리는 아예 쓰지 않으므로 로딩만으로는
+     기존 기기 성능에 영향 없음. -->
+<script src="https://unpkg.com/@zxing/library@0.19.1/umd/index.min.js"></script>
+<style>
+  :root{
+    --bg:#1C1F22;
+    --surface:#24282C;
+    --surface-2:#2E3339;
+    --text:#F2EFE9;
+    --text-dim:#9AA0A6;
+    --accent:#E8A33D;
+    --ok:#3E7C6A;
+    --danger:#C8553D;
+    --border:#3A3F45;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans KR",sans-serif;
+    -webkit-tap-highlight-color:transparent;
+    padding-bottom:88px;
+  }
+  header{
+    padding:18px 16px 14px;
+    border-bottom:1px solid var(--border);
+  }
+  header h1{
+    font-size:17px;
+    margin:0 0 2px;
+    font-weight:600;
+    letter-spacing:-0.01em;
+  }
+  header p{
+    margin:0;
+    font-size:12.5px;
+    color:var(--text-dim);
+  }
+
+  .section{padding:14px 16px;}
+
+  .scanner-box{
+    position:relative;
+    width:100%;
+    aspect-ratio:4/3;
+    background:#000;
+    border-radius:10px;
+    overflow:hidden;
+    border:1px solid var(--border);
+    touch-action:none;
+  }
+  .focus-ring{
+    position:absolute; width:56px; height:56px; margin:-28px 0 0 -28px;
+    border:2px solid var(--accent); border-radius:50%;
+    pointer-events:none; z-index:5;
+    animation:focusPulse .6s ease-out forwards;
+  }
+  @keyframes focusPulse{
+    0%{ transform:scale(1.3); opacity:1; }
+    100%{ transform:scale(0.9); opacity:0; }
+  }
+  .scanner-box video{
+    width:100%;height:100%;object-fit:cover;display:block;
+  }
+  .viewfinder{
+    position:absolute; inset:18% 12%;
+    border:2px solid var(--accent);
+    border-radius:8px;
+    opacity:0.85;
+    pointer-events:none;
+  }
+  .scan-hint{
+    position:absolute; bottom:8px; left:0; right:0;
+    text-align:center; font-size:12px; color:#fff;
+    text-shadow:0 1px 3px rgba(0,0,0,.6);
+  }
+  .scanner-off{
+    display:flex; align-items:center; justify-content:center;
+    height:100%; color:var(--text-dim); font-size:13px; text-align:center; padding:20px;
+  }
+
+  .zoom-row{
+    display:none; align-items:center; gap:10px; margin-top:10px;
+  }
+  .zoom-row span{font-size:12px; color:var(--text-dim); flex:none;}
+  .zoom-row input[type=range]{flex:1; accent-color:var(--accent);}
+
+  .recent-chip{
+    display:inline-block; padding:6px 10px; margin:4px 6px 0 0;
+    background:var(--surface-2); border:1px solid var(--border); border-radius:16px;
+    font-size:12.5px; color:var(--text-dim); cursor:pointer;
+  }
+  .recent-chip:active{background:var(--accent); color:#1C1F22; border-color:var(--accent);}
+
+  .btn-row{display:flex; gap:8px; margin-top:10px;}
+  button{
+    font-family:inherit; cursor:pointer; border:none; border-radius:8px;
+    font-size:14px; font-weight:600; padding:12px 14px;
+  }
+  .btn-primary{background:var(--accent); color:#1C1F22; flex:1;}
+  .btn-secondary{background:var(--surface-2); color:var(--text); border:1px solid var(--border); flex:1;}
+  .btn-danger{background:transparent; color:var(--danger); border:1px solid var(--danger); padding:8px 10px; font-size:12px;}
+  .btn-full{width:100%;}
+
+  .card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:14px;
+    margin-top:12px;
+  }
+  .code-display{
+    font-family:"SF Mono","Roboto Mono",monospace;
+    font-size:20px; letter-spacing:0.02em;
+    padding:10px 12px; background:var(--surface-2);
+    border-radius:6px; border:1px solid var(--border);
+    word-break:break-all;
+  }
+  .code-display.empty{ color:var(--text-dim); font-size:14px; font-family:inherit;}
+
+  label{
+    display:block; font-size:12px; color:var(--text-dim);
+    margin:12px 0 6px;
+  }
+  input[type=text], input[type=date], input[type=number]{
+    width:100%; padding:11px 12px; font-size:15px;
+    background:var(--surface-2); color:var(--text);
+    border:1px solid var(--border); border-radius:8px;
+    font-family:inherit;
+  }
+  .qty-row{display:flex; align-items:center; gap:8px;}
+  .qty-row button{
+    width:40px; height:40px; padding:0; font-size:18px;
+    background:var(--surface-2); color:var(--text); border:1px solid var(--border);
+    flex:none;
+  }
+  .qty-row input{text-align:center; flex:1;}
+
+  .entry-row{display:flex; align-items:center; gap:8px; margin-bottom:8px;}
+  .entry-row .qty-row{flex:none; width:128px; margin:0;}
+  .entry-row input[type=date]{flex:1; min-width:0;}
+  .entry-row .remove-row{
+    flex:none; padding:8px 9px; font-size:12px;
+    background:transparent; color:var(--danger); border:1px solid var(--danger);
+  }
+  .add-row-btn{
+    background:transparent; color:var(--accent); border:1px dashed var(--border);
+    width:100%; margin-top:2px;
+  }
+
+  table{width:100%; border-collapse:collapse; margin-top:4px;}
+  th,td{
+    text-align:left; padding:9px 6px; font-size:12.5px;
+    border-bottom:1px solid var(--border);
+  }
+  th{color:var(--text-dim); font-weight:500; font-size:11.5px;}
+  td.code{font-family:"SF Mono","Roboto Mono",monospace; font-size:12px;}
+  .badge{
+    display:inline-block; padding:2px 7px; border-radius:20px;
+    font-size:11px; font-weight:600;
+  }
+  .badge.danger{background:rgba(200,85,61,.18); color:#F0917C;}
+  .badge.warn{background:rgba(232,163,61,.18); color:var(--accent);}
+  .badge.ok{background:rgba(62,124,106,.22); color:#7FCBB5;}
+
+  .empty-state{
+    text-align:center; color:var(--text-dim); font-size:13px;
+    padding:24px 10px;
+  }
+
+  .footer-bar{
+    position:fixed; bottom:0; left:0; right:0;
+    background:var(--surface);
+    border-top:1px solid var(--border);
+    padding:10px 16px calc(10px + env(safe-area-inset-bottom));
+    display:flex; align-items:center; gap:12px;
+  }
+  .footer-count{font-size:12.5px; color:var(--text-dim); flex:none; white-space:nowrap;}
+  .footer-bar button{flex:1;}
+
+  .toast{
+    position:fixed; top:14px; left:50%; transform:translateX(-50%);
+    background:var(--ok); color:#fff; padding:8px 16px; border-radius:20px;
+    font-size:12.5px; font-weight:600; opacity:0; transition:opacity .2s;
+    pointer-events:none; z-index:50;
+  }
+  .toast.show{opacity:1;}
+
+  .webview-warning{
+    display:none;
+    background:var(--danger); color:#fff;
+    padding:11px 16px; font-size:12.5px; line-height:1.5;
+  }
+  .webview-warning b{ text-decoration:underline; }
+
+  .modal-overlay{
+    display:none; position:fixed; inset:0; background:rgba(0,0,0,.55);
+    z-index:100; align-items:flex-end; justify-content:center;
+  }
+  .modal-overlay.show{ display:flex; }
+  .modal-box{
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:14px 14px 0 0; width:100%; max-width:520px;
+    padding:20px 18px calc(20px + env(safe-area-inset-bottom));
+  }
+  .modal-box h3{ margin:0 0 10px; font-size:15.5px; }
+  .modal-box p{ font-size:13px; color:var(--text-dim); line-height:1.6; margin:0 0 8px; }
+  .modal-box .path-tag{
+    display:inline-block; background:var(--surface-2); border:1px solid var(--border);
+    border-radius:6px; padding:6px 10px; font-family:"SF Mono","Roboto Mono",monospace;
+    font-size:12.5px; margin:4px 0 12px;
+  }
+</style>
+</head>
+<body>
+
+<div class="webview-warning" id="webviewWarning"></div>
+
+<header>
+  <h1>유통기한 조사</h1>
+  <p>스캔 → 수량/유통기한 입력 → 추가 → 다음 상품</p>
+</header>
+
+<div class="section">
+  <div class="scanner-box" id="scannerBox">
+    <div class="scanner-off" id="scannerOff">
+      카메라를 시작하면 바코드를 자동으로 인식합니다.<br>인식이 안 되면 아래에서 코드를 직접 입력할 수 있습니다.
+    </div>
+    <video id="video" playsinline muted style="display:none;"></video>
+    <div class="viewfinder" id="viewfinder" style="display:none;"></div>
+    <div class="scan-hint" id="scanHint" style="display:none;">바코드를 사각형 안에 맞춰주세요</div>
+  </div>
+  <div class="zoom-row" id="zoomRow">
+    <span>🔍−</span>
+    <input type="range" id="zoomSlider" min="1" max="1" step="0.1" value="1">
+    <span>🔍+</span>
+  </div>
+  <div id="zoomHint" style="display:none; font-size:11px; color:var(--text-dim); text-align:center; margin-top:2px;">화면을 두 손가락으로 오므리거나 벌려도 확대/축소됩니다</div>
+  <button class="btn-secondary btn-full" id="refocusBtn" type="button" style="display:none; margin-top:8px;">🎯 초점 다시 맞추기</button>
+
+  <div class="btn-row">
+    <button class="btn-primary" id="toggleScanBtn">카메라 스캔 시작</button>
+    <button class="btn-secondary" id="manualBtn">코드 직접입력</button>
+  </div>
+
+  <div class="card">
+    <label style="margin-top:0;">인식된 상품 코드</label>
+    <div class="code-display empty" id="codeDisplay">아직 스캔된 코드가 없습니다</div>
+    <input type="text" inputmode="numeric" pattern="[0-9]*" id="manualInput" placeholder="바코드 직접 입력 (13자리 입력 시 자동 확인)" style="display:none; margin-top:8px;">
+    <div id="recentCodes" style="display:none; margin-top:8px;"></div>
+
+    <label>수량 / 유통기한 <span style="color:var(--text-dim); font-weight:400;">(같은 상품이라도 유통기한이 다르면 아래에서 줄을 추가하세요)</span></label>
+    <div id="entryRows"></div>
+    <button class="add-row-btn" id="addRowBtn" type="button">＋ 유통기한 다르게 추가</button>
+
+    <button class="btn-primary btn-full" id="addBtn" style="margin-top:14px;">목록에 추가</button>
+  </div>
+
+  <div class="card">
+    <label style="margin:0 0 8px;">조사 목록 (<span id="listCount">0</span>건)</label>
+    <div id="listWrap">
+      <div class="empty-state" id="emptyState">아직 추가된 상품이 없습니다</div>
+      <table id="listTable" style="display:none;">
+        <thead>
+          <tr><th>코드</th><th>수량</th><th>유통기한</th><th>상태</th><th></th></tr>
+        </thead>
+        <tbody id="listBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="footer-bar">
+  <span class="footer-count"><span id="footerCount">0</span>건</span>
+  <button class="btn-secondary" id="clearBtn">초기화</button>
+  <button class="btn-secondary" id="saveBtn">CSV저장</button>
+  <button class="btn-primary" id="shareBtn">📤 공유</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="modal-overlay" id="saveGuideModal">
+  <div class="modal-box">
+    <h3 id="saveGuideTitle">저장 위치 확인</h3>
+    <div id="saveGuideBody"></div>
+    <button class="btn-primary btn-full" id="saveGuideCloseBtn">확인했습니다</button>
+  </div>
+</div>
+
+<script>
+let items = [];
+let stream = null;
+let scanning = false;
+let detector = null;
+let rafId = null;
+
+const codeDisplay = document.getElementById('codeDisplay');
+const manualInput = document.getElementById('manualInput');
+const entryRowsWrap = document.getElementById('entryRows');
+const video = document.getElementById('video');
+const viewfinder = document.getElementById('viewfinder');
+const scanHint = document.getElementById('scanHint');
+const scannerOff = document.getElementById('scannerOff');
+const toggleScanBtn = document.getElementById('toggleScanBtn');
+
+let currentCode = '';
+
+// ---- 환경 감지 (인앱 브라우저 / OS) ----
+function detectEnv(){
+  const ua = navigator.userAgent || '';
+  const isKakao = /KAKAOTALK/i.test(ua);
+  const isNaver = /NAVER\(/i.test(ua);
+  const isInstagram = /Instagram/i.test(ua);
+  const isFacebook = /FBAN|FBAV/i.test(ua);
+  const appName = isKakao ? '카카오톡' : isNaver ? '네이버 앱' : isInstagram ? '인스타그램' : isFacebook ? '페이스북' : '';
+  return {
+    isInApp: !!appName,
+    appName,
+    isIOS: /iPhone|iPad|iPod/i.test(ua),
+    isAndroid: /Android/i.test(ua)
+  };
+}
+const env = detectEnv();
+
+if(env.isInApp){
+  const w = document.getElementById('webviewWarning');
+  w.style.display = 'block';
+  w.innerHTML = `⚠️ 지금 <b>${env.appName}</b> 안의 내장 브라우저로 열려 있어 파일 저장이 안 될 수 있습니다. 우측 상단(또는 하단) 메뉴에서 <b>"다른 브라우저로 열기"</b> 또는 <b>"Safari로 열기"</b>를 선택한 뒤 사용해주세요.`;
+}
+
+function showSaveGuide(fileName){
+  const body = document.getElementById('saveGuideBody');
+  let html = '';
+  if(env.isIOS){
+    html = `
+      <p>파일은 아이폰 기본 <b>"파일" 앱</b>에 저장됩니다.</p>
+      <div class="path-tag">파일 앱 → 나의 iPhone(또는 다운로드) → ${fileName}.csv</div>
+      <p>저장이 안 보이면 방금 뜬 다운로드 알림(공유 아이콘 근처)을 눌러 "다운로드" 폴더를 확인해주세요.</p>`;
+  }else if(env.isAndroid){
+    html = `
+      <p>파일은 내부 저장소의 <b>"다운로드" 폴더</b>에 저장됩니다.</p>
+      <div class="path-tag">내 파일 앱 → 다운로드 → ${fileName}.csv</div>
+      <p>화면 상단 알림창에 "다운로드 완료"가 떴다면 그걸 눌러도 바로 열립니다.</p>`;
+  }else{
+    html = `
+      <p>브라우저의 기본 다운로드 폴더에 <b>${fileName}.csv</b>로 저장되었습니다.</p>`;
+  }
+  if(env.isInApp){
+    html += `<p style="color:var(--danger);">⚠️ 지금 ${env.appName} 인앱 브라우저 상태라 실제로는 저장이 차단됐을 수 있습니다. 파일이 안 보이면 위 안내대로 외부 브라우저로 열어 다시 시도해주세요.</p>`;
+  }
+  body.innerHTML = html;
+  document.getElementById('saveGuideModal').classList.add('show');
+}
+document.getElementById('saveGuideCloseBtn').addEventListener('click', ()=>{
+  document.getElementById('saveGuideModal').classList.remove('show');
+});
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 1400);
+}
+
+let recentCodes = [];
+
+function pushRecentCode(code){
+  recentCodes = [code, ...recentCodes.filter(c => c !== code)].slice(0, 6);
+}
+
+function renderRecentCodes(){
+  const wrap = document.getElementById('recentCodes');
+  if(!recentCodes.length){ wrap.style.display = 'none'; return; }
+  wrap.style.display = 'block';
+  wrap.innerHTML = '<div style="font-size:11px;color:var(--text-dim);margin-bottom:2px;">최근 입력한 코드 (탭하여 재사용)</div>' +
+    recentCodes.map(c => `<span class="recent-chip" data-code="${c}">${c}</span>`).join('');
+  wrap.querySelectorAll('.recent-chip').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      manualInput.value = chip.dataset.code;
+      setCode(chip.dataset.code);
+    });
+  });
+}
+
+// 직접입력/카메라스캔 전환 시 입력창과 최근코드 칩을 함께 표시/숨김
+function setManualVisible(visible){
+  manualInput.style.display = visible ? 'block' : 'none';
+  if(visible){ renderRecentCodes(); }
+  else{ document.getElementById('recentCodes').style.display = 'none'; }
+}
+
+function setCode(code){
+  currentCode = code;
+  codeDisplay.textContent = code;
+  codeDisplay.classList.remove('empty');
+  if(navigator.vibrate) navigator.vibrate(60);
+  pushRecentCode(code);
+}
+
+// ---- 카메라 스캔 ----
+let usingZXing = false;
+let zxingReader = null;
+let zxingControls = null;
+
+async function startScan(){
+  if('BarcodeDetector' in window){
+    return startScanNative();
+  }
+  if(window.ZXing && window.ZXing.BrowserMultiFormatReader){
+    return startScanZXing();
+  }
+  showToast('이 브라우저는 자동 스캔 미지원 · 직접입력을 이용하세요');
+  document.getElementById('manualBtn').click();
+}
+
+async function startScanNative(){
+  try{
+    // code_93·itf·codabar 추가: 일부 면세점/수입 상품 바코드가 EAN/UPC가 아닌
+    // 다른 규격을 쓰는 경우가 있어 인식 가능한 포맷을 넓힘
+    detector = new BarcodeDetector({formats:['ean_13','ean_8','upc_a','upc_e','code_128','code_39','code_93','itf','codabar']});
+    // 해상도를 높이고(작은 바코드가 더 선명하게 잡힘) 연속 자동초점을 요청함
+    // (기기가 지원하지 않으면 브라우저가 무시하고 기본값으로 동작)
+    stream = await navigator.mediaDevices.getUserMedia({
+      video:{
+        facingMode:'environment',
+        width:{ideal:1920},
+        height:{ideal:1080},
+        advanced:[{focusMode:'continuous'}]
+      }
+    });
+    video.srcObject = stream;
+    video.style.display = 'block';
+    viewfinder.style.display = 'block';
+    scanHint.style.display = 'block';
+    scannerOff.style.display = 'none';
+    await video.play();
+    setupFocusAndZoom();
+    scanning = true;
+    usingZXing = false;
+    pendingCode = null;
+    pendingCount = 0;
+    toggleScanBtn.textContent = '카메라 스캔 중지';
+    setManualVisible(false);
+    detectLoop();
+  }catch(e){
+    showToast('카메라 접근 권한이 필요합니다');
+  }
+}
+
+// ---- iOS Safari 등 대체 경로: ZXing 라이브러리로 스캔 ----
+// (네이티브 BarcodeDetector가 없을 때만 진입. 동작 흐름은 다르지만
+//  화면·줌·재초점·뷰파인더 로직은 네이티브 경로와 동일하게 재사용)
+async function startScanZXing(){
+  try{
+    if(!zxingReader){
+      const formats = [
+        ZXing.BarcodeFormat.EAN_13, ZXing.BarcodeFormat.EAN_8,
+        ZXing.BarcodeFormat.UPC_A, ZXing.BarcodeFormat.UPC_E,
+        ZXing.BarcodeFormat.CODE_128, ZXing.BarcodeFormat.CODE_39,
+        ZXing.BarcodeFormat.CODE_93, ZXing.BarcodeFormat.ITF,
+        ZXing.BarcodeFormat.CODABAR
+      ];
+      const hints = new Map();
+      hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, formats);
+      zxingReader = new ZXing.BrowserMultiFormatReader(hints);
+    }
+    video.style.display = 'block';
+    viewfinder.style.display = 'block';
+    scanHint.style.display = 'block';
+    scannerOff.style.display = 'none';
+    scanning = true;
+    usingZXing = true;
+    pendingCode = null;
+    pendingCount = 0;
+    toggleScanBtn.textContent = '카메라 스캔 중지';
+    setManualVisible(false);
+
+    zxingControls = await zxingReader.decodeFromConstraints(
+      {video:{facingMode:'environment', width:{ideal:1920}, height:{ideal:1080}, advanced:[{focusMode:'continuous'}]}},
+      video,
+      (result)=>{
+        if(!scanning || !result) return;
+        const val = result.getText();
+        // 한 프레임의 오독을 걸러내기 위해 같은 값이 2연속 나올 때만 확정 (네이티브 경로와 동일 기준)
+        if(val === pendingCode){
+          pendingCount++;
+        }else{
+          pendingCode = val;
+          pendingCount = 1;
+        }
+        if(pendingCount >= 2){
+          setCode(pendingCode);
+          pendingCode = null;
+          pendingCount = 0;
+          scanning = false;
+          setTimeout(()=>{ scanning = true; }, 900);
+        }
+      }
+    );
+    stream = video.srcObject;
+    setupFocusAndZoom();
+  }catch(e){
+    showToast('카메라 접근 권한이 필요합니다');
+    scanning = false;
+    usingZXing = false;
+  }
+}
+
+// 기기의 카메라 제어 기능(연속 자동초점·디지털 줌)을 확인해 적용.
+// 너무 가까이 대면 초점이 흐려지는 문제를, 줌으로 거리를 확보하면서
+// 바코드를 크게 볼 수 있게 해서 보완함.
+let currentZoomCaps = null; // {min, max, step} - 핀치 제스처에서도 재사용
+
+function setupFocusAndZoom(){
+  const track = stream.getVideoTracks()[0];
+  const zoomRow = document.getElementById('zoomRow');
+  const zoomSlider = document.getElementById('zoomSlider');
+  const refocusBtn = document.getElementById('refocusBtn');
+  if(!track || !track.getCapabilities){
+    zoomRow.style.display = 'none';
+    refocusBtn.style.display = 'none';
+    currentZoomCaps = null;
+    return;
+  }
+  const caps = track.getCapabilities();
+
+  if(caps.focusMode && caps.focusMode.includes('continuous')){
+    track.applyConstraints({advanced:[{focusMode:'continuous'}]}).catch(()=>{});
+  }
+
+  if(caps.zoom && caps.zoom.max > caps.zoom.min){
+    currentZoomCaps = {min: caps.zoom.min, max: caps.zoom.max, step: caps.zoom.step || 0.1};
+    zoomRow.style.display = 'flex';
+    document.getElementById('zoomHint').style.display = 'block';
+    zoomSlider.min = caps.zoom.min;
+    zoomSlider.max = caps.zoom.max;
+    zoomSlider.step = caps.zoom.step || 0.1;
+    zoomSlider.value = (track.getSettings().zoom) || caps.zoom.min;
+    zoomSlider.oninput = ()=>{
+      track.applyConstraints({advanced:[{zoom: parseFloat(zoomSlider.value)}]}).catch(()=>{});
+    };
+  }else{
+    currentZoomCaps = null;
+    zoomRow.style.display = 'none';
+    document.getElementById('zoomHint').style.display = 'none';
+  }
+
+  // 연속 자동초점을 지원하지 않거나, 지원해도 한 번 흐려진 채로 멈춰있는
+  // 기기를 위한 수동 재초점 버튼 (single-shot 초점을 한 번 걸었다가 다시 연속모드로 복귀)
+  if(caps.focusMode && caps.focusMode.includes('single-shot')){
+    refocusBtn.style.display = 'block';
+  }else{
+    refocusBtn.style.display = 'none';
+  }
+}
+
+function triggerRefocus(){
+  if(!stream) return;
+  const track = stream.getVideoTracks()[0];
+  if(!track || !track.getCapabilities) return;
+  const caps = track.getCapabilities();
+  if(!(caps.focusMode && caps.focusMode.includes('single-shot'))){
+    showToast('이 기기는 수동 초점 재설정을 지원하지 않습니다');
+    return;
+  }
+  track.applyConstraints({advanced:[{focusMode:'single-shot'}]})
+    .then(()=>{
+      showToast('초점을 다시 맞췄습니다');
+      setTimeout(()=>{
+        if(caps.focusMode.includes('continuous')){
+          track.applyConstraints({advanced:[{focusMode:'continuous'}]}).catch(()=>{});
+        }
+      }, 900);
+    })
+    .catch(()=>{ showToast('초점 재설정에 실패했습니다'); });
+}
+
+document.getElementById('refocusBtn').addEventListener('click', triggerRefocus);
+
+// ---- 손가락 핀치 제스처로 줌 조절 (슬라이더와 동일한 기능을 화면 터치로) ----
+const scannerBox = document.getElementById('scannerBox');
+let pinchStartDist = null;
+let pinchStartZoom = null;
+
+function touchDistance(touches){
+  const dx = touches[0].clientX - touches[1].clientX;
+  const dy = touches[0].clientY - touches[1].clientY;
+  return Math.hypot(dx, dy);
+}
+
+function applyZoomValue(value){
+  if(!stream || !currentZoomCaps) return;
+  const track = stream.getVideoTracks()[0];
+  if(!track) return;
+  const clamped = Math.min(currentZoomCaps.max, Math.max(currentZoomCaps.min, value));
+  track.applyConstraints({advanced:[{zoom: clamped}]}).catch(()=>{});
+  document.getElementById('zoomSlider').value = clamped;
+}
+
+scannerBox.addEventListener('touchstart', (e)=>{
+  if(e.touches.length === 2 && currentZoomCaps && stream){
+    pinchStartDist = touchDistance(e.touches);
+    const track = stream.getVideoTracks()[0];
+    pinchStartZoom = (track && track.getSettings().zoom) || currentZoomCaps.min;
+  }
+}, {passive:true});
+
+scannerBox.addEventListener('touchmove', (e)=>{
+  if(e.touches.length === 2 && pinchStartDist && currentZoomCaps){
+    e.preventDefault(); // 페이지 자체가 확대되지 않도록 방지
+    const dist = touchDistance(e.touches);
+    const ratio = dist / pinchStartDist;
+    applyZoomValue(pinchStartZoom * ratio);
+  }
+}, {passive:false});
+
+scannerBox.addEventListener('touchend', (e)=>{
+  if(e.touches.length < 2){
+    pinchStartDist = null;
+    pinchStartZoom = null;
+  }
+});
+
+// ---- 탭하여 초점 맞추기 (화면에서 바코드가 있는 지점을 직접 터치) ----
+// 핀치(두 손가락) 동작과는 겹치지 않도록 한 손가락 탭에서만 동작하는 click 이벤트를 사용
+function showFocusRing(x, y){
+  const ring = document.createElement('div');
+  ring.className = 'focus-ring';
+  ring.style.left = `${x}px`;
+  ring.style.top = `${y}px`;
+  scannerBox.appendChild(ring);
+  setTimeout(()=>ring.remove(), 600);
+}
+
+scannerBox.addEventListener('click', (e)=>{
+  if(!scanning || !stream) return;
+  if(env.isIOS){
+    // 사파리(iOS)는 pointsOfInterest/focusMode API 자체를 지원하지 않음.
+    // applyConstraints가 에러 없이 조용히 무시할 수 있어 "성공한 척" 보일 수 있으므로
+    // 아예 시도하지 않고 정확한 이유를 안내함
+    showToast('아이폰(사파리)은 탭 초점 기능을 지원하지 않습니다');
+    return;
+  }
+  const track = stream.getVideoTracks()[0];
+  if(!track || !track.applyConstraints){
+    showToast('이 기기는 탭 초점을 지원하지 않습니다');
+    return;
+  }
+  const rect = scannerBox.getBoundingClientRect();
+  const x = (e.clientX - rect.left) / rect.width;
+  const y = (e.clientY - rect.top) / rect.height;
+  if(x < 0 || x > 1 || y < 0 || y > 1) return;
+
+  // pointsOfInterest는 브라우저가 getCapabilities()에 목록으로 알려주지 않는 경우가
+  // 많아서(안드로이드 다수 기종 포함), 지원 여부를 미리 따지지 않고 일단 시도함.
+  // focusMode는 single-shot을 지원할 때만 같이 요청 (지원 안 하면 이 값 없이 포인트만 전달)
+  const caps = track.getCapabilities ? track.getCapabilities() : {};
+  const supportsSingleShot = !!(caps.focusMode && caps.focusMode.includes('single-shot'));
+  const advancedConstraint = {pointsOfInterest:[{x, y}]};
+  if(supportsSingleShot) advancedConstraint.focusMode = 'single-shot';
+
+  track.applyConstraints({advanced:[advancedConstraint]})
+    .then(()=>{
+      showFocusRing(e.clientX - rect.left, e.clientY - rect.top);
+      if(supportsSingleShot && caps.focusMode.includes('continuous')){
+        setTimeout(()=>{
+          track.applyConstraints({advanced:[{focusMode:'continuous'}]}).catch(()=>{});
+        }, 900);
+      }
+    })
+    .catch(()=>{ showToast('이 기기는 탭 초점을 지원하지 않습니다'); });
+});
+
+function stopScan(){
+  scanning = false;
+  if(rafId) cancelAnimationFrame(rafId);
+  if(usingZXing){
+    if(zxingControls){ zxingControls.stop(); zxingControls = null; }
+    usingZXing = false;
+  }
+  if(stream){ stream.getTracks().forEach(t=>t.stop()); stream = null; }
+  video.style.display = 'none';
+  viewfinder.style.display = 'none';
+  scanHint.style.display = 'none';
+  document.getElementById('zoomRow').style.display = 'none';
+  document.getElementById('zoomHint').style.display = 'none';
+  document.getElementById('refocusBtn').style.display = 'none';
+  scannerOff.style.display = 'flex';
+  toggleScanBtn.textContent = '카메라 스캔 시작';
+}
+
+// 뷰파인더 사각형(CSS inset:18% 12%) 안에 중심이 있는 코드만 인정 —
+// 화면에 보이는 다른 상품의 바코드가 함께 잡히는 오인식을 막기 위함
+function isInViewfinder(box){
+  if(!video.videoWidth || !video.videoHeight) return true;
+  const cx = (box.x + box.width / 2) / video.videoWidth;
+  const cy = (box.y + box.height / 2) / video.videoHeight;
+  return cx >= 0.10 && cx <= 0.90 && cy >= 0.15 && cy <= 0.85;
+}
+
+let pendingCode = null;
+let pendingCount = 0;
+
+async function detectLoop(){
+  if(!scanning) return;
+  try{
+    const codes = await detector.detect(video);
+    const hit = codes.find(c => isInViewfinder(c.boundingBox));
+    if(hit){
+      // 한 프레임의 오독을 걸러내기 위해 같은 값이 2연속 나올 때만 확정
+      if(hit.rawValue === pendingCode){
+        pendingCount++;
+      }else{
+        pendingCode = hit.rawValue;
+        pendingCount = 1;
+      }
+      if(pendingCount >= 2){
+        setCode(pendingCode);
+        pendingCode = null;
+        pendingCount = 0;
+        // 같은 코드 연속 인식 방지를 위해 잠깐 멈췄다 재개
+        scanning = false;
+        setTimeout(()=>{ scanning = true; detectLoop(); }, 900);
+        return;
+      }
+    }else{
+      pendingCode = null;
+      pendingCount = 0;
+    }
+  }catch(e){ /* 프레임 스킵 */ }
+  rafId = requestAnimationFrame(detectLoop);
+}
+
+toggleScanBtn.addEventListener('click', ()=>{
+  if(scanning) stopScan(); else startScan();
+});
+
+document.getElementById('manualBtn').addEventListener('click', ()=>{
+  stopScan();
+  setManualVisible(true);
+  manualInput.value = '';
+  manualInput.focus();
+});
+
+manualInput.addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter' && manualInput.value.trim()){
+    setCode(manualInput.value.trim());
+  }
+});
+
+// 표준 바코드 자릿수(8·12·13·14자리 숫자)에 도달하면 Enter를 누르지 않아도
+// 잠깐 뒤 자동으로 코드가 확정됨 (그 사이에 계속 입력 중이면 취소되고 다시 대기)
+const STANDARD_BARCODE_LENGTHS = [8, 12, 13, 14];
+let manualAutoTimer = null;
+manualInput.addEventListener('input', ()=>{
+  clearTimeout(manualAutoTimer);
+  const val = manualInput.value.trim();
+  if(STANDARD_BARCODE_LENGTHS.includes(val.length) && /^\d+$/.test(val)){
+    manualAutoTimer = setTimeout(()=>{
+      if(manualInput.value.trim() === val) setCode(val);
+    }, 350);
+  }
+});
+
+// ---- 수량/유통기한 입력 줄 (같은 상품, 다른 유통기한을 여러 줄로 입력) ----
+let entryRowSeq = 0;
+
+function createEntryRow(qty, expiry){
+  const row = document.createElement('div');
+  row.className = 'entry-row';
+  row.dataset.rowId = ++entryRowSeq;
+  row.innerHTML = `
+    <div class="qty-row">
+      <button type="button" class="qty-minus">−</button>
+      <input type="number" class="qty-field" value="${qty}" min="1">
+      <button type="button" class="qty-plus">＋</button>
+    </div>
+    <input type="date" class="expiry-field" value="${expiry}">
+    <button type="button" class="remove-row">삭제</button>
+  `;
+  row.querySelector('.qty-minus').addEventListener('click', ()=>{
+    const inp = row.querySelector('.qty-field');
+    inp.value = Math.max(1, (parseInt(inp.value)||1) - 1);
+  });
+  row.querySelector('.qty-plus').addEventListener('click', ()=>{
+    const inp = row.querySelector('.qty-field');
+    inp.value = (parseInt(inp.value)||1) + 1;
+  });
+  row.querySelector('.remove-row').addEventListener('click', ()=>{
+    row.remove();
+    updateRemoveButtons();
+  });
+  return row;
+}
+
+function updateRemoveButtons(){
+  const rows = entryRowsWrap.querySelectorAll('.entry-row');
+  rows.forEach(r=>{
+    r.querySelector('.remove-row').style.display = rows.length > 1 ? 'inline-block' : 'none';
+  });
+}
+
+function resetEntryRows(){
+  entryRowsWrap.innerHTML = '';
+  entryRowsWrap.appendChild(createEntryRow(1, ''));
+  updateRemoveButtons();
+}
+
+document.getElementById('addRowBtn').addEventListener('click', ()=>{
+  entryRowsWrap.appendChild(createEntryRow(1, ''));
+  updateRemoveButtons();
+});
+
+resetEntryRows();
+
+// ---- 목록 추가 ----
+function dDayInfo(expiry){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const exp = new Date(expiry); exp.setHours(0,0,0,0);
+  const diff = Math.round((exp - today) / 86400000);
+  if(diff < 0) return {label:'기한초과', cls:'danger'};
+  if(diff <= 30) return {label:`D-${diff}`, cls:'danger'};
+  if(diff <= 90) return {label:`D-${diff}`, cls:'warn'};
+  return {label:`D-${diff}`, cls:'ok'};
+}
+
+// ---- 임시 저장 (새로고침/앱 전환 시 데이터 유실 방지) ----
+const TEMP_KEY = 'expiry_survey_temp_v1';
+function persistItems(){
+  try{
+    if(items.length) localStorage.setItem(TEMP_KEY, JSON.stringify(items));
+    else localStorage.removeItem(TEMP_KEY);
+  }catch(e){ /* 저장 공간 부족 등은 조용히 무시 - 조사 자체는 계속 가능해야 함 */ }
+}
+
+function renderList(){
+  persistItems();
+  const body = document.getElementById('listBody');
+  const table = document.getElementById('listTable');
+  const empty = document.getElementById('emptyState');
+  document.getElementById('listCount').textContent = items.length;
+  document.getElementById('footerCount').textContent = items.length;
+
+  if(items.length === 0){
+    table.style.display = 'none';
+    empty.style.display = 'block';
+    return;
+  }
+  table.style.display = 'table';
+  empty.style.display = 'none';
+  body.innerHTML = '';
+  items.forEach((it, idx)=>{
+    const d = dDayInfo(it.expiry);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="code">${it.code}</td>
+      <td>${it.qty}</td>
+      <td>${it.expiry}</td>
+      <td><span class="badge ${d.cls}">${d.label}</span></td>
+      <td><button class="btn-danger" data-idx="${idx}">삭제</button></td>
+    `;
+    body.appendChild(tr);
+  });
+  body.querySelectorAll('button[data-idx]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      items.splice(parseInt(btn.dataset.idx), 1);
+      renderList();
+    });
+  });
+}
+
+document.getElementById('addBtn').addEventListener('click', ()=>{
+  const code = currentCode || manualInput.value.trim();
+  if(!code){ showToast('상품 코드를 먼저 스캔하거나 입력하세요'); return; }
+
+  // 같은 바코드가 이미 조사 목록에 있으면 중복 추가를 막지는 않되, 한 번 확인받음
+  // (같은 상품을 다른 유통기한으로 또 추가하는 정상적인 경우도 있어 차단은 하지 않음)
+  const dup = items.filter(it => it.code === code);
+  if(dup.length){
+    const expiries = [...new Set(dup.map(it => it.expiry))].join(', ');
+    const proceed = confirm(`이미 추가된 상품입니다 (${dup.length}건 · 유통기한: ${expiries})\n그래도 추가할까요?`);
+    if(!proceed) return;
+  }
+
+  const rows = Array.from(entryRowsWrap.querySelectorAll('.entry-row'));
+  const entries = rows.map(r => ({
+    qty: parseInt(r.querySelector('.qty-field').value) || 1,
+    expiry: r.querySelector('.expiry-field').value
+  }));
+
+  if(entries.some(en => !en.expiry)){ showToast('유통기한을 입력하세요'); return; }
+
+  entries.forEach(en => items.push({code, qty: en.qty, expiry: en.expiry}));
+  renderList();
+  showToast(entries.length > 1 ? `${entries.length}건 추가되었습니다` : '추가되었습니다');
+
+  // 다음 상품을 위해 초기화
+  currentCode = '';
+  codeDisplay.textContent = '아직 스캔된 코드가 없습니다';
+  codeDisplay.classList.add('empty');
+  manualInput.value = '';
+  resetEntryRows();
+});
+
+document.getElementById('clearBtn').addEventListener('click', ()=>{
+  if(items.length && !confirm('조사 목록을 모두 초기화할까요?')) return;
+  items = [];
+  renderList();
+});
+
+// ---- CSV 저장 ----
+document.getElementById('saveBtn').addEventListener('click', ()=>{
+  if(items.length === 0){ showToast('저장할 항목이 없습니다'); return; }
+  const today = new Date().toISOString().slice(0,10);
+  const defaultName = `expiry_survey_${today}`;
+  let fileName = prompt('저장할 파일 이름을 입력하세요 (확장자 제외)', defaultName);
+  if(fileName === null) return; // 취소
+  fileName = fileName.trim();
+  if(!fileName) fileName = defaultName;
+  // 파일 시스템에서 문제될 수 있는 특수문자 제거
+  fileName = fileName.replace(/[\\/:*?"<>|]/g, '');
+
+  const rows = [['바코드','수량','유통기한','조사일']];
+  items.forEach(it => rows.push([it.code, it.qty, it.expiry, today]));
+  const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob(['\uFEFF' + csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+
+  try{
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${fileName}.csv`;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    showToast('CSV 파일 저장을 시도했습니다');
+  }catch(e){
+    showToast('저장 중 오류가 발생했습니다');
+  }finally{
+    // iOS 등 일부 브라우저는 즉시 revoke하면 다운로드가 끊길 수 있어 지연 처리
+    setTimeout(()=>URL.revokeObjectURL(url), 4000);
+  }
+
+  setTimeout(()=>showSaveGuide(fileName), 400);
+});
+
+// ---- 카카오톡 등으로 바로 공유 (다운로드 폴더 찾기 번거로움 해소) ----
+function buildSurveyCsvFile(){
+  const today = new Date().toISOString().slice(0,10);
+  const fileName = `expiry_survey_${today}`;
+  const rows = [['바코드','수량','유통기한','조사일']];
+  items.forEach(it => rows.push([it.code, it.qty, it.expiry, today]));
+  const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob(['\uFEFF' + csv], {type:'text/csv;charset=utf-8;'});
+  const file = new File([blob], `${fileName}.csv`, {type:'text/csv'});
+  return file;
+}
+
+document.getElementById('shareBtn').addEventListener('click', async ()=>{
+  if(items.length === 0){ showToast('공유할 항목이 없습니다'); return; }
+  if(env.isInApp){
+    showToast(`${env.appName} 인앱브라우저에서는 공유가 제한됩니다 · 외부 브라우저로 열어주세요`);
+    return;
+  }
+  const file = buildSurveyCsvFile();
+  if(navigator.canShare && navigator.canShare({files:[file]})){
+    try{
+      await navigator.share({
+        files:[file],
+        title:'유통기한 조사 결과',
+        text:`유통기한 조사 결과 (${items.length}건)`
+      });
+    }catch(e){
+      if(e.name !== 'AbortError') showToast('공유 중 오류가 발생했습니다 · CSV저장을 이용해주세요');
+    }
+  }else{
+    showToast('이 브라우저는 공유 기능을 지원하지 않습니다 · CSV저장을 이용해주세요');
+  }
+});
+
+// ---- 초기 로드: 이전에 작성 중이던 목록이 있으면 복원 여부 확인 ----
+(function initItems(){
+  try{
+    const saved = localStorage.getItem(TEMP_KEY);
+    if(saved){
+      const parsed = JSON.parse(saved);
+      if(Array.isArray(parsed) && parsed.length){
+        if(confirm(`이전에 작성 중이던 조사 항목 ${parsed.length}건이 있습니다. 이어서 하시겠어요?`)){
+          items = parsed;
+        }else{
+          localStorage.removeItem(TEMP_KEY);
+        }
+      }
+    }
+  }catch(e){ /* 복원 실패 시 그냥 빈 목록으로 시작 */ }
+  renderList();
+})();
+</script>
+</body>
+</html>
