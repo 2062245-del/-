@@ -162,7 +162,7 @@ public class MainActivity extends Activity {
 
         @JavascriptInterface
         public String getAssetPart(int part) {
-            if (part < 1 || part > 3) return "";
+            if (part < 1 || part > 4) return "";
             StringBuilder out = new StringBuilder();
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(
                     getAssets().open("part" + part + ".txt"), "UTF-8"))) {
