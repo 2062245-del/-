@@ -16,6 +16,8 @@ import android.webkit.WebViewClient;
 
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.List;
 
 public class MainActivity extends Activity {
@@ -41,8 +43,6 @@ public class MainActivity extends Activity {
         s.setDatabaseEnabled(true);
         s.setAllowFileAccess(true);
         s.setAllowContentAccess(false);
-        s.setAllowFileAccessFromFileURLs(true);
-        s.setAllowUniversalAccessFromFileURLs(true);
         s.setBuiltInZoomControls(false);
         s.setDisplayZoomControls(false);
         s.setSupportZoom(false);
@@ -157,5 +157,19 @@ public class MainActivity extends Activity {
         @JavascriptInterface public void requestLocation() { runOnUiThread(() -> startLocationRequest()); }
         @JavascriptInterface public boolean isNativeApp() { return true; }
         @JavascriptInterface public String platform() { return "android"; }
+
+        @JavascriptInterface
+        public String getAssetPart(int part) {
+            if (part < 1 || part > 3) return "";
+            StringBuilder out = new StringBuilder();
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+                    getAssets().open("part" + part + ".txt"), "UTF-8"))) {
+                String line;
+                while ((line = reader.readLine()) != null) out.append(line.trim());
+                return out.toString();
+            } catch (Exception e) {
+                return "";
+            }
+        }
     }
 }
