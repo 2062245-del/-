@@ -12,7 +12,7 @@ html,body{margin:0;min-height:100%;background:#12100D;color:#f4efe6;font-family:
 </style>
 </head>
 <body>
-<div id="boot"><div><b>오늘의 코디</b><small>새 스타일 엔진을 준비하고 있습니다…</small></div></div>
+<div id="boot"><div><b>오늘의 코디</b><small>내 아바타와 스타일 엔진을 준비하고 있습니다…</small></div></div>
 <script>
 (async()=>{
   try{
@@ -28,9 +28,11 @@ html,body{margin:0;min-height:100%;background:#12100D;color:#f4efe6;font-family:
     };
 
     const base64=(AndroidApp.getAssetPart(5)+AndroidApp.getAssetPart(6)+AndroidApp.getAssetPart(7)+AndroidApp.getAssetPart(8)+AndroidApp.getAssetPart(9)+AndroidApp.getAssetPart(10)+AndroidApp.getAssetPart(3));
-    const upgrade64=(AndroidApp.getUpgradePart(1)+AndroidApp.getUpgradePart(2)+AndroidApp.getUpgradePart(3));
+    const editorial64=(AndroidApp.getUpgradePart(1)+AndroidApp.getUpgradePart(2)+AndroidApp.getUpgradePart(3));
+    const avatarTeen64=(AndroidApp.getUpgradePart(4)+AndroidApp.getUpgradePart(5)+AndroidApp.getUpgradePart(6));
     let html=await ungzipB64(base64);
-    const upgrade=await ungzipB64(upgrade64);
+    const editorial=await ungzipB64(editorial64);
+    const avatarTeen=await ungzipB64(avatarTeen64);
 
     const nativeScript='<scr'+'ipt>(function(){'+
       'window.NativeGeo={getCurrentPosition:function(success,error,options){window.__nativeGeoSuccess=function(lat,lng,acc,name){success({coords:{latitude:Number(lat),longitude:Number(lng),accuracy:Number(acc||0)},locationName:String(name||"")});};window.__nativeGeoError=function(msg){if(error)error({code:1,message:String(msg||"위치를 확인하지 못했습니다.")});};AndroidApp.requestLocation();}};'+
@@ -42,7 +44,7 @@ html,body{margin:0;min-height:100%;background:#12100D;color:#f4efe6;font-family:
     if(html.includes('</head>')) html=html.replace('</head>',nativeScript+'</head>');
     else html=nativeScript+html;
 
-    const upgradeScript='<scr'+'ipt>'+upgrade+'</scr'+'ipt>';
+    const upgradeScript='<scr'+'ipt>'+editorial+'\n'+avatarTeen+'</scr'+'ipt>';
     if(html.includes('</body>')) html=html.replace('</body>',upgradeScript+'</body>');
     else html+=upgradeScript;
 
