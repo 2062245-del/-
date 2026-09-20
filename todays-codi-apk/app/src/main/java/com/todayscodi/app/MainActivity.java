@@ -225,7 +225,7 @@ public class MainActivity extends Activity {
 
         @JavascriptInterface
         public String getUpgradePart(int part) {
-            if (part < 1 || part > 3) return "";
+            if (part < 1 || part > 6) return "";
             return readAssetText("upgrade" + part + ".txt");
         }
     }
