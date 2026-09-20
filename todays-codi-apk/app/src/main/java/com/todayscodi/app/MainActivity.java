@@ -201,6 +201,17 @@ public class MainActivity extends Activity {
         super.onDestroy();
     }
 
+    private String readAssetText(String name) {
+        StringBuilder out = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(getAssets().open(name), "UTF-8"))) {
+            String line;
+            while ((line = reader.readLine()) != null) out.append(line.trim());
+            return out.toString();
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
     public class NativeBridge {
         @JavascriptInterface public void requestLocation() { runOnUiThread(() -> startLocationRequest()); }
         @JavascriptInterface public boolean isNativeApp() { return true; }
@@ -208,16 +219,14 @@ public class MainActivity extends Activity {
 
         @JavascriptInterface
         public String getAssetPart(int part) {
-            if (part < 1 || part > 11) return "";
-            StringBuilder out = new StringBuilder();
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(
-                    getAssets().open("animpart" + part + ".txt"), "UTF-8"))) {
-                String line;
-                while ((line = reader.readLine()) != null) out.append(line.trim());
-                return out.toString();
-            } catch (Exception e) {
-                return "";
-            }
+            if (part < 1 || part > 10) return "";
+            return readAssetText("part" + part + ".txt");
+        }
+
+        @JavascriptInterface
+        public String getUpgradePart(int part) {
+            if (part < 1 || part > 3) return "";
+            return readAssetText("upgrade" + part + ".txt");
         }
     }
 }
