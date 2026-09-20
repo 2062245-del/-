@@ -4,6 +4,8 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -18,7 +20,12 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MainActivity extends Activity {
     private static final int LOCATION_REQUEST_CODE = 2301;
@@ -115,14 +122,53 @@ public class MainActivity extends Activity {
         }
     }
 
+    private String reverseGeocode(Location location) {
+        if (location == null || !Geocoder.isPresent()) return "";
+        try {
+            Geocoder geocoder = new Geocoder(this, Locale.KOREA);
+            List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+            if (addresses == null || addresses.isEmpty()) return "";
+            Address a = addresses.get(0);
+            Set<String> parts = new LinkedHashSet<>();
+            addPlacePart(parts, a.getAdminArea());
+            addPlacePart(parts, a.getSubAdminArea());
+            addPlacePart(parts, a.getLocality());
+            addPlacePart(parts, a.getSubLocality());
+
+            if (parts.size() < 2 && a.getMaxAddressLineIndex() >= 0) {
+                String line = a.getAddressLine(0);
+                if (line != null) {
+                    Pattern p = Pattern.compile("([가-힣]+(?:특별시|광역시|특별자치시|특별자치도|도|시|군|구|읍|면|동|리))");
+                    Matcher m = p.matcher(line.replace("대한민국", ""));
+                    while (m.find() && parts.size() < 3) addPlacePart(parts, m.group(1));
+                }
+            }
+            if (parts.size() < 3) addPlacePart(parts, a.getThoroughfare());
+            return String.join(" ", parts);
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    private void addPlacePart(Set<String> parts, String value) {
+        if (value == null) return;
+        String v = value.trim();
+        if (v.isEmpty() || "대한민국".equals(v)) return;
+        parts.add(v);
+    }
+
     private void sendLocation(Location location) {
         if (location == null) {
             sendLocationError("현재 위치를 확인하지 못했습니다.");
             return;
         }
-        final String js = "window.__nativeGeoSuccess && window.__nativeGeoSuccess(" +
-                location.getLatitude() + "," + location.getLongitude() + "," + location.getAccuracy() + ");";
-        runOnUiThread(() -> webView.evaluateJavascript(js, null));
+        new Thread(() -> {
+            String placeName = reverseGeocode(location);
+            final String js = "window.__nativeGeoSuccess && window.__nativeGeoSuccess(" +
+                    location.getLatitude() + "," + location.getLongitude() + "," + location.getAccuracy() + "," +
+                    JSONObject.quote(placeName) + ");";
+            runOnUiThread(() -> webView.evaluateJavascript(js, null));
+        }).start();
     }
 
     private void sendLocationError(String message) {
@@ -162,10 +208,10 @@ public class MainActivity extends Activity {
 
         @JavascriptInterface
         public String getAssetPart(int part) {
-            if (part < 1 || part > 10) return "";
+            if (part < 1 || part > 11) return "";
             StringBuilder out = new StringBuilder();
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(
-                    getAssets().open("part" + part + ".txt"), "UTF-8"))) {
+                    getAssets().open("animpart" + part + ".txt"), "UTF-8"))) {
                 String line;
                 while ((line = reader.readLine()) != null) out.append(line.trim());
                 return out.toString();
