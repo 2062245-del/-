@@ -17,8 +17,9 @@ html,body{margin:0;min-height:100%;background:#12100D;color:#f4efe6;font-family:
 (async()=>{
   try{
     if(!window.AndroidApp) throw new Error('Android 앱 브리지를 찾지 못했습니다.');
-    const b64=AndroidApp.getAssetPart(1)+AndroidApp.getAssetPart(2)+AndroidApp.getAssetPart(3);
+    const b64=(AndroidApp.getAssetPart(1)+AndroidApp.getAssetPart(2)+AndroidApp.getAssetPart(4)+AndroidApp.getAssetPart(3)).replace(/\s+/g,'');
     if(!b64) throw new Error('앱 화면 데이터를 읽지 못했습니다.');
+    if(b64.length % 4 !== 0) throw new Error('앱 화면 데이터가 손상되었습니다.');
     if(!('DecompressionStream' in window)) throw new Error('Android System WebView를 최신 버전으로 업데이트해 주세요.');
     const bytes=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
     const ds=new DecompressionStream('gzip');
