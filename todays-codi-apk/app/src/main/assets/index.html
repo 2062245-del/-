@@ -12,21 +12,28 @@ html,body{margin:0;min-height:100%;background:#12100D;color:#f4efe6;font-family:
 </style>
 </head>
 <body>
-<div id="boot"><div><b>오늘의 코디</b><small>앱을 준비하고 있습니다…</small></div></div>
+<div id="boot"><div><b>오늘의 코디</b><small>새 스타일 엔진을 준비하고 있습니다…</small></div></div>
 <script>
 (async()=>{
   try{
     if(!window.AndroidApp) throw new Error('Android 앱 브리지를 찾지 못했습니다.');
-    const b64=(AndroidApp.getAssetPart(5)+AndroidApp.getAssetPart(6)+AndroidApp.getAssetPart(7)+AndroidApp.getAssetPart(8)+AndroidApp.getAssetPart(9)+AndroidApp.getAssetPart(10)+AndroidApp.getAssetPart(3)).replace(/\s+/g,'');
-    if(!b64) throw new Error('앱 화면 데이터를 읽지 못했습니다.');
-    if(b64.length % 4 !== 0) throw new Error('앱 화면 데이터가 손상되었습니다.');
     if(!('DecompressionStream' in window)) throw new Error('Android System WebView를 최신 버전으로 업데이트해 주세요.');
-    const bytes=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
-    const ds=new DecompressionStream('gzip');
-    let html=await new Response(new Blob([bytes]).stream().pipeThrough(ds)).text();
+
+    const ungzipB64 = async (b64) => {
+      const clean=String(b64||'').replace(/\s+/g,'');
+      if(!clean || clean.length % 4 !== 0) throw new Error('앱 데이터가 손상되었습니다.');
+      const bytes=Uint8Array.from(atob(clean),c=>c.charCodeAt(0));
+      const ds=new DecompressionStream('gzip');
+      return await new Response(new Blob([bytes]).stream().pipeThrough(ds)).text();
+    };
+
+    const base64=(AndroidApp.getAssetPart(5)+AndroidApp.getAssetPart(6)+AndroidApp.getAssetPart(7)+AndroidApp.getAssetPart(8)+AndroidApp.getAssetPart(9)+AndroidApp.getAssetPart(10)+AndroidApp.getAssetPart(3));
+    const upgrade64=(AndroidApp.getUpgradePart(1)+AndroidApp.getUpgradePart(2)+AndroidApp.getUpgradePart(3));
+    let html=await ungzipB64(base64);
+    const upgrade=await ungzipB64(upgrade64);
 
     const nativeScript='<scr'+'ipt>(function(){'+
-      'window.NativeGeo={getCurrentPosition:function(success,error,options){window.__nativeGeoSuccess=function(lat,lng,acc){success({coords:{latitude:Number(lat),longitude:Number(lng),accuracy:Number(acc||0)}});};window.__nativeGeoError=function(msg){if(error)error({code:1,message:String(msg||"위치를 확인하지 못했습니다.")});};AndroidApp.requestLocation();}};'+
+      'window.NativeGeo={getCurrentPosition:function(success,error,options){window.__nativeGeoSuccess=function(lat,lng,acc,name){success({coords:{latitude:Number(lat),longitude:Number(lng),accuracy:Number(acc||0)},locationName:String(name||"")});};window.__nativeGeoError=function(msg){if(error)error({code:1,message:String(msg||"위치를 확인하지 못했습니다.")});};AndroidApp.requestLocation();}};'+
       'document.documentElement.classList.add("native-apk");'+
       'document.addEventListener("DOMContentLoaded",function(){var b=document.getElementById("installAppBtn");if(b)b.style.display="none";document.body&&document.body.setAttribute("data-native-app","android");});'+
       '})();</scr'+'ipt>';
@@ -34,6 +41,11 @@ html,body{margin:0;min-height:100%;background:#12100D;color:#f4efe6;font-family:
     html=html.replaceAll('navigator.geolocation.getCurrentPosition','window.NativeGeo.getCurrentPosition');
     if(html.includes('</head>')) html=html.replace('</head>',nativeScript+'</head>');
     else html=nativeScript+html;
+
+    const upgradeScript='<scr'+'ipt>'+upgrade+'</scr'+'ipt>';
+    if(html.includes('</body>')) html=html.replace('</body>',upgradeScript+'</body>');
+    else html+=upgradeScript;
+
     document.open();document.write(html);document.close();
   }catch(e){
     document.getElementById('boot').innerHTML='<div><b>앱을 불러오지 못했습니다.</b><small>'+String(e)+'</small></div>';
