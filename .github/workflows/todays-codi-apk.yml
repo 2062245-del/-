@@ -5,7 +5,7 @@ on:
     branches:
       - todays-codi-apk-build
     paths:
-      - 'todays-codi-apk/**'
+      - 'todays-codi-apk/build-trigger.txt'
       - '.github/workflows/todays-codi-apk.yml'
 
 permissions:
