@@ -1,3 +1,4 @@
+# Today Codi v1.0.2 hotfix builder: renderer export fix + avatar entry + large-text readability
 import argparse, base64, gzip, hashlib, pathlib, re, subprocess, zipfile
 
 p=argparse.ArgumentParser()
