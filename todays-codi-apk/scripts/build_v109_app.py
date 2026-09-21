@@ -13,14 +13,17 @@ html=html.replace('v1.0.8 · 큰 글씨','v1.0.9 · 큰 글씨')
 html=html.replace('v1.0.8 · 아바타+','v1.0.9 · 아바타+')
 html=html.replace('content="1.0.8"','content="1.0.9"',1)
 
-# Expose the exact same bust renderer used by the avatar option cards/live preview.
+# Expose the exact same bust renderer used by avatar option cards/live preview.
 needle='  function optionSvg(key, val){'
 if needle not in html:
     raise SystemExit('v1.0.9 renderBust export target not found')
 html=html.replace(needle,"  window.__todayCodiRenderBust=renderBust;\n"+needle,1)
 
-# Replace v1.0.8 no-op figure patch with a single unified face/hair renderer.
-pattern=r'''  function patchFigureFace\(\)\{\n    // v1\.0\.8: base figure renderer already contains the saved avatar face\.\n    // Do not append a second bust SVG on top of it\.\n    window\.__figureFaceV104=true;\n    window\.__todayCodiAvatarV108SingleFace=true;\n  \}'''
+# Replace the v1.0.8 no-op with one main-avatar renderer that reuses renderBust.
+start=html.find('  function patchFigureFace(){')
+end=html.find('  function afterRender()',start)
+if start<0 or end<0:
+    raise SystemExit('v1.0.9 figure renderer target not found')
 replacement='''  function patchFigureFace(){
     if(window.__figureFaceV109 || typeof window.buildFigureSVG!=='function') return;
     window.__figureFaceV109=true;
@@ -35,13 +38,10 @@ replacement='''  function patchFigureFace(){
       return svg.replace('</g></svg>',cover+bust+'</g></svg>');
     };
     window.__todayCodiAvatarV109UnifiedHair=true;
-  }'''
-html2,n=re.subn(pattern,replacement,html,count=1)
-if n!=1:
-    raise SystemExit('v1.0.9 figure renderer target not found')
-html=html2
+  }\n'''
+html=html[:start]+replacement+html[end:]
 
-# Force hair selection to persist by stable keys, never by option index.
+# Persist hair by stable key so preview/save/main avatar all use the same value.
 hair_sync=r'''<script id="v109-hair-key-sync">
 (function(){
   const valid=new Set(['crop','side','textured','wave','bob','long','pixie','curtain','ponytail','bun','straight','layered']);
@@ -60,9 +60,6 @@ hair_sync=r'''<script id="v109-hair-key-sync">
     if(!btn) return;
     const key=applyKey(btn.dataset.value);
     btn.dataset.value=key;
-    setTimeout(function(){
-      if(typeof window.updateModalPreview==='function') window.updateModalPreview();
-    },0);
   },true);
   window.__todayCodiAvatarV109HairKeySync=true;
 })();
