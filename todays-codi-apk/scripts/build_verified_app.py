@@ -15,6 +15,23 @@ html=gzip.decompress(base64.b64decode(base64_src)).decode('utf-8')
 editorial=gzip.decompress(base64.b64decode(editorial64)).decode('utf-8')
 avatar=gzip.decompress(base64.b64decode(avatar64)).decode('utf-8')
 
+# CRITICAL v1.0.2 FIX:
+# The editorial upgrade originally declared renderTicket only inside its IIFE.
+# That meant the old global renderer kept drawing the legacy lookbook, and the
+# avatar enhancer could not find the new editorialFigure/lookSwitcher nodes.
+# Export the editorial renderer to window BEFORE the avatar upgrade wraps it.
+editorial_marker='window.__TODAY_CODI_EDITORIAL_V1__=true;'
+if editorial_marker not in editorial:
+    raise SystemExit('Editorial export marker missing')
+editorial=editorial.replace(editorial_marker,'window.renderTicket=renderTicket;\n'+editorial_marker,1)
+
+# Make avatar editor accessible even before generating a look.
+avatar_entry_needle="window.openAvatarEditor=function(){buildModal();document.getElementById('avatarModal').classList.add('open')};"
+if avatar_entry_needle not in avatar:
+    raise SystemExit('Avatar editor entry marker missing')
+avatar_entry_patch=avatar_entry_needle+'''\n  function ensureAvatarHeaderEntry(){\n    if(document.getElementById('avatarHeaderBtn')) return;\n    const host=document.querySelector('.masthead-right') || document.querySelector('.masthead');\n    if(!host) return;\n    const btn=document.createElement('button');\n    btn.id='avatarHeaderBtn';\n    btn.type='button';\n    btn.className='mast-btn avatar-header-btn';\n    btn.textContent='내 아바타';\n    btn.addEventListener('click',window.openAvatarEditor);\n    host.insertBefore(btn,host.firstChild);\n  }\n  ensureAvatarHeaderEntry();'''
+avatar=avatar.replace(avatar_entry_needle,avatar_entry_patch,1)
+
 native='''<script id="native-apk-bridge">
 (function(){
   if(!window.AndroidApp) return;
@@ -24,16 +41,41 @@ native='''<script id="native-apk-bridge">
     AndroidApp.requestLocation();
   }};
   document.documentElement.classList.add('native-apk');
-  document.addEventListener('DOMContentLoaded',function(){var b=document.getElementById('installAppBtn');if(b)b.style.display='none';document.body&&document.body.setAttribute('data-native-app','android');});
+  document.addEventListener('DOMContentLoaded',function(){
+    var b=document.getElementById('installAppBtn');if(b)b.style.display='none';
+    document.body&&document.body.setAttribute('data-native-app','android');
+    var host=document.querySelector('.masthead-right')||document.querySelector('.masthead');
+    if(host&&!document.getElementById('versionReadabilityBadge')){
+      var badge=document.createElement('span');
+      badge.id='versionReadabilityBadge';
+      badge.className='version-readability-badge';
+      badge.textContent='v1.0.2 · 큰 글씨';
+      host.appendChild(badge);
+    }
+  });
 })();
 </script>'''
 
+readability='''<style id="readability-v102">
+/* v1.0.2 presbyopia-friendly readability layer */
+.version-readability-badge{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:7px 11px;border-radius:999px;border:1px solid rgba(255,139,103,.35);background:rgba(255,139,103,.12);color:#ff9a78;font-size:12px;font-weight:700;letter-spacing:.02em;white-space:nowrap}
+.avatar-header-btn{border-color:rgba(255,139,103,.42)!important;color:#fff3ea!important;background:rgba(255,139,103,.12)!important;font-weight:700!important}
+label,.hint,.section-label,.figure-caption,.look-item .look-label,.look-item .sub,.fabric-line,.option-label,.match-sentence,.history-card,.block-kicker,.weather-summary-title,.weather-summary-sub,.weather-summary-item span,.hour-time,.hour-sky,.hour-rain,.weather-mini-note,.weather-ticket-item span,.location-mode-note,.daypart-label,.daypart-weather,.daypart-style,.tpo-detail-head span,.outdoor-ratio-top,.tpo-ticket p{line-height:1.62!important}
+@media (max-width:640px){
+  .masthead-right{row-gap:10px!important}
+  .version-readability-badge{font-size:12px;padding:7px 10px}
+  .chip{min-height:38px!important;display:inline-flex!important;align-items:center!important}
+  .mast-btn,.ghost-btn,.primary-btn{min-height:40px!important}
+  input,select,textarea{min-height:44px!important}
+}
+</style>'''
+
 html=html.replace('navigator.geolocation.getCurrentPosition','window.NativeGeo.getCurrentPosition')
-html=html.replace('</head>',native+'\n</head>',1) if '</head>' in html else native+html
+html=html.replace('</head>',native+'\n'+readability+'\n</head>',1) if '</head>' in html else native+readability+html
 upgrades='<script id="today-codi-verified-upgrades">'+editorial+'\n'+avatar+'</script>'
 html=html.replace('</body>',upgrades+'\n</body>',1) if '</body>' in html else html+upgrades
 
-# v1.0.1 removes continuous horizontal/sweeping effects while keeping vertical weather effects.
+# Remove all continuous horizontal/sweeping ambience while keeping rain/snow vertical.
 replacements={
 '@keyframes panelSheen{0%,72%,100%{transform:translateX(-115%)}84%{transform:translateX(115%)}}':'@keyframes panelSheen{0%,100%{opacity:0}50%{opacity:.08}}',
 '#weatherFx .fx-drop{position:absolute;top:-15vh;width:1px;height:12vh;background:linear-gradient(transparent,rgba(189,218,255,.58));transform:rotate(8deg);animation:rainFall linear infinite;}':'#weatherFx .fx-drop{position:absolute;top:-15vh;width:1px;height:12vh;background:linear-gradient(transparent,rgba(189,218,255,.58));animation:rainFall linear infinite;}',
@@ -46,14 +88,24 @@ replacements={
 "el.className='fx-wind'":"el.className='fx-wind-disabled'",
 }
 for old,new in replacements.items(): html=html.replace(old,new)
-html=html.replace('<title>오늘의 코디</title>','<title>오늘의 코디</title><meta name="today-codi-version" content="1.0.1"><meta name="today-codi-features" content="avatar,editorial-lookbook,teen,native-location,no-horizontal-weather,fashion-icon">',1)
+html=html.replace('<title>오늘의 코디</title>','<title>오늘의 코디</title><meta name="today-codi-version" content="1.0.2"><meta name="today-codi-features" content="avatar,editorial-lookbook,teen,native-location,no-horizontal-weather,fashion-icon,large-text,renderer-export-fix">',1)
 
-required=['내 아바타','학교·학원','친구 약속','LOOK 01','SOFT AUTHORITY','window.NativeGeo.getCurrentPosition','content="1.0.1"']
+required=[
+    '내 아바타','학교·학원','친구 약속','LOOK 01','SOFT AUTHORITY',
+    'window.NativeGeo.getCurrentPosition','content="1.0.2"',
+    'window.renderTicket=renderTicket;','avatarHeaderBtn','v1.0.2 · 큰 글씨','readability-v102'
+]
 missing=[x for x in required if x not in html]
 if missing: raise SystemExit('Missing required markers: '+repr(missing))
 forbidden=['animation:cloudDrift','animation:windSweep','translateX(150vw)','translateX(28vw)']
 found=[x for x in forbidden if x in html]
 if found: raise SystemExit('Forbidden motion markers remain: '+repr(found))
+
+# Ordering regression gate: editorial export MUST appear before avatar wrapper captures window.renderTicket.
+export_pos=html.find('window.renderTicket=renderTicket;')
+wrapper_pos=html.find('window.__originalRenderTicket=window.renderTicket;')
+if not (export_pos >= 0 and wrapper_pos > export_pos):
+    raise SystemExit(f'Renderer export ordering invalid: export={export_pos}, wrapper={wrapper_pos}')
 
 scripts=re.findall(r'<script\b[^>]*>(.*?)</script>',html,re.S|re.I)
 if len(scripts)!=3: raise SystemExit(f'Expected exactly 3 inline scripts, found {len(scripts)}')
@@ -68,4 +120,7 @@ out.write_text(html,encoding='utf-8')
 digest=hashlib.sha256(out.read_bytes()).hexdigest()
 print('APP_HTML_SHA256='+digest)
 print('APP_HTML_BYTES='+str(len(out.read_bytes())))
+print('RENDERER_EXPORT_ORDER=PASS')
+print('AVATAR_HEADER_ENTRY=PASS')
+print('LARGE_TEXT_LAYER=PASS')
 print('APP_QA=PASS')
