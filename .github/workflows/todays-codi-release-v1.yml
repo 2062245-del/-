@@ -17,6 +17,8 @@ env:
   ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
   ANDROID_COMPILE_SDK: '35'
   ANDROID_BUILD_TOOLS: '35.0.0'
+  APP_HTML_SHA256: '7a696e0d2631e8c514c244e45f66e9ef5ef1155cd43b27254f8fe160538f33da'
+  V100_CERT_SHA256: '33d58c26e621bb6142156ae5dcdb6dc2afdc138ddf0ef7f355db792987ad27de'
 
 jobs:
   release-apk:
@@ -41,183 +43,125 @@ jobs:
         with:
           gradle-version: '8.9'
 
+      - name: Restore and validate single app source
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd todays-codi-apk
+          base64 -d app-v1.0.1.html.gz.b64 | gzip -d > app/src/main/assets/app.html
+          echo "$APP_HTML_SHA256  app/src/main/assets/app.html" | sha256sum -c -
+
+          grep -q 'content="1.0.1"' app/src/main/assets/app.html
+          grep -q '내 아바타' app/src/main/assets/app.html
+          grep -q '학교·학원' app/src/main/assets/app.html
+          grep -q '친구 약속' app/src/main/assets/app.html
+          grep -q 'LOOK 01' app/src/main/assets/app.html
+          grep -q 'SOFT AUTHORITY' app/src/main/assets/app.html
+          grep -q 'window.NativeGeo.getCurrentPosition' app/src/main/assets/app.html
+
+          ! grep -q 'animation:cloudDrift' app/src/main/assets/app.html
+          ! grep -q 'animation:windSweep' app/src/main/assets/app.html
+          ! grep -q 'translateX(150vw)' app/src/main/assets/app.html
+          ! grep -q 'translateX(28vw)' app/src/main/assets/app.html
+
+          python3 - <<'PY'
+          import re, pathlib, subprocess
+          html=pathlib.Path('app/src/main/assets/app.html').read_text(encoding='utf-8')
+          scripts=re.findall(r'<script(?:\\s[^>]*)?>(.*?)</script>',html,re.S|re.I)
+          assert len(scripts)>=4
+          for i,script in enumerate(scripts):
+              p=pathlib.Path(f'/tmp/today-codi-script-{i}.js')
+              p.write_text(script,encoding='utf-8')
+              subprocess.run(['node','--check',str(p)],check=True)
+          print('SINGLE SOURCE QA: PASS')
+          PY
+
       - name: Build unsigned release APK
         working-directory: todays-codi-apk
         run: gradle :app:assembleRelease --stacktrace
 
-      - name: Restore verified avatar assets and remove horizontal ambience
+      - name: Restore v1.0.0 signing identity
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          mkdir -p verified-artifact verified-apk patch/assets
-
-          # Known-good test APK from the user-tested avatar + teen build.
+          mkdir -p signing-v100
           curl -L --fail \
             -H "Authorization: Bearer $GH_TOKEN" \
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
-            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/10611486029/zip" \
-            -o verified-artifact.zip
-          unzip -q verified-artifact.zip -d verified-artifact
-          VERIFIED_APK=$(find verified-artifact -type f -name '*.apk' | head -n 1)
-          test -n "$VERIFIED_APK"
-
-          for n in 4 5 6; do
-            unzip -p "$VERIFIED_APK" "assets/upgrade${n}.txt" > "patch/assets/upgrade${n}.txt"
-            test -s "patch/assets/upgrade${n}.txt"
-          done
-
-          # Use the release bootstrap, but load one tiny cleanup patch after all style/avatar patches.
-          UNSIGNED="todays-codi-apk/app/build/outputs/apk/release/app-release-unsigned.apk"
-          unzip -p "$UNSIGNED" assets/index.html > patch/assets/index.html
-          python3 - <<'PY'
-          from pathlib import Path
-          p=Path('patch/assets/index.html')
-          s=p.read_text(encoding='utf-8')
-          old="if(html.includes('</body>')) html=html.replace('</body>',upgradeScript+'</body>');"
-          new="if(html.includes('</body>')) html=html.replace('</body>',upgradeScript+'<scr'+'ipt src=\"release-cleanup.js\"></scr'+'ipt></body>');"
-          if old not in s:
-              raise SystemExit('bootstrap injection point not found')
-          p.write_text(s.replace(old,new),encoding='utf-8')
-          PY
-
-          cat > patch/assets/release-cleanup.js <<'EOF'
-          (function(){
-            try{
-              if(window.__todayCodiReleaseCleanupV1) return;
-              window.__todayCodiReleaseCleanupV1=true;
-              const style=document.createElement('style');
-              style.id='today-codi-release-cleanup-v1';
-              style.textContent=`
-                .console-block::before{display:none!important;animation:none!important;transform:none!important;}
-                #weatherFx .fx-cloud,#weatherFx .fx-wind{display:none!important;animation:none!important;}
-                #weatherFx{transform:none!important;}
-                body[data-weather-motion="cloud"] #weatherFx::before{
-                  content:"";position:absolute;inset:0;pointer-events:none;
-                  background:radial-gradient(ellipse at 28% 18%,rgba(205,214,219,.08),transparent 34%),radial-gradient(ellipse at 76% 42%,rgba(205,214,219,.055),transparent 38%);
-                  filter:blur(8px);
-                }
-              `;
-              document.head.appendChild(style);
-              function clean(){const fx=document.getElementById('weatherFx');if(!fx)return;fx.querySelectorAll('.fx-cloud,.fx-wind').forEach(el=>el.remove());}
-              clean();
-              const fx=document.getElementById('weatherFx');
-              if(fx)new MutationObserver(clean).observe(fx,{childList:true});
-              if(typeof window.setWeatherMotion==='function'&&!window.__todayCodiReleaseWeatherWrapped){
-                const original=window.setWeatherMotion;
-                window.setWeatherMotion=function(){const r=original.apply(this,arguments);clean();return r;};
-                window.__todayCodiReleaseWeatherWrapped=true;
-              }
-            }catch(e){console.warn('Today Codi release cleanup skipped',e);}
-          })();
-          EOF
-
-          cp "$UNSIGNED" release-candidate.apk
-          zip -q -d release-candidate.apk assets/upgrade4.txt assets/upgrade5.txt assets/upgrade6.txt assets/index.html || true
-          (
-            cd patch
-            zip -q -u ../release-candidate.apk assets/upgrade4.txt assets/upgrade5.txt assets/upgrade6.txt assets/index.html assets/release-cleanup.js
-          )
-
-          # Validate the exact patch bytes inside the release candidate before signing.
-          python3 - <<'PY'
-          import base64,gzip,hashlib,zipfile
-          with zipfile.ZipFile('release-candidate.apk') as z:
-              parts=[z.read(f'assets/upgrade{i}.txt').decode().strip() for i in (4,5,6)]
-              raw=gzip.decompress(base64.b64decode(''.join(parts)))
-              idx=z.read('assets/index.html').decode('utf-8')
-              cleanup=z.read('assets/release-cleanup.js').decode('utf-8')
-          print('verified avatar patch bytes:',len(raw))
-          print('verified avatar patch sha256:',hashlib.sha256(raw).hexdigest())
-          assert len(raw)==26366
-          assert hashlib.sha256(raw).hexdigest()=='6211032608c3615a90bf82c5ae961306aa9117d13687042b3343499e163114c3'
-          assert 'release-cleanup.js' in idx
-          assert 'fx-cloud,#weatherFx .fx-wind' in cleanup
-          print('release candidate asset verification: PASS')
-          PY
-
-      - name: Generate private release signing key
-        shell: bash
-        run: |
-          set -euo pipefail
-          PASS=$(openssl rand -hex 20)
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/10612040656/zip" \
+            -o signing-v100.zip
+          unzip -q signing-v100.zip -d signing-v100
+          test -s signing-v100/today-codi-release.jks
+          PASS=$(sed -n 's/^Store password: //p' signing-v100/서명정보.txt | head -n1)
+          test -n "$PASS"
           echo "TODAY_CODI_STORE_PASS=$PASS" >> "$GITHUB_ENV"
-          keytool -genkeypair -v \
-            -keystore today-codi-release.jks \
-            -storepass "$PASS" \
-            -keypass "$PASS" \
-            -alias todaycodi \
-            -keyalg RSA \
-            -keysize 4096 \
-            -validity 10000 \
-            -dname "CN=Today Codi, OU=Personal App, O=Today Codi, L=Seoul, ST=Seoul, C=KR"
-          chmod 600 today-codi-release.jks
+          cp signing-v100/today-codi-release.jks ./today-codi-release.jks
 
-      - name: Align and sign release APK
+      - name: Align and sign v1.0.1
         shell: bash
         run: |
           set -euo pipefail
           BT="$ANDROID_HOME/build-tools/$ANDROID_BUILD_TOOLS"
-          "$BT/zipalign" -f -p 4 release-candidate.apk app-release-aligned.apk
+          "$BT/zipalign" -f -p 4 todays-codi-apk/app/build/outputs/apk/release/app-release-unsigned.apk app-release-aligned.apk
           "$BT/apksigner" sign \
             --ks today-codi-release.jks \
             --ks-key-alias todaycodi \
             --ks-pass "pass:$TODAY_CODI_STORE_PASS" \
             --key-pass "pass:$TODAY_CODI_STORE_PASS" \
-            --out "오늘의 코디 v1.0.0.apk" \
+            --out "오늘의 코디 v1.0.1.apk" \
             app-release-aligned.apk
-          "$BT/apksigner" verify --verbose --print-certs "오늘의 코디 v1.0.0.apk" | tee signing-verification.txt
-          "$BT/zipalign" -c -v 4 "오늘의 코디 v1.0.0.apk"
+          "$BT/apksigner" verify --verbose --print-certs "오늘의 코디 v1.0.1.apk" | tee signing-verification-v1.0.1.txt
+          "$BT/zipalign" -c -v 4 "오늘의 코디 v1.0.1.apk"
+          grep -qi "$V100_CERT_SHA256" signing-verification-v1.0.1.txt
 
-      - name: Final APK asset verification
+      - name: Final APK regression gate
         shell: bash
         run: |
           set -euo pipefail
-          python3 - <<'PY'
-          import base64,gzip,hashlib,zipfile
-          apk='오늘의 코디 v1.0.0.apk'
-          with zipfile.ZipFile(apk) as z:
-              s=''.join(z.read(f'assets/upgrade{i}.txt').decode().strip() for i in (4,5,6))
-              raw=gzip.decompress(base64.b64decode(s))
-              cleanup=z.read('assets/release-cleanup.js').decode('utf-8')
-          assert hashlib.sha256(raw).hexdigest()=='6211032608c3615a90bf82c5ae961306aa9117d13687042b3343499e163114c3'
-          assert 'fx-cloud,#weatherFx .fx-wind' in cleanup
-          print('FINAL APK ASSET VERIFY PASS')
-          PY
+          rm -rf final-apk-check && mkdir final-apk-check
+          unzip -q "오늘의 코디 v1.0.1.apk" -d final-apk-check
+          test -s final-apk-check/assets/app.html
+          echo "$APP_HTML_SHA256  final-apk-check/assets/app.html" | sha256sum -c -
+          grep -q '내 아바타' final-apk-check/assets/app.html
+          grep -q '학교·학원' final-apk-check/assets/app.html
+          grep -q 'LOOK 01' final-apk-check/assets/app.html
+          grep -q 'SOFT AUTHORITY' final-apk-check/assets/app.html
+          ! grep -q 'animation:cloudDrift' final-apk-check/assets/app.html
+          ! grep -q 'animation:windSweep' final-apk-check/assets/app.html
 
-      - name: Prepare signing backup
+          BT="$ANDROID_HOME/build-tools/$ANDROID_BUILD_TOOLS"
+          "$BT/aapt" dump badging "오늘의 코디 v1.0.1.apk" | tee apk-badging.txt
+          grep -q "versionCode='2'" apk-badging.txt
+          grep -q "versionName='1.0.1'" apk-badging.txt
+          grep -q "package: name='com.todayscodi.app'" apk-badging.txt
+          echo 'FINAL APK REGRESSION GATE: PASS'
+
+      - name: Prepare QA report
         shell: bash
         run: |
-          set -euo pipefail
-          mkdir -p signing-backup
-          cp today-codi-release.jks signing-backup/
           {
-            echo "오늘의 코디 Android Release 서명키"
-            echo "앱 ID: com.todayscodi.app"
-            echo "버전: 1.0.0 (versionCode 1)"
-            echo "키 파일: today-codi-release.jks"
-            echo "Alias: todaycodi"
-            echo "Store password: $TODAY_CODI_STORE_PASS"
-            echo "Key password: $TODAY_CODI_STORE_PASS"
-            echo
-            echo "중요: 이 파일과 비밀번호를 잃어버리면 기존 설치 앱 위에 업데이트할 수 없습니다. 외부에 공유하지 마세요."
-          } > signing-backup/서명정보.txt
-          cp signing-verification.txt signing-backup/
+            echo '오늘의 코디 v1.0.1 QA'
+            echo 'Single app.html architecture: PASS'
+            echo 'Avatar UI marker: PASS'
+            echo 'Editorial LOOK marker: PASS'
+            echo 'Teen mode marker: PASS'
+            echo 'Horizontal cloud/wind animation removed: PASS'
+            echo 'Native location bridge marker: PASS'
+            echo 'app.html SHA-256: 7a696e0d2631e8c514c244e45f66e9ef5ef1155cd43b27254f8fe160538f33da'
+            echo 'v1.0.0 signing certificate reused: PASS'
+            echo 'Version: 1.0.1 (versionCode 2)'
+          } > '오늘의 코디 v1.0.1 QA.txt'
 
       - name: Upload release APK
         uses: actions/upload-artifact@v4
         with:
-          name: today-codi-release-v1-final
-          path: 오늘의 코디 v1.0.0.apk
-          if-no-files-found: error
-          retention-days: 90
-
-      - name: Upload signing backup
-        uses: actions/upload-artifact@v4
-        with:
-          name: today-codi-signing-backup-final
-          path: signing-backup/
+          name: today-codi-v1.0.1-release
+          path: |
+            오늘의 코디 v1.0.1.apk
+            오늘의 코디 v1.0.1 QA.txt
+            signing-verification-v1.0.1.txt
           if-no-files-found: error
           retention-days: 90
