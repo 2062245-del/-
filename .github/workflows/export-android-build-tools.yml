@@ -1,0 +1,33 @@
+name: Export Android Build Tools
+
+on:
+  push:
+    branches: [todays-codi-apk-build]
+    paths:
+      - 'todays-codi-apk/export-tools-trigger.txt'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install Android build tools
+        run: |
+          export ANDROID_HOME=/usr/local/lib/android/sdk
+          export ANDROID_SDK_ROOT=/usr/local/lib/android/sdk
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "build-tools;35.0.0"
+          tar -C "$ANDROID_HOME/build-tools" -czf android-build-tools-35.0.0.tar.gz 35.0.0
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android-build-tools-35.0.0
+          path: android-build-tools-35.0.0.tar.gz
+          retention-days: 1
