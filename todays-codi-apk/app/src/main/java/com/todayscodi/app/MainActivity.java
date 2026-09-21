@@ -27,6 +27,7 @@ import java.util.regex.Pattern;
 
 public class MainActivity extends Activity {
     private static final int LOCATION_REQUEST_CODE = 2301;
+    private static final int DEFAULT_TEXT_ZOOM = 125;
     private WebView webView;
     private LocationManager locationManager;
     private boolean pendingLocationRequest = false;
@@ -55,11 +56,14 @@ public class MainActivity extends Activity {
         s.setSupportZoom(false);
         s.setUseWideViewPort(true);
         s.setLoadWithOverviewMode(true);
+        s.setTextZoom(DEFAULT_TEXT_ZOOM);
+        s.setCacheMode(WebSettings.LOAD_NO_CACHE);
 
+        webView.clearCache(true);
         webView.addJavascriptInterface(new NativeBridge(), "AndroidApp");
         webView.setWebViewClient(new WebViewClient());
         webView.setOverScrollMode(WebView.OVER_SCROLL_NEVER);
-        webView.loadUrl("file:///android_asset/app.html");
+        webView.loadUrl("file:///android_asset/app.html?v=102");
     }
 
     private boolean hasLocationPermission() {
@@ -203,5 +207,10 @@ public class MainActivity extends Activity {
         @JavascriptInterface public void requestLocation() { runOnUiThread(() -> startLocationRequest()); }
         @JavascriptInterface public boolean isNativeApp() { return true; }
         @JavascriptInterface public String platform() { return "android"; }
+        @JavascriptInterface public int defaultTextZoom() { return DEFAULT_TEXT_ZOOM; }
+        @JavascriptInterface public void setTextZoom(int percent) {
+            int safe = Math.max(100, Math.min(150, percent));
+            runOnUiThread(() -> webView.getSettings().setTextZoom(safe));
+        }
     }
 }
