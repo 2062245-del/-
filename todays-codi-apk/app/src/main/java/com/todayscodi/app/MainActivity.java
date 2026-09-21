@@ -18,8 +18,6 @@ import android.webkit.WebViewClient;
 
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -61,7 +59,7 @@ public class MainActivity extends Activity {
         webView.addJavascriptInterface(new NativeBridge(), "AndroidApp");
         webView.setWebViewClient(new WebViewClient());
         webView.setOverScrollMode(WebView.OVER_SCROLL_NEVER);
-        webView.loadUrl("file:///android_asset/index.html");
+        webView.loadUrl("file:///android_asset/app.html");
     }
 
     private boolean hasLocationPermission() {
@@ -201,32 +199,9 @@ public class MainActivity extends Activity {
         super.onDestroy();
     }
 
-    private String readAssetText(String name) {
-        StringBuilder out = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(getAssets().open(name), "UTF-8"))) {
-            String line;
-            while ((line = reader.readLine()) != null) out.append(line.trim());
-            return out.toString();
-        } catch (Exception e) {
-            return "";
-        }
-    }
-
     public class NativeBridge {
         @JavascriptInterface public void requestLocation() { runOnUiThread(() -> startLocationRequest()); }
         @JavascriptInterface public boolean isNativeApp() { return true; }
         @JavascriptInterface public String platform() { return "android"; }
-
-        @JavascriptInterface
-        public String getAssetPart(int part) {
-            if (part < 1 || part > 10) return "";
-            return readAssetText("part" + part + ".txt");
-        }
-
-        @JavascriptInterface
-        public String getUpgradePart(int part) {
-            if (part < 1 || part > 6) return "";
-            return readAssetText("upgrade" + part + ".txt");
-        }
     }
 }
