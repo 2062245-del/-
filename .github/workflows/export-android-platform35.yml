@@ -1,0 +1,29 @@
+name: Export Android Platform 35
+
+on:
+  push:
+    branches: [todays-codi-apk-build]
+    paths:
+      - 'todays-codi-apk/export-platform35-trigger.txt'
+      - '.github/workflows/export-android-platform35.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Android platform 35
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-35"
+      - name: Pack platform
+        run: tar -czf android-platform-35.tar.gz -C "$ANDROID_HOME/platforms" android-35
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android-platform-35
+          path: android-platform-35.tar.gz
+          retention-days: 1
