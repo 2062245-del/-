@@ -13,13 +13,11 @@ html=html.replace('v1.0.8 · 큰 글씨','v1.0.9 · 큰 글씨')
 html=html.replace('v1.0.8 · 아바타+','v1.0.9 · 아바타+')
 html=html.replace('content="1.0.8"','content="1.0.9"',1)
 
-# Expose the exact same bust renderer used by avatar option cards/live preview.
 needle='  function optionSvg(key, val){'
 if needle not in html:
     raise SystemExit('v1.0.9 renderBust export target not found')
 html=html.replace(needle,"  window.__todayCodiRenderBust=renderBust;\n"+needle,1)
 
-# Replace the v1.0.8 no-op with one main-avatar renderer that reuses renderBust.
 start=html.find('  function patchFigureFace(){')
 end=html.find('  function afterRender()',start)
 if start<0 or end<0:
@@ -32,7 +30,7 @@ replacement='''  function patchFigureFace(){
       let svg=old.apply(this,arguments);
       const p=window.__avatarProfile||{};
       if(typeof window.__todayCodiRenderBust!=='function') return svg;
-      let bust=window.__todayCodiRenderBust(p).replace(/<path d="M15 69[^>]+\\\/>/,'');
+      let bust=window.__todayCodiRenderBust(p).replace('<path d="M15 69c5-8 14-11 17-11s12 3 17 11" fill="#8a8a90" opacity=".95"/>','');
       bust=bust.replace('<svg viewBox="0 0 64 72"','<svg x="98" y="24" width="64" height="72" viewBox="0 0 64 72"');
       const cover='<rect x="94" y="20" width="72" height="82" rx="28" fill="#9F9F9F"/>';
       return svg.replace('</g></svg>',cover+bust+'</g></svg>');
@@ -41,7 +39,6 @@ replacement='''  function patchFigureFace(){
   }\n'''
 html=html[:start]+replacement+html[end:]
 
-# Persist hair by stable key so preview/save/main avatar all use the same value.
 hair_sync=r'''<script id="v109-hair-key-sync">
 (function(){
   const valid=new Set(['crop','side','textured','wave','bob','long','pixie','curtain','ponytail','bun','straight','layered']);
