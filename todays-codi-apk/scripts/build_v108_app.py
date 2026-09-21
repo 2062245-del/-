@@ -13,26 +13,17 @@ html=html.replace('v1.0.7 · 큰 글씨','v1.0.8 · 큰 글씨')
 html=html.replace('v1.0.7 · 아바타+','v1.0.8 · 아바타+')
 html=html.replace('content="1.0.7"','content="1.0.8"',1)
 
-old_face='''  function patchFigureFace(){
-    if(window.__figureFaceV104 || typeof window.buildFigureSVG!=='function') return;
-    window.__figureFaceV104=true;
-    const old=window.buildFigureSVG;
-    window.buildFigureSVG=function(){
-      let svg=old.apply(this,arguments); const p=window.__avatarProfile||{};
-      let bust=renderBust(p).replace(/<path d="M15 69[^>]+\\\/>/,'');
-      bust=bust.replace('<svg viewBox="0 0 64 72"','<svg x="98" y="27" width="64" height="72" viewBox="0 0 64 72"');
-      return svg.replace('</g></svg>',bust+'</g></svg>');
-    };
-  }'''
+start=html.find('  function patchFigureFace(){')
+end=html.find('  function afterRender()', start)
+if start<0 or end<0:
+    raise SystemExit('v1.0.8 duplicate-face function not found')
 new_face='''  function patchFigureFace(){
-    // v1.0.8: base figure renderer already contains the saved avatar face.
-    // Do not append a second bust SVG on top of it.
+    // v1.0.8: buildFigureSVG already renders the saved avatar face.
+    // Disable the old second bust overlay to prevent double eyes/nose/mouth/glasses.
     window.__figureFaceV104=true;
     window.__todayCodiAvatarV108SingleFace=true;
-  }'''
-if old_face not in html:
-    raise SystemExit('v1.0.8 duplicate-face target not found')
-html=html.replace(old_face,new_face,1)
+  }\n'''
+html=html[:start]+new_face+html[end:]
 
 html=html.replace('</body>','<script id="v108-single-face-marker">window.__todayCodiAvatarV108SingleFaceBuild=true;</script>\n</body>',1)
 required=['v1.0.8 · 큰 글씨','v1.0.8 · 아바타+','__todayCodiAvatarV108SingleFace','v108-single-face-marker','__todayCodiAvatarV107GlassesContrast','__todayCodiAvatarV106ViewportFix']
