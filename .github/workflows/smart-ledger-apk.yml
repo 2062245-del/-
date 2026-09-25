@@ -1,0 +1,233 @@
+name: Build Smart Ledger APK
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout build branch
+        uses: actions/checkout@v4
+        with:
+          ref: smart-ledger-apk-build
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android platform
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+
+      - name: Generate Android project
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p app/src/main/java/com/seungho/smartledger
+          mkdir -p app/src/main/assets
+          mkdir -p app/src/main/res/drawable
+          mkdir -p app/src/main/res/values
+
+          cat smart-ledger-build/payload/*.b64 | base64 -d | gunzip > app/src/main/assets/index.html
+          echo "d671e072d93b043e4b38faff8daa6981a1562d4e8cb59e6b9d6713fb2750029f  app/src/main/assets/index.html" | sha256sum -c -
+          curl -fL --retry 3 https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js -o app/src/main/assets/xlsx.full.min.js
+
+          cat > settings.gradle <<'EOF'
+          pluginManagement {
+              repositories { google(); mavenCentral(); gradlePluginPortal() }
+          }
+          dependencyResolutionManagement {
+              repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+              repositories { google(); mavenCentral() }
+          }
+          rootProject.name = 'SmartLedger'
+          include ':app'
+          EOF
+
+          cat > build.gradle <<'EOF'
+          plugins {
+              id 'com.android.application' version '8.7.3' apply false
+          }
+          EOF
+
+          cat > gradle.properties <<'EOF'
+          org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
+          android.useAndroidX=false
+          EOF
+
+          cat > app/build.gradle <<'EOF'
+          plugins { id 'com.android.application' }
+          android {
+              namespace 'com.seungho.smartledger'
+              compileSdk 35
+              defaultConfig {
+                  applicationId 'com.seungho.smartledger'
+                  minSdk 26
+                  targetSdk 35
+                  versionCode 1
+                  versionName '1.0.0'
+              }
+              compileOptions {
+                  sourceCompatibility JavaVersion.VERSION_17
+                  targetCompatibility JavaVersion.VERSION_17
+              }
+          }
+          EOF
+
+          cat > app/src/main/res/values/styles.xml <<'EOF'
+          <resources>
+              <style name="AppTheme" parent="android:style/Theme.Material.Light.NoActionBar">
+                  <item name="android:fontFamily">sans</item>
+                  <item name="android:windowLightStatusBar">true</item>
+                  <item name="android:statusBarColor">#FAF7F1</item>
+                  <item name="android:navigationBarColor">#FAF7F1</item>
+              </style>
+          </resources>
+          EOF
+
+          cat > app/src/main/res/drawable/ic_launcher.xml <<'EOF'
+          <vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
+              <path android:fillColor="#FAF7F1" android:pathData="M0,0h108v108h-108z"/>
+              <path android:fillColor="#D42B11" android:pathData="M54,10a44,44 0,1 0,0 88a44,44 0,1 0,0 -88"/>
+              <path android:fillColor="#FFFFFF" android:pathData="M29,35h43c5.5,0 10,4.5 10,10v29c0,5.5 -4.5,10 -10,10h-43c-5.5,0 -10,-4.5 -10,-10v-29c0,-5.5 4.5,-10 10,-10z"/>
+              <path android:fillColor="#FFC72C" android:pathData="M61,48h22v23h-22c-6.4,0 -11.5,-5.1 -11.5,-11.5S54.6,48 61,48z"/>
+              <path android:fillColor="#191933" android:pathData="M62,56a3.5,3.5 0,1 0,0 7a3.5,3.5 0,1 0,0 -7"/>
+          </vector>
+          EOF
+
+          cat > app/src/main/AndroidManifest.xml <<'EOF'
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+              <uses-permission android:name="android.permission.INTERNET" />
+              <application android:allowBackup="true" android:label="스마트 가계부" android:icon="@drawable/ic_launcher" android:roundIcon="@drawable/ic_launcher" android:theme="@style/AppTheme" android:usesCleartextTraffic="false">
+                  <activity android:name=".MainActivity" android:exported="true">
+                      <intent-filter>
+                          <action android:name="android.intent.action.MAIN" />
+                          <category android:name="android.intent.category.LAUNCHER" />
+                      </intent-filter>
+                  </activity>
+              </application>
+          </manifest>
+          EOF
+
+          cat > app/src/main/java/com/seungho/smartledger/MainActivity.java <<'EOF'
+          package com.seungho.smartledger;
+
+          import android.app.Activity;
+          import android.content.Intent;
+          import android.graphics.Color;
+          import android.net.Uri;
+          import android.os.Bundle;
+          import android.view.View;
+          import android.webkit.JavascriptInterface;
+          import android.webkit.ValueCallback;
+          import android.webkit.WebChromeClient;
+          import android.webkit.WebSettings;
+          import android.webkit.WebView;
+          import android.webkit.WebViewClient;
+          import android.widget.Toast;
+          import java.io.OutputStream;
+          import java.nio.charset.StandardCharsets;
+
+          public class MainActivity extends Activity {
+              private static final int FILE_CHOOSER_REQUEST = 2001;
+              private static final int SAVE_BACKUP_REQUEST = 2002;
+              private WebView webView;
+              private ValueCallback<Uri[]> filePathCallback;
+              private String pendingBackupJson;
+
+              @Override protected void onCreate(Bundle savedInstanceState) {
+                  super.onCreate(savedInstanceState);
+                  getWindow().setStatusBarColor(Color.parseColor("#FAF7F1"));
+                  getWindow().setNavigationBarColor(Color.parseColor("#FAF7F1"));
+                  getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+                  webView = new WebView(this);
+                  setContentView(webView);
+                  WebSettings settings = webView.getSettings();
+                  settings.setJavaScriptEnabled(true);
+                  settings.setDomStorageEnabled(true);
+                  settings.setAllowFileAccess(true);
+                  settings.setAllowContentAccess(true);
+                  settings.setBuiltInZoomControls(false);
+                  settings.setDisplayZoomControls(false);
+                  settings.setSupportZoom(false);
+                  settings.setMediaPlaybackRequiresUserGesture(true);
+                  webView.addJavascriptInterface(new AndroidBridge(), "AndroidBridge");
+                  webView.setWebViewClient(new WebViewClient());
+                  webView.setWebChromeClient(new WebChromeClient() {
+                      @Override public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> callback, FileChooserParams params) {
+                          if (filePathCallback != null) filePathCallback.onReceiveValue(null);
+                          filePathCallback = callback;
+                          Intent intent;
+                          try { intent = params.createIntent(); }
+                          catch (Exception e) { intent = new Intent(Intent.ACTION_OPEN_DOCUMENT); intent.addCategory(Intent.CATEGORY_OPENABLE); intent.setType("*/*"); }
+                          try { startActivityForResult(intent, FILE_CHOOSER_REQUEST); return true; }
+                          catch (Exception e) { filePathCallback = null; Toast.makeText(MainActivity.this, "파일 선택기를 열 수 없습니다.", Toast.LENGTH_SHORT).show(); return false; }
+                      }
+                  });
+                  if (savedInstanceState == null) webView.loadUrl("file:///android_asset/index.html");
+                  else webView.restoreState(savedInstanceState);
+              }
+
+              @Override protected void onSaveInstanceState(Bundle outState) { webView.saveState(outState); super.onSaveInstanceState(outState); }
+              @Override public void onBackPressed() { if (webView.canGoBack()) webView.goBack(); else super.onBackPressed(); }
+
+              @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+                  super.onActivityResult(requestCode, resultCode, data);
+                  if (requestCode == FILE_CHOOSER_REQUEST) {
+                      if (filePathCallback != null) { Uri[] results = WebChromeClient.FileChooserParams.parseResult(resultCode, data); filePathCallback.onReceiveValue(results); filePathCallback = null; }
+                      return;
+                  }
+                  if (requestCode == SAVE_BACKUP_REQUEST) {
+                      if (resultCode == RESULT_OK && data != null && data.getData() != null && pendingBackupJson != null) {
+                          try (OutputStream os = getContentResolver().openOutputStream(data.getData())) {
+                              if (os == null) throw new IllegalStateException("output stream unavailable");
+                              os.write(pendingBackupJson.getBytes(StandardCharsets.UTF_8)); os.flush();
+                              Toast.makeText(this, "백업 파일을 저장했습니다.", Toast.LENGTH_SHORT).show();
+                              webView.evaluateJavascript("var s=document.getElementById('backupStatus');if(s)s.textContent='백업 파일을 저장했어요. 안전한 곳에 보관해주세요.';", null);
+                          } catch (Exception e) { Toast.makeText(this, "백업 파일 저장에 실패했습니다.", Toast.LENGTH_LONG).show(); }
+                      }
+                      pendingBackupJson = null;
+                  }
+              }
+
+              public class AndroidBridge {
+                  @JavascriptInterface public void saveBackup(String fileName, String jsonText) {
+                      runOnUiThread(() -> {
+                          pendingBackupJson = jsonText;
+                          Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+                          intent.addCategory(Intent.CATEGORY_OPENABLE);
+                          intent.setType("application/json");
+                          intent.putExtra(Intent.EXTRA_TITLE, fileName == null || fileName.isEmpty() ? "스마트가계부_백업.json" : fileName);
+                          startActivityForResult(intent, SAVE_BACKUP_REQUEST);
+                      });
+                  }
+              }
+          }
+          EOF
+
+      - name: Build debug APK
+        run: gradle :app:assembleDebug --stacktrace
+
+      - name: Prepare APK artifact
+        run: cp app/build/outputs/apk/debug/app-debug.apk "스마트가계부.apk"
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: SmartLedger-APK
+          path: 스마트가계부.apk
+          if-no-files-found: error
+          retention-days: 7
