@@ -46,14 +46,20 @@ jobs:
           unzip -q /tmp/base-project.zip -d /tmp/project
           test -f /tmp/project/daebak-generator-android-v1.1/app/build.gradle
 
-      - name: Apply V7 final patch
+      - name: Apply V7 final patch and package conflict hotfix
         shell: bash
         run: |
           cat daebak-final/chunks/v7patch_*.b64 | base64 -d | gzip -d > /tmp/v7.patch
           test $(wc -c < /tmp/v7.patch) -gt 50000
           cd /tmp/project/daebak-generator-android-v1.1
           patch -p1 < /tmp/v7.patch
-          grep -q "7.0-android.1" app/build.gradle
+          sed -i "s/applicationId 'com.daebak.generator'/applicationId 'com.daebak.generator.v7'/" app/build.gradle
+          sed -i "s/versionCode 4/versionCode 5/" app/build.gradle
+          sed -i "s/versionName '7.0-android.1'/versionName '7.0-android.2'/" app/build.gradle
+          sed -i 's/android:label="대박 생성기"/android:label="대박 생성기 V7"/' app/src/main/AndroidManifest.xml
+          grep -q "applicationId 'com.daebak.generator.v7'" app/build.gradle
+          grep -q "7.0-android.2" app/build.gradle
+          grep -q "대박 생성기 V7" app/src/main/AndroidManifest.xml
           grep -q "대박 생성기 V7.0" app/src/main/assets/index.html
           test -f app/src/main/java/com/daebak/generator/ReminderReceiver.java
 
@@ -74,7 +80,7 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: daebak-generator-v7.0-android-final
+          name: daebak-generator-v7.0-android-final-installfix
           path: /tmp/project/daebak-generator-android-v1.1/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 7
