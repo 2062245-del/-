@@ -1,0 +1,23 @@
+name: Diagnose Daebak Project ZIP
+
+on:
+  push:
+    branches: [ daebak-apk-build-v2 ]
+  workflow_dispatch:
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reconstruct ZIP
+        run: |
+          cat daebak-android/chunk_*.b64 | base64 -d > /tmp/project.zip
+          ls -lh /tmp/project.zip
+          sha256sum /tmp/project.zip
+      - name: Upload reconstructed ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: daebak-reconstructed-project
+          path: /tmp/project.zip
+          retention-days: 7
