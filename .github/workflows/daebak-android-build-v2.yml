@@ -24,10 +24,23 @@ jobs:
         with:
           gradle-version: '8.9'
 
-      - name: Restore project
+      - name: Reconstruct project ZIP
         shell: bash
         run: |
           cat daebak-android/chunk_*.b64 | base64 -d > /tmp/project.zip
+          ls -lh /tmp/project.zip
+          sha256sum /tmp/project.zip
+
+      - name: Upload reconstructed ZIP for integrity check
+        uses: actions/upload-artifact@v4
+        with:
+          name: daebak-reconstructed-project
+          path: /tmp/project.zip
+          retention-days: 7
+
+      - name: Restore project
+        shell: bash
+        run: |
           mkdir -p /tmp/project
           unzip -q /tmp/project.zip -d /tmp/project
           test -f /tmp/project/daebak-generator-android-v1.1/app/build.gradle
