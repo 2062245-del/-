@@ -1,0 +1,53 @@
+name: Build Daebak Android APK v2
+
+on:
+  push:
+    branches: [ daebak-apk-build-v2 ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle 8.9
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Restore project
+        shell: bash
+        run: |
+          cat daebak-android/chunk_*.b64 | base64 -d > /tmp/project.zip
+          mkdir -p /tmp/project
+          unzip -q /tmp/project.zip -d /tmp/project
+          test -f /tmp/project/daebak-generator-android-v1.1/app/build.gradle
+
+      - name: Build debug APK
+        working-directory: /tmp/project/daebak-generator-android-v1.1
+        run: gradle --no-daemon clean assembleDebug
+
+      - name: Verify APK
+        shell: bash
+        run: |
+          APK=/tmp/project/daebak-generator-android-v1.1/app/build/outputs/apk/debug/app-debug.apk
+          test -f "$APK"
+          ls -lh "$APK"
+          sha256sum "$APK"
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: daebak-generator-v6.3-android-debug
+          path: /tmp/project/daebak-generator-android-v1.1/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 7
