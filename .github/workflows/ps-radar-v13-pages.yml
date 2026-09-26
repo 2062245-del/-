@@ -1,0 +1,65 @@
+name: PS Radar V13 Pages
+
+on:
+  push:
+    branches: [ps-radar-v13-pages]
+    paths:
+      - 'ps-radar-v13-runtime.part*'
+      - '.github/workflows/ps-radar-v13-pages.yml'
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: ps-radar-pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout PS Radar branch
+        uses: actions/checkout@v6
+        with:
+          ref: ps-radar-v13-pages
+
+      - name: Rebuild site bundle
+        run: |
+          mkdir -p site
+          cat ps-radar-v13-runtime.part* | base64 -d > /tmp/ps-radar-v13.tgz
+          tar -xzf /tmp/ps-radar-v13.tgz -C site
+
+      - name: Refresh PlayStation official feed
+        continue-on-error: true
+        working-directory: site
+        run: node scripts/sync.mjs
+
+      - name: Refresh PS Plus discovery data
+        continue-on-error: true
+        working-directory: site
+        run: node scripts/sync-discovery.mjs
+
+      - name: Refresh PS Store snapshot
+        continue-on-error: true
+        working-directory: site
+        run: node scripts/sync-static-store.mjs
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
