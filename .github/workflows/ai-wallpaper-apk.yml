@@ -30,25 +30,24 @@ jobs:
           cd /tmp/ai_wallpaper
           flutter create --platforms=android --org com.seungho --project-name ai_wallpaper_generator .
 
-          cat "${GITHUB_WORKSPACE}/ai-wallpaper-build/payload/main.gz.part1" \
-              "${GITHUB_WORKSPACE}/ai-wallpaper-build/payload/main.gz.part2" \
-              "${GITHUB_WORKSPACE}/ai-wallpaper-build/payload/main.gz.part3" \
+          cat "${GITHUB_WORKSPACE}/ai-wallpaper-build/payload/main21.gz.part1" \
+              "${GITHUB_WORKSPACE}/ai-wallpaper-build/payload/main21.gz.part2" \
+              "${GITHUB_WORKSPACE}/ai-wallpaper-build/payload/main21.gz.part3" \
+              "${GITHUB_WORKSPACE}/ai-wallpaper-build/payload/main21.gz.part4" \
             | gunzip > lib/main.dart
 
           cat "${GITHUB_WORKSPACE}/ai-wallpaper-build/payload/widget_test.b64.gz" \
             | base64 -d | gunzip > test/widget_test.dart
 
           mkdir -p android/app/src/main/kotlin/com/seungho/ai_wallpaper_generator
-          cat "${GITHUB_WORKSPACE}/ai-wallpaper-build/payload/mainactivity.b64.gz" \
-            | base64 -d | gunzip \
-            | sed 's/package com\.example\.aiwallpaper/package com.seungho.ai_wallpaper_generator/' \
-            > android/app/src/main/kotlin/com/seungho/ai_wallpaper_generator/MainActivity.kt
+          cp "${GITHUB_WORKSPACE}/ai-wallpaper-build/payload/MainActivity21.kt" \
+             android/app/src/main/kotlin/com/seungho/ai_wallpaper_generator/MainActivity.kt
 
           cat > pubspec.yaml <<'PUBEOF'
           name: ai_wallpaper_generator
-          description: "Android AI Wallpaper Generator - Stage 2"
+          description: "Android AI Wallpaper Generator - Stage 2.1"
           publish_to: "none"
-          version: 0.2.0+2
+          version: 0.2.1+3
 
           environment:
             sdk: ">=3.5.0 <4.0.0"
@@ -114,16 +113,16 @@ jobs:
         shell: bash
         run: |
           set -euxo pipefail
-          cp /tmp/ai_wallpaper/build/app/outputs/flutter-apk/app-release.apk "${GITHUB_WORKSPACE}/AI-Wallpaper-Stage2.apk"
+          cp /tmp/ai_wallpaper/build/app/outputs/flutter-apk/app-release.apk "${GITHUB_WORKSPACE}/AI-Wallpaper-Stage2.1.apk"
           APK_SIGNER="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -1)"
           test -n "$APK_SIGNER"
-          "$APK_SIGNER" verify --verbose "${GITHUB_WORKSPACE}/AI-Wallpaper-Stage2.apk"
-          sha256sum "${GITHUB_WORKSPACE}/AI-Wallpaper-Stage2.apk"
+          "$APK_SIGNER" verify --verbose "${GITHUB_WORKSPACE}/AI-Wallpaper-Stage2.1.apk"
+          sha256sum "${GITHUB_WORKSPACE}/AI-Wallpaper-Stage2.1.apk"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: AI-Wallpaper-Stage2-APK
-          path: AI-Wallpaper-Stage2.apk
+          name: AI-Wallpaper-Stage2.1-APK
+          path: AI-Wallpaper-Stage2.1.apk
           if-no-files-found: error
           retention-days: 7
