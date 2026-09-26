@@ -1,0 +1,2 @@
+Smart Ledger v1.1.0 rebuild after payload integrity verification.
+Payload chunks 00-04 verified against local Git blob SHAs.
