@@ -1,0 +1,292 @@
+      _imageBytes = null;
+    });
+
+    try {
+      final bytes = await AiImageService.generate(
+        prompt: widget.prompt,
+        stylePrompt: widget.style.promptHint,
+        ratio: widget.ratio,
+      );
+      if (!mounted) return;
+      setState(() {
+        _imageBytes = bytes;
+        _loading = false;
+      });
+    } on AiGenerationException catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _loading = false;
+        _error = e.message;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _loading = false;
+        _error = '이미지 생성 중 예상하지 못한 오류가 발생했습니다.';
+      });
+    }
+  }
+
+  Future<void> _chooseWallpaperTarget() async {
+    final bytes = _imageBytes;
+    if (bytes == null || _applying) return;
+
+    final target = await showModalBottomSheet<WallpaperTarget>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('어디에 적용할까요?', style: Theme.of(context).textTheme.titleLarge),
+                const SizedBox(height: 16),
+                _TargetTile(
+                  icon: Icons.home_outlined,
+                  title: '홈 화면',
+                  subtitle: '앱 아이콘 뒤의 배경화면으로 적용',
+                  onTap: () => Navigator.of(context).pop(WallpaperTarget.home),
+                ),
+                _TargetTile(
+                  icon: Icons.lock_outline_rounded,
+                  title: '잠금 화면',
+                  subtitle: '잠금화면 배경으로 적용',
+                  onTap: () => Navigator.of(context).pop(WallpaperTarget.lock),
+                ),
+                _TargetTile(
+                  icon: Icons.phonelink_lock_rounded,
+                  title: '홈 + 잠금 화면',
+                  subtitle: '두 화면에 한 번에 적용',
+                  onTap: () => Navigator.of(context).pop(WallpaperTarget.both),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    if (target == null || !mounted) return;
+    setState(() => _applying = true);
+    try {
+      await NativeBridge.applyWallpaper(bytes, target);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('배경화면 적용이 완료되었습니다.')),
+      );
+    } on PlatformException catch (e) {
+      if (!mounted) return;
+      final message = e.code == 'UNSUPPORTED'
+          ? '이 Android 버전에서는 선택한 적용 방식이 지원되지 않습니다.'
+          : '배경화면 적용에 실패했습니다. ${e.message ?? ''}'.trim();
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    } finally {
+      if (mounted) setState(() => _applying = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        foregroundColor: Colors.white,
+        title: const Text('미리보기'),
+        actions: [
+          if (_imageBytes != null)
+            IconButton(
+              tooltip: _showOverlay ? '가이드 숨기기' : '가이드 보기',
+              onPressed: () => setState(() => _showOverlay = !_showOverlay),
+              icon: Icon(_showOverlay ? Icons.layers_rounded : Icons.layers_outlined),
+            ),
+        ],
+      ),
+      body: SafeArea(
+        top: false,
+        child: Stack(
+          children: [
+            Positioned.fill(child: _buildMainContent()),
+            if (_imageBytes != null)
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Colors.transparent, Colors.black.withValues(alpha: 0.92)],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
+                  ),
+                  padding: const EdgeInsets.fromLTRB(18, 58, 18, 14),
+                  child: SafeArea(
+                    top: false,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: _loading ? null : _generate,
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              side: BorderSide(color: Colors.white.withValues(alpha: 0.38)),
+                              minimumSize: const Size.fromHeight(56),
+                            ),
+                            icon: const Icon(Icons.refresh_rounded),
+                            label: const Text('다시 생성'),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          flex: 2,
+                          child: FilledButton.icon(
+                            onPressed: _applying ? null : _chooseWallpaperTarget,
+                            style: FilledButton.styleFrom(
+                              backgroundColor: scheme.primary,
+                              foregroundColor: scheme.onPrimary,
+                            ),
+                            icon: _applying
+                                ? const SizedBox(
+                                    width: 18,
+                                    height: 18,
+                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                  )
+                                : const Icon(Icons.wallpaper_rounded),
+                            label: Text(_applying ? '적용 중' : '배경화면 적용'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMainContent() {
+    if (_loading) {
+      return _AuroraLoading(
+        animation: _pulseController,
+        prompt: widget.prompt,
+      );
+    }
+
+    if (_error != null) {
+      return ColoredBox(
+        color: const Color(0xFF0E0E12),
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(28),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.cloud_off_rounded, color: Colors.white70, size: 48),
+                const SizedBox(height: 18),
+                const Text('생성에 실패했습니다.', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800)),
+                const SizedBox(height: 10),
+                Text(_error!, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white70, height: 1.45)),
+                const SizedBox(height: 24),
+                FilledButton.icon(onPressed: _generate, icon: const Icon(Icons.refresh_rounded), label: const Text('다시 시도')),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    final bytes = _imageBytes!;
+    return GestureDetector(
+      onTap: () => setState(() => _showOverlay = !_showOverlay),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.memory(bytes, fit: BoxFit.cover, gaplessPlayback: true),
+          if (_showOverlay) ...[
+            const Positioned(top: 58, left: 0, right: 0, child: _ClockOverlay()),
+            const Positioned(left: 24, right: 24, bottom: 104, child: _AppDockOverlay()),
+            Positioned(
+              top: 18,
+              left: 18,
+              child: DecoratedBox(
+                decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.35), borderRadius: BorderRadius.circular(999)),
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 11, vertical: 7),
+                  child: Text('시스템 가이드 ON', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700)),
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class AiImageService {
+  AiImageService._();
+
+  static Future<Uint8List> generate({
+    required String prompt,
+    required String stylePrompt,
+    required String ratio,
+  }) async {
+    final size = _sizeForRatio(ratio);
+    final enhancedPrompt = [
+      prompt,
+      stylePrompt,
+      'premium Android smartphone wallpaper',
+      'portrait composition',
+      'clean negative space near the top for lock-screen clock',
+      'important subject away from bottom app dock',
+      'no text, no watermark, no logo',
+      'high detail, polished lighting',
+    ].join(', ');
+
+    for (var attempt = 0; attempt < 2; attempt++) {
+      try {
+        return await _generateOnce(enhancedPrompt, size.$1, size.$2);
+      } on _FreeServerBusyException {
+        if (attempt == 1) {
+          throw const AiGenerationException(
+            '무료 이미지 생성 서버가 현재 혼잡합니다. 잠시 뒤 다시 시도해 주세요. 결제 전환은 하지 않습니다.',
+          );
+        }
+        await Future<void>.delayed(const Duration(seconds: 4));
+      }
+    }
+
+    throw const AiGenerationException('무료 이미지 생성에 실패했습니다. 다시 시도해 주세요.');
+  }
+
+  static Future<Uint8List> _generateOnce(String prompt, int width, int height) async {
+    final uri = Uri.parse('https://image.pollinations.ai/prompt/${Uri.encodeComponent(prompt)}').replace(
+      queryParameters: {
+        'model': 'flux',
+        'width': '$width',
+        'height': '$height',
+        'seed': '${DateTime.now().microsecondsSinceEpoch % 1000000000}',
+        'safe': 'true',
+        'nologo': 'true',
+        'enhance': 'false',
+      },
+    );
+
+    final client = HttpClient()..connectionTimeout = const Duration(seconds: 20);
+    try {
+      final request = await client.getUrl(uri).timeout(const Duration(seconds: 25));
+      request.headers.set(HttpHeaders.acceptHeader, 'image/*');
+      final response = await request.close().timeout(const Duration(seconds: 150));
+
+      if (response.statusCode == 402 || response.statusCode == 429 || response.statusCode == 503) {
+        await response.drain<void>();
+        throw const _FreeServerBusyException();
+      }
+      if (response.statusCode == 401 || response.statusCode == 403) {
+        await response.drain<void>();
+        throw const AiGenerationException('무료 익명 생성 요청이 현재 제한되었습니다. 잠시 뒤 다시 시도해 주세요.');
