@@ -1,0 +1,33 @@
+name: Export Android Signing Tools
+
+on:
+  push:
+    branches:
+      - ai-wallpaper-apk-build
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Package Android signing tools
+        shell: bash
+        run: |
+          set -euxo pipefail
+          BT="$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -1)"
+          test -n "$BT"
+          mkdir -p android-signing-tools/lib
+          cp "$BT/apksigner" android-signing-tools/apksigner
+          cp "$BT/lib/apksigner.jar" android-signing-tools/lib/apksigner.jar
+          if [ -f "$BT/zipalign" ]; then cp "$BT/zipalign" android-signing-tools/zipalign; fi
+          chmod +x android-signing-tools/apksigner || true
+          if [ -f android-signing-tools/zipalign ]; then chmod +x android-signing-tools/zipalign; fi
+          "$BT/apksigner" version
+
+      - name: Upload Android signing tools
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-signing-tools
+          path: android-signing-tools
+          if-no-files-found: error
+          retention-days: 7
