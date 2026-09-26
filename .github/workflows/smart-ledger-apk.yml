@@ -47,7 +47,7 @@ jobs:
 
           cat smart-ledger-build/payload/*.b64 | base64 -d | gunzip > app/src/main/assets/index.html
           echo "c74876377128822d3d1898e9a3241a2464dc85b60a63ecc7614e4d56918ec154  app/src/main/assets/index.html" | sha256sum -c -
-          base64 -d smart-ledger-build/v1.2-app.patch.gz.b64 | gunzip > /tmp/v1.2-app.patch
+          cat smart-ledger-build/v12patch/*.b64 | base64 -d | gunzip > /tmp/v1.2-app.patch
           patch app/src/main/assets/index.html < /tmp/v1.2-app.patch
           echo "2f156461274ea837f50926a5e11631e070a9c869cad1b281c63f98a3f0965ad5  app/src/main/assets/index.html" | sha256sum -c -
           curl -fL --retry 3 https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js -o app/src/main/assets/xlsx.full.min.js
