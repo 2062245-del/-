@@ -32,17 +32,22 @@ jobs:
 
           cat "${GITHUB_WORKSPACE}/ai-wallpaper-build/payload/main.part1" \
               "${GITHUB_WORKSPACE}/ai-wallpaper-build/payload/main.part2" \
-              "${GITHUB_WORKSPACE}/ai-wallpaper-build/payload/main.part3" \
             | base64 -d | gunzip > lib/main.dart
 
           cat "${GITHUB_WORKSPACE}/ai-wallpaper-build/payload/widget_test.b64.gz" \
             | base64 -d | gunzip > test/widget_test.dart
 
-          cat > pubspec.yaml <<'EOF'
+          mkdir -p android/app/src/main/kotlin/com/seungho/ai_wallpaper_generator
+          cat "${GITHUB_WORKSPACE}/ai-wallpaper-build/payload/mainactivity.b64.gz" \
+            | base64 -d | gunzip \
+            | sed 's/package com\.example\.aiwallpaper/package com.seungho.ai_wallpaper_generator/' \
+            > android/app/src/main/kotlin/com/seungho/ai_wallpaper_generator/MainActivity.kt
+
+          cat > pubspec.yaml <<'PUBEOF'
           name: ai_wallpaper_generator
-          description: "Android AI Wallpaper Generator - Material 3 Stage 1"
+          description: "Android AI Wallpaper Generator - Stage 2"
           publish_to: "none"
-          version: 0.1.0+1
+          version: 0.2.0+2
 
           environment:
             sdk: ">=3.5.0 <4.0.0"
@@ -59,7 +64,7 @@ jobs:
 
           flutter:
             uses-material-design: true
-          EOF
+          PUBEOF
 
           python3 - <<'PY'
           from pathlib import Path
@@ -73,8 +78,20 @@ jobs:
                   '    <uses-permission android:name="android.permission.INTERNET" />\n'
                   '    <uses-permission android:name="android.permission.SET_WALLPAPER" />'
               )
+          text = text.replace('android:icon="@mipmap/ic_launcher"', 'android:icon="@drawable/ai_wallpaper_icon"')
           manifest.write_text(text)
           PY
+
+          cat > android/app/src/main/res/drawable/ai_wallpaper_icon.xml <<'ICONEOF'
+          <vector xmlns:android="http://schemas.android.com/apk/res/android"
+              android:width="108dp" android:height="108dp"
+              android:viewportWidth="108" android:viewportHeight="108">
+              <path android:fillColor="#151022" android:pathData="M54,4A50,50 0,1 0,54,104A50,50 0,1 0,54,4"/>
+              <path android:fillColor="#7C5CFC" android:pathData="M54,18A36,36 0,1 0,54,90A36,36 0,1 0,54,18"/>
+              <path android:fillColor="#FFFFFF" android:pathData="M54,27L59.5,44.5L77,50L59.5,55.5L54,73L48.5,55.5L31,50L48.5,44.5Z"/>
+              <path android:fillColor="#F7C8FF" android:pathData="M74,25L76.2,31.8L83,34L76.2,36.2L74,43L71.8,36.2L65,34L71.8,31.8Z"/>
+          </vector>
+          ICONEOF
 
       - name: Install dependencies
         working-directory: /tmp/ai_wallpaper
@@ -96,16 +113,16 @@ jobs:
         shell: bash
         run: |
           set -euxo pipefail
-          cp /tmp/ai_wallpaper/build/app/outputs/flutter-apk/app-release.apk "${GITHUB_WORKSPACE}/AI-Wallpaper-Stage1.apk"
+          cp /tmp/ai_wallpaper/build/app/outputs/flutter-apk/app-release.apk "${GITHUB_WORKSPACE}/AI-Wallpaper-Stage2.apk"
           APK_SIGNER="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -1)"
           test -n "$APK_SIGNER"
-          "$APK_SIGNER" verify --verbose "${GITHUB_WORKSPACE}/AI-Wallpaper-Stage1.apk"
-          sha256sum "${GITHUB_WORKSPACE}/AI-Wallpaper-Stage1.apk"
+          "$APK_SIGNER" verify --verbose "${GITHUB_WORKSPACE}/AI-Wallpaper-Stage2.apk"
+          sha256sum "${GITHUB_WORKSPACE}/AI-Wallpaper-Stage2.apk"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: AI-Wallpaper-APK
-          path: AI-Wallpaper-Stage1.apk
+          name: AI-Wallpaper-Stage2-APK
+          path: AI-Wallpaper-Stage2.apk
           if-no-files-found: error
           retention-days: 7
