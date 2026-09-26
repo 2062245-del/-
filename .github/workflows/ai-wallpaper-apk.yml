@@ -30,11 +30,12 @@ jobs:
           cd /tmp/ai_wallpaper
           flutter create --platforms=android --org com.seungho --project-name ai_wallpaper_generator .
 
-          cat "${GITHUB_WORKSPACE}/ai-wallpaper-build/payload/main21.gz.part1" \
-              "${GITHUB_WORKSPACE}/ai-wallpaper-build/payload/main21.gz.part2" \
-              "${GITHUB_WORKSPACE}/ai-wallpaper-build/payload/main21.gz.part3" \
-              "${GITHUB_WORKSPACE}/ai-wallpaper-build/payload/main21.gz.part4" \
-            | gunzip > lib/main.dart
+          cat "${GITHUB_WORKSPACE}/ai-wallpaper-build/payload/main21.part1.dart" \
+              "${GITHUB_WORKSPACE}/ai-wallpaper-build/payload/main21.part2.dart" \
+              "${GITHUB_WORKSPACE}/ai-wallpaper-build/payload/main21.part3.dart" \
+              "${GITHUB_WORKSPACE}/ai-wallpaper-build/payload/main21.part4.dart" \
+            > lib/main.dart
+          echo "124e59c1b91b73cd163eaac314fd37ba8d8116ff256fea55b3009a94eedc2e58  lib/main.dart" | sha256sum -c -
 
           cat "${GITHUB_WORKSPACE}/ai-wallpaper-build/payload/widget_test.b64.gz" \
             | base64 -d | gunzip > test/widget_test.dart
