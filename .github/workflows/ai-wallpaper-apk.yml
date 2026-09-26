@@ -1,0 +1,111 @@
+name: Build AI Wallpaper APK
+
+on:
+  push:
+    branches:
+      - ai-wallpaper-apk-build
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout build branch
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter 3.47.3
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.3'
+          channel: 'stable'
+          cache: true
+
+      - name: Generate Flutter Android project
+        shell: bash
+        run: |
+          set -euxo pipefail
+          rm -rf /tmp/ai_wallpaper
+          mkdir -p /tmp/ai_wallpaper
+          cd /tmp/ai_wallpaper
+          flutter create --platforms=android --org com.seungho --project-name ai_wallpaper_generator .
+
+          cat "${GITHUB_WORKSPACE}/ai-wallpaper-build/payload/main.part1" \
+              "${GITHUB_WORKSPACE}/ai-wallpaper-build/payload/main.part2" \
+              "${GITHUB_WORKSPACE}/ai-wallpaper-build/payload/main.part3" \
+            | base64 -d | gunzip > lib/main.dart
+
+          cat "${GITHUB_WORKSPACE}/ai-wallpaper-build/payload/widget_test.b64.gz" \
+            | base64 -d | gunzip > test/widget_test.dart
+
+          cat > pubspec.yaml <<'EOF'
+          name: ai_wallpaper_generator
+          description: "Android AI Wallpaper Generator - Material 3 Stage 1"
+          publish_to: "none"
+          version: 0.1.0+1
+
+          environment:
+            sdk: ">=3.5.0 <4.0.0"
+
+          dependencies:
+            flutter:
+              sdk: flutter
+            cupertino_icons: ^1.0.8
+
+          dev_dependencies:
+            flutter_test:
+              sdk: flutter
+            flutter_lints: ^5.0.0
+
+          flutter:
+            uses-material-design: true
+          EOF
+
+          python3 - <<'PY'
+          from pathlib import Path
+          manifest = Path('android/app/src/main/AndroidManifest.xml')
+          text = manifest.read_text()
+          text = text.replace('android:label="ai_wallpaper_generator"', 'android:label="AI 배경화면"')
+          if 'android.permission.SET_WALLPAPER' not in text:
+              text = text.replace(
+                  '<manifest xmlns:android="http://schemas.android.com/apk/res/android">',
+                  '<manifest xmlns:android="http://schemas.android.com/apk/res/android">\n'
+                  '    <uses-permission android:name="android.permission.INTERNET" />\n'
+                  '    <uses-permission android:name="android.permission.SET_WALLPAPER" />'
+              )
+          manifest.write_text(text)
+          PY
+
+      - name: Install dependencies
+        working-directory: /tmp/ai_wallpaper
+        run: flutter pub get
+
+      - name: Flutter analyze
+        working-directory: /tmp/ai_wallpaper
+        run: flutter analyze
+
+      - name: Flutter widget tests
+        working-directory: /tmp/ai_wallpaper
+        run: flutter test
+
+      - name: Build release APK
+        working-directory: /tmp/ai_wallpaper
+        run: flutter build apk --release
+
+      - name: Verify APK signature and checksum
+        shell: bash
+        run: |
+          set -euxo pipefail
+          cp /tmp/ai_wallpaper/build/app/outputs/flutter-apk/app-release.apk "${GITHUB_WORKSPACE}/AI-Wallpaper-Stage1.apk"
+          APK_SIGNER="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -1)"
+          test -n "$APK_SIGNER"
+          "$APK_SIGNER" verify --verbose "${GITHUB_WORKSPACE}/AI-Wallpaper-Stage1.apk"
+          sha256sum "${GITHUB_WORKSPACE}/AI-Wallpaper-Stage1.apk"
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: AI-Wallpaper-APK
+          path: AI-Wallpaper-Stage1.apk
+          if-no-files-found: error
+          retention-days: 7
