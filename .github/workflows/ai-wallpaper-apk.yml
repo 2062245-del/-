@@ -38,6 +38,17 @@ jobs:
 
           echo "09ad3249e81801fd9d991d14b44390fdd1017e3ebd483e83d7c2a1ca4854da4d  lib/main.dart" | sha256sum -c -
 
+          python3 - <<'PYFIX'
+          from pathlib import Path
+          path = Path('lib/main.dart')
+          text = path.read_text()
+          block = "\n  void _showMessage(String message) {\n    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));\n  }\n"
+          if block not in text:
+              raise SystemExit('expected _showMessage block not found')
+          path.write_text(text.replace(block, ''))
+          PYFIX
+          echo "2b3f0bb0e2fed74fc4c04c0bf79db1a4c1415aeab2d67557cc94e08ebf6b5f42  lib/main.dart" | sha256sum -c -
+
           cat "${GITHUB_WORKSPACE}/ai-wallpaper-build/payload/widget_test.b64.gz" \
             | base64 -d | gunzip > test/widget_test.dart
           sed -i "s/AI 배경화면 만들기/무료 AI 배경화면 만들기/" test/widget_test.dart
