@@ -74,31 +74,25 @@ async function collectForKind(page,kind){
   const parsed=parseAlphabetList(text);
   const selected=await page.locator('[class*="select_current-value-content"]').allInnerTexts().catch(()=>[]);
   const h3=await page.locator('h2,h3').allInnerTexts().catch(()=>[]);
-  return {
-    titles:parsed.titles, letters:parsed.letters, score:parsed.score,
-    url:page.url(), httpStatus:res?.status()||null,
-    selected:selected.map(normalize).filter(Boolean).slice(0,12),
-    headings:h3.map(normalize).filter(Boolean).slice(0,30),
-    fingerprint:fingerprint(parsed.titles)
-  };
+  return {titles:parsed.titles,letters:parsed.letters,score:parsed.score,url:page.url(),httpStatus:res?.status()||null,selected:selected.map(normalize).filter(Boolean).slice(0,12),headings:h3.map(normalize).filter(Boolean).slice(0,30),fingerprint:fingerprint(parsed.titles)};
 }
 
 function buildItems(kind,titles){
-  return titles.map(title=>({
-    id:slugId(kind.type,title),title,type:kind.type,categories:[kind.type],tier:kind.tier,
-    platform:[],genre:[],ko:null,
-    desc:kind.type==='catalog'?'PlayStation Plus 게임 카탈로그 공식 A-Z 목록에서 자동 확인된 타이틀입니다.':'PlayStation Plus 클래식 카탈로그 공식 A-Z 목록에서 자동 확인된 타이틀입니다.',
-    price:kind.type==='classic'?'PS Plus 디럭스':'PS Plus 스페셜',tag:'PlayStation Plus 공식 A-Z',
-    store:storeSearch(title),image:null,discoverySource:`${SOURCE}?category=${kind.category}`,
-    discoveredAt:new Date().toISOString(),confidence:90,dataQuality:'official-list'
-  }));
+  return titles.map(title=>({id:slugId(kind.type,title),title,type:kind.type,categories:[kind.type],tier:kind.tier,platform:[],genre:[],ko:null,desc:kind.type==='catalog'?'PlayStation Plus 게임 카탈로그 공식 A-Z 목록에서 자동 확인된 타이틀입니다.':'PlayStation Plus 클래식 카탈로그 공식 A-Z 목록에서 자동 확인된 타이틀입니다.',price:kind.type==='classic'?'PS Plus 디럭스':'PS Plus 스페셜',tag:'PlayStation Plus 공식 A-Z',store:storeSearch(title),image:null,discoverySource:`${SOURCE}?category=${kind.category}`,discoveredAt:new Date().toISOString(),confidence:90,dataQuality:'official-list'}));
 }
 
 const browser=await chromium.launch({headless:true});
 const page=await browser.newPage({locale:'ko-KR',viewport:{width:1440,height:1100},userAgent:'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/140 Safari/537.36'});
 page.setDefaultTimeout(6000);
-const diagnostics={source:SOURCE,startedAt:new Date().toISOString(),sections:{},consoleErrors:[]};
+const diagnostics={source:SOURCE,startedAt:new Date().toISOString(),sections:{},network:[],consoleErrors:[]};
 page.on('console',msg=>{if(msg.type()==='error'&&diagnostics.consoleErrors.length<80)diagnostics.consoleErrors.push(msg.text().slice(0,500));});
+page.on('response',res=>{
+  const req=res.request(); const type=req.resourceType(); const url=res.url();
+  if(diagnostics.network.length>=180)return;
+  if(['xhr','fetch'].includes(type)||res.status()>=400||/graphql|api\//i.test(url)){
+    diagnostics.network.push({status:res.status(),type,url:url.slice(0,1800),method:req.method(),postData:(req.postData()||'').slice(0,2500)});
+  }
+});
 try{
   const all=[];
   for(const kind of KINDS){
@@ -106,23 +100,14 @@ try{
     diagnostics.sections[kind.key]={label:kind.label,category:kind.category,count:result.titles.length,letters:result.letters,url:result.url,httpStatus:result.httpStatus,selected:result.selected,headings:result.headings,fingerprint:result.fingerprint};
     for(const item of buildItems(kind,result.titles))all.push(item);
   }
-
   const fingerprints=KINDS.map(k=>diagnostics.sections[k.key]?.fingerprint).filter(Boolean);
   const categoriesDistinct=new Set(fingerprints).size===fingerprints.length;
   const urlsCorrect=KINDS.every(k=>String(diagnostics.sections[k.key]?.url||'').includes(`category=${k.category}`));
   const counts=Object.fromEntries(KINDS.map(k=>[k.key,diagnostics.sections[k.key]?.count||0]));
   const thresholdsOk=KINDS.every(k=>counts[k.key]>=k.min);
-
   const dedup=new Map();
-  for(const item of all){
-    const k=keyTitle(item.title),prev=dedup.get(k);
-    if(!prev){dedup.set(k,item);continue;}
-    const cats=[...new Set([...(prev.categories||[prev.type]),...(item.categories||[item.type])])];
-    const preferred=prev.type==='catalog'?prev:item.type==='catalog'?item:prev;
-    dedup.set(k,{...preferred,categories:cats,tier:cats.includes('catalog')?'Extra':preferred.tier});
-  }
-
-  const overlap=(()=>{const a=new Set((diagnostics.sections.catalog?.fingerprint?diagnostics.sections.catalog&&all.filter(x=>x.type==='catalog').map(x=>keyTitle(x.title)):[]));const b=new Set(all.filter(x=>x.type==='classic').map(x=>keyTitle(x.title)));return [...a].filter(x=>b.has(x)).length;})();
+  for(const item of all){const k=keyTitle(item.title),prev=dedup.get(k);if(!prev){dedup.set(k,item);continue;}const cats=[...new Set([...(prev.categories||[prev.type]),...(item.categories||[item.type])])];const preferred=prev.type==='catalog'?prev:item.type==='catalog'?item:prev;dedup.set(k,{...preferred,categories:cats,tier:cats.includes('catalog')?'Extra':preferred.tier});}
+  const catKeys=new Set(all.filter(x=>x.type==='catalog').map(x=>keyTitle(x.title))); const classicKeys=new Set(all.filter(x=>x.type==='classic').map(x=>keyTitle(x.title))); const overlap=[...catKeys].filter(x=>classicKeys.has(x)).length;
   const safeToMerge=thresholdsOk&&categoriesDistinct&&urlsCorrect;
   const payload={generatedAt:new Date().toISOString(),source:'playstation-plus-official-browser',sourceUrl:SOURCE,health:{safeToMerge,counts,thresholds:Object.fromEntries(KINDS.map(k=>[k.key,k.min])),categoriesDistinct,urlsCorrect,overlap,itemCount:dedup.size},items:[...dedup.values()]};
   await fs.mkdir(path.dirname(OUT),{recursive:true});
