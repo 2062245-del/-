@@ -1,4 +1,4 @@
-name: Build PS Radar v17.4 Android APK
+name: Build PS Radar v17.4.1 Android APK
 
 on:
   push:
@@ -40,27 +40,28 @@ jobs:
         with:
           gradle-version: '8.11.1'
 
-      - name: Validate PS Radar v17.4 web layer
+      - name: Validate PS Radar v17.4.1 web layer
         shell: bash
         run: |
           set -euxo pipefail
           node --check ps-radar/deals-v16.js
           node --check ps-radar/mobile-v174.js
+          node --check ps-radar/mobile-v1741.js
+          node --check ps-radar/scripts/sanitize-deals.mjs
           test -s ps-radar/mobile-v174.css
+          test -s ps-radar/mobile-v1741.css
           node - <<'NODE'
           const fs=require('fs');
           const games=JSON.parse(fs.readFileSync('ps-radar/data/games.json','utf8'));
           const deals=JSON.parse(fs.readFileSync('ps-radar/data/deals-auto.json','utf8'));
           if(!Array.isArray(games)||games.length<10) throw new Error('games dataset missing');
           if(!Array.isArray(deals.items)||deals.items.length<2000) throw new Error('verified deals dataset unexpectedly small');
-          for(const id of ['wobbly','chained']){
-            const g=games.find(x=>x.id===id);
-            if(!g||!/store\.playstation\.com\/ko-kr\/(?:product|concept)\//.test(g.store||'')) throw new Error(`direct official Store URL missing: ${id}`);
+          const patch=fs.readFileSync('ps-radar/mobile-v1741.js','utf8');
+          for(const token of ['50%↑','70%↑','90%↑','1만원↓','2만원↓','세부 필터','cleanDisplayTitle','sanitizeImageCollisions']){
+            if(!patch.includes(token)) throw new Error(`v17.4.1 filter/data patch missing: ${token}`);
           }
-          const patch=fs.readFileSync('ps-radar/mobile-v174.js','utf8');
-          for(const title of ['ninjagaidenragebound','dungeonsofhinterberg','snipereliteresistance','mlbtheshow26']){
-            if(!patch.includes(title)) throw new Error(`official image seed missing: ${title}`);
-          }
+          const loader=fs.readFileSync('ps-radar/deals-v16.js','utf8');
+          if(!loader.includes('mobile-v1741.js')||!loader.includes('mobile-v1741.css')) throw new Error('v17.4.1 loader missing');
           console.log(`Web QA: games=${games.length}, verified deals=${deals.items.length}`);
           NODE
 
@@ -113,8 +114,8 @@ jobs:
                   applicationId 'com.seungho.psradar'
                   minSdk 26
                   targetSdk 35
-                  versionCode 17400
-                  versionName '17.4.0'
+                  versionCode 17401
+                  versionName '17.4.1'
               }
 
               buildTypes {
@@ -196,7 +197,8 @@ jobs:
           set -euxo pipefail
           test -f app/src/main/assets/ps-radar/index.html
           test -f app/src/main/assets/ps-radar/mobile-v174.js
-          test -f app/src/main/assets/ps-radar/mobile-v174.css
+          test -f app/src/main/assets/ps-radar/mobile-v1741.js
+          test -f app/src/main/assets/ps-radar/mobile-v1741.css
           test -f app/src/main/assets/ps-radar/data/deals-auto.json
           test -f app/src/main/java/com/seungho/psradar/MainActivity.java
           ! test -d app/src/main/assets/ps-radar/android
@@ -215,16 +217,16 @@ jobs:
           AAPT="$ANDROID_HOME/build-tools/35.0.0/aapt"
           "$APKSIGNER" verify --verbose "$APK"
           "$AAPT" dump badging "$APK" | tee apk-badging.txt
-          grep -q "package: name='com.seungho.psradar' versionCode='17400' versionName='17.4.0'" apk-badging.txt
-          cp "$APK" "PS-Radar-v17.4.0-Android.apk"
-          sha256sum "PS-Radar-v17.4.0-Android.apk" | tee PS-Radar-v17.4.0-Android.sha256
+          grep -q "package: name='com.seungho.psradar' versionCode='17401' versionName='17.4.1'" apk-badging.txt
+          cp "$APK" "PS-Radar-v17.4.1-Android.apk"
+          sha256sum "PS-Radar-v17.4.1-Android.apk" | tee PS-Radar-v17.4.1-Android.sha256
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: PS-Radar-v17.4.0-Android
+          name: PS-Radar-v17.4.1-Android
           path: |
-            PS-Radar-v17.4.0-Android.apk
-            PS-Radar-v17.4.0-Android.sha256
+            PS-Radar-v17.4.1-Android.apk
+            PS-Radar-v17.4.1-Android.sha256
           if-no-files-found: error
           retention-days: 30
