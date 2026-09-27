@@ -1,5 +1,5 @@
-const CACHE='ps-radar-v13.3.0';
-const STATIC=['./','./index.html','./styles.css','./ui-v13.css','./app.js','./ui-v13.js','./manifest.json','./data/games.json','./data/feed.json','./data/store.json','./data/discovery.json','./data/upcoming.json','./icons/icon.svg'];
+const CACHE='ps-radar-v14.0.0';
+const STATIC=['./','./index.html','./styles.css','./ui-v13.css','./app.js','./ui-v13.js','./catalog-v14.js','./manifest.json','./data/games.json','./data/feed.json','./data/store.json','./data/discovery.json','./data/catalog-auto.json','./data/upcoming.json','./icons/icon.svg'];
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(STATIC)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener('fetch',e=>{
