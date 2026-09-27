@@ -107,34 +107,26 @@ public class MainActivity extends Activity {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return;
         NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         NotificationChannel channel = new NotificationChannel(DealWatchWorker.CHANNEL_ID, "PS Radar 관심 게임", NotificationManager.IMPORTANCE_DEFAULT);
-        channel.setDescription("찜 게임의 가격, 할인, PS Plus 혜택 변화를 알려드립니다.");
+        channel.setDescription("찜 게임의 가격, 할인, PS Plus 및 출시일 변화를 알려드립니다.");
         manager.createNotificationChannel(channel);
     }
 
     private void scheduleWatch(boolean immediate) {
         Constraints constraints = new Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build();
-        PeriodicWorkRequest periodic = new PeriodicWorkRequest.Builder(DealWatchWorker.class, 6, TimeUnit.HOURS)
-            .setConstraints(constraints)
-            .build();
-        WorkManager.getInstance(this).enqueueUniquePeriodicWork("psradar-watch-v175", ExistingPeriodicWorkPolicy.UPDATE, periodic);
+        PeriodicWorkRequest periodic = new PeriodicWorkRequest.Builder(DealWatchWorker.class, 6, TimeUnit.HOURS).setConstraints(constraints).build();
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork("psradar-watch-v177", ExistingPeriodicWorkPolicy.UPDATE, periodic);
         if (immediate) {
             OneTimeWorkRequest once = new OneTimeWorkRequest.Builder(DealWatchWorker.class).setConstraints(constraints).build();
-            WorkManager.getInstance(this).enqueueUniqueWork("psradar-watch-now-v175", ExistingWorkPolicy.REPLACE, once);
+            WorkManager.getInstance(this).enqueueUniqueWork("psradar-watch-now-v177", ExistingWorkPolicy.REPLACE, once);
         }
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        webView.saveState(outState);
-        super.onSaveInstanceState(outState);
-    }
+    protected void onSaveInstanceState(Bundle outState) { webView.saveState(outState); super.onSaveInstanceState(outState); }
 
     @Override
     public void onBackPressed() {
-        if (webView == null) {
-            super.onBackPressed();
-            return;
-        }
+        if (webView == null) { super.onBackPressed(); return; }
         webView.evaluateJavascript("(function(){try{return !!(window.__PSRADAR_ANDROID_BACK__&&window.__PSRADAR_ANDROID_BACK__())}catch(e){return false}})()", value -> {
             if ("true".equals(value)) return;
             if (webView != null && webView.canGoBack()) webView.goBack();
@@ -145,41 +137,25 @@ public class MainActivity extends Activity {
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == NOTIFICATION_PERMISSION_REQUEST && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            scheduleWatch(true);
-        }
+        if (requestCode == NOTIFICATION_PERMISSION_REQUEST && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) scheduleWatch(true);
     }
 
     @Override
-    protected void onDestroy() {
-        imageExecutor.shutdownNow();
-        if (webView != null) webView.destroy();
-        super.onDestroy();
-    }
+    protected void onDestroy() { imageExecutor.shutdownNow(); if (webView != null) webView.destroy(); super.onDestroy(); }
 
     public class AndroidBridge {
         @JavascriptInterface
         public void resolveStoreImage(String id, String storeUrl) {
             if (id == null || id.isEmpty() || storeUrl == null || storeUrl.isEmpty()) return;
             Uri storeUri = Uri.parse(storeUrl);
-            if (!"https".equalsIgnoreCase(storeUri.getScheme())) return;
-            if (!"store.playstation.com".equalsIgnoreCase(storeUri.getHost())) return;
-
+            if (!"https".equalsIgnoreCase(storeUri.getScheme()) || !"store.playstation.com".equalsIgnoreCase(storeUri.getHost())) return;
             String cacheKey = "art_" + id.replaceAll("[^A-Za-z0-9._-]", "_");
             String cached = imagePrefs.getString(cacheKey, null);
-            if (cached != null && !cached.isEmpty()) {
-                postImage(id, cached);
-                return;
-            }
-
+            if (cached != null && !cached.isEmpty()) { postImage(id, cached); return; }
             imageExecutor.submit(() -> {
                 String image = fetchOfficialImage(storeUrl);
-                if (image == null || image.isEmpty()) {
-                    postImageFailure(id);
-                    return;
-                }
-                imagePrefs.edit().putString(cacheKey, image).apply();
-                postImage(id, image);
+                if (image == null || image.isEmpty()) { postImageFailure(id); return; }
+                imagePrefs.edit().putString(cacheKey, image).apply(); postImage(id, image);
             });
         }
 
@@ -189,6 +165,16 @@ public class MainActivity extends Activity {
                 JSONArray list = new JSONArray(json == null ? "[]" : json);
                 SharedPreferences prefs = getSharedPreferences(DealWatchWorker.PREFS, MODE_PRIVATE);
                 prefs.edit().putString(DealWatchWorker.WATCHLIST_KEY, list.toString()).apply();
+                if (list.length() > 0) scheduleWatch(false);
+            } catch (Exception ignored) { }
+        }
+
+        @JavascriptInterface
+        public void syncReleaseWatchlist(String json) {
+            try {
+                JSONArray list = new JSONArray(json == null ? "[]" : json);
+                SharedPreferences prefs = getSharedPreferences(DealWatchWorker.PREFS, MODE_PRIVATE);
+                prefs.edit().putString(DealWatchWorker.RELEASE_WATCHLIST_KEY, list.toString()).apply();
                 if (list.length() > 0) scheduleWatch(false);
             } catch (Exception ignored) { }
         }
@@ -209,8 +195,7 @@ public class MainActivity extends Activity {
     private void postImage(String id, String imageUrl) {
         runOnUiThread(() -> {
             if (webView == null) return;
-            String js = "window.__PSRADAR_SET_IMAGE__ && window.__PSRADAR_SET_IMAGE__("
-                + JSONObject.quote(id) + "," + JSONObject.quote(imageUrl) + ");";
+            String js = "window.__PSRADAR_SET_IMAGE__ && window.__PSRADAR_SET_IMAGE__(" + JSONObject.quote(id) + "," + JSONObject.quote(imageUrl) + ");";
             webView.evaluateJavascript(js, null);
         });
     }
@@ -232,9 +217,7 @@ public class MainActivity extends Activity {
             String host = uri.getHost();
             if (host == null) return false;
             return host.equalsIgnoreCase(IMAGE_API_HOST) || host.endsWith("playstation.com") || host.endsWith("playstation.net");
-        } catch (Exception ignored) {
-            return false;
-        }
+        } catch (Exception ignored) { return false; }
     }
 
     private String normalizeImage(String image) {
@@ -248,49 +231,26 @@ public class MainActivity extends Activity {
         HttpURLConnection conn = null;
         try {
             conn = (HttpURLConnection) new URL(storeUrl).openConnection();
-            conn.setConnectTimeout(9000);
-            conn.setReadTimeout(9000);
-            conn.setInstanceFollowRedirects(true);
-            conn.setUseCaches(false);
+            conn.setConnectTimeout(9000); conn.setReadTimeout(9000); conn.setInstanceFollowRedirects(true); conn.setUseCaches(false);
             conn.setRequestProperty("Cache-Control", "no-cache");
             conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 Chrome/140 Mobile Safari/537.36");
-            conn.setRequestProperty("Accept-Language", "ko-KR,ko;q=0.9,en;q=0.7");
-            conn.setRequestProperty("Accept", "text/html,application/xhtml+xml");
+            conn.setRequestProperty("Accept-Language", "ko-KR,ko;q=0.9,en;q=0.7"); conn.setRequestProperty("Accept", "text/html,application/xhtml+xml");
             if (conn.getResponseCode() < 200 || conn.getResponseCode() >= 400) return null;
-
             StringBuilder html = new StringBuilder();
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
-                char[] buf = new char[8192];
-                int n;
-                while ((n = reader.read(buf)) > 0 && html.length() < 3_000_000) html.append(buf, 0, n);
+                char[] buf = new char[8192]; int n; while ((n = reader.read(buf)) > 0 && html.length() < 3_000_000) html.append(buf, 0, n);
             }
-
             Pattern[] metaPatterns = new Pattern[] {
                 Pattern.compile("<meta[^>]+(?:property|name)=[\\\"'](?:og:image|twitter:image)[\\\"'][^>]+content=[\\\"']([^\\\"']+)[\\\"']", Pattern.CASE_INSENSITIVE),
                 Pattern.compile("<meta[^>]+content=[\\\"']([^\\\"']+)[\\\"'][^>]+(?:property|name)=[\\\"'](?:og:image|twitter:image)[\\\"']", Pattern.CASE_INSENSITIVE)
             };
-            for (Pattern pattern : metaPatterns) {
-                Matcher m = pattern.matcher(html);
-                if (!m.find()) continue;
-                String image = normalizeImage(m.group(1));
-                if (isPlayStationImage(image)) return image;
-            }
-
+            for (Pattern pattern : metaPatterns) { Matcher m = pattern.matcher(html); if (!m.find()) continue; String image = normalizeImage(m.group(1)); if (isPlayStationImage(image)) return image; }
             Pattern[] cdnPatterns = new Pattern[] {
                 Pattern.compile("https:(?:\\\\/|/){2}image\\.api\\.playstation\\.com[^\\\"'<>\\s]+", Pattern.CASE_INSENSITIVE),
                 Pattern.compile("https:(?:\\\\/|/){2}gmedia\\.playstation\\.com[^\\\"'<>\\s]+", Pattern.CASE_INSENSITIVE)
             };
-            for (Pattern pattern : cdnPatterns) {
-                Matcher m = pattern.matcher(html);
-                while (m.find()) {
-                    String image = normalizeImage(m.group());
-                    if (isPlayStationImage(image)) return image;
-                }
-            }
-        } catch (Exception ignored) {
-        } finally {
-            if (conn != null) conn.disconnect();
-        }
+            for (Pattern pattern : cdnPatterns) { Matcher m = pattern.matcher(html); while (m.find()) { String image = normalizeImage(m.group()); if (isPlayStationImage(image)) return image; } }
+        } catch (Exception ignored) { } finally { if (conn != null) conn.disconnect(); }
         return null;
     }
 }
