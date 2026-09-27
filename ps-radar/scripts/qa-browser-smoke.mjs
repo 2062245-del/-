@@ -53,7 +53,7 @@ async function waitFor(fn,ms=12000){const until=Date.now()+ms;while(Date.now()<u
      const before=d.querySelectorAll('#grid .card').length;const more=d.querySelector('#loadMoreBtn');
      check('catalog load more visible',!!more&&!more.hidden,String(before));
      more?.click();await sleep(120);const after=d.querySelectorAll('#grid .card').length;
-     check('catalog load more works',after>before,`${before}->${after}`);
+     check('catalog load more works',after>before,String(before)+'->'+String(after));
    }
    if(page==='monthly')check('monthly has data',d.querySelectorAll('#grid .card').length>0,d.querySelector('#countText')?.textContent||'');
    if(page==='promo')check('promo renders',!!d.querySelector('#grid'),d.querySelector('#countText')?.textContent||'');
