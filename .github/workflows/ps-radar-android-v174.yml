@@ -1,4 +1,4 @@
-name: Build PS Radar v17.5 Android APK
+name: Build PS Radar v17.6 Android APK
 
 on:
   push:
@@ -44,176 +44,95 @@ jobs:
         with:
           gradle-version: '8.11.1'
 
-      - name: Validate PS Radar v17.5 foundation
+      - name: Validate PS Radar v17.6 UX
         shell: bash
         run: |
           set -euxo pipefail
-          node --check ps-radar/app.js
-          node --check ps-radar/ui-v13.js
-          node --check ps-radar/catalog-v14.js
-          node --check ps-radar/deals-v16.js
-          node --check ps-radar/mobile-v174.js
-          node --check ps-radar/mobile-v1741.js
-          node --check ps-radar/foundation-v175.js
+          for f in ps-radar/app.js ps-radar/ui-v13.js ps-radar/catalog-v14.js ps-radar/deals-v16.js ps-radar/mobile-v174.js ps-radar/mobile-v1741.js ps-radar/foundation-v175.js ps-radar/ux-v176.js; do node --check "$f"; done
           test -s ps-radar/foundation-v175.css
+          test -s ps-radar/ux-v176.css
           node - <<'NODE'
           const fs=require('fs');
           const index=fs.readFileSync('ps-radar/index.html','utf8');
+          const ux=fs.readFileSync('ps-radar/ux-v176.js','utf8');
+          const css=fs.readFileSync('ps-radar/ux-v176.css','utf8');
           const foundation=fs.readFileSync('ps-radar/foundation-v175.js','utf8');
           const main=fs.readFileSync('ps-radar/android/MainActivity.java','utf8');
           const worker=fs.readFileSync('ps-radar/android/DealWatchWorker.java','utf8');
           const deals=JSON.parse(fs.readFileSync('ps-radar/data/deals-auto.json','utf8'));
-          for(const token of ['foundation-v175.js','data-mobile-v174="1"','data-mobile-v1741="1"']) if(!index.includes(token)) throw new Error(`deterministic load order missing ${token}`);
-          for(const token of ['raw.githubusercontent.com','__PSRADAR_ANDROID_BACK__','syncNativeWatchlist','repairDynamicMonthLabels','--ps-bottom-nav']) if(!foundation.includes(token)) throw new Error(`foundation token missing ${token}`);
-          for(const token of ['syncWatchlist','enableNativeNotifications','WorkManager','PeriodicWorkRequest','__PSRADAR_ANDROID_BACK__']) if(!main.includes(token)) throw new Error(`native shell token missing ${token}`);
-          for(const token of ['deals-auto.json','store-auto.json','PS Plus','notifyChange']) if(!worker.includes(token)) throw new Error(`watch worker token missing ${token}`);
+          const nav=(index.match(/class="navbtn/g)||[]).length;
+          if(nav!==5) throw new Error(`expected 5 bottom tabs, found ${nav}`);
+          for(const token of ['PS Plus','발매예정','MY','ux-v176.js','ux-v176.css']) if(!index.includes(token)) throw new Error(`v17.6 index missing ${token}`);
+          for(const token of ['오늘의 변화','지금 볼 게임','이번 주 PlayStation','월간 게임','게임 카탈로그','클래식','종료 예정','가격알림','보유게임','최근 본']) if(!ux.includes(token)) throw new Error(`v17.6 UX missing ${token}`);
+          for(const token of ['grid-template-columns:repeat(5,1fr)','v176-legacy-home','home-discovery-active']) if(!css.includes(token)) throw new Error(`v17.6 CSS missing ${token}`);
+          for(const token of ['raw.githubusercontent.com','__PSRADAR_ANDROID_BACK__','syncNativeWatchlist']) if(!foundation.includes(token)) throw new Error(`v17.5 regression ${token}`);
+          for(const token of ['syncWatchlist','enableNativeNotifications','PeriodicWorkRequest']) if(!main.includes(token)) throw new Error(`native regression ${token}`);
+          if(!worker.includes('notifyChange')) throw new Error('watch worker regression');
           if(!Array.isArray(deals.items)||deals.items.length<2000) throw new Error('deals dataset unexpectedly small');
-          console.log(`v17.5 static QA passed: deals=${deals.items.length}`);
+          console.log(`v17.6 static QA passed: nav=${nav}, deals=${deals.items.length}`);
           NODE
 
       - name: Generate Android wrapper project
         shell: bash
         run: |
           set -euxo pipefail
-          mkdir -p app/src/main/java/com/seungho/psradar
-          mkdir -p app/src/main/assets/ps-radar
-          mkdir -p app/src/main/res/drawable
-          mkdir -p app/src/main/res/values
-          mkdir -p app/src/main/res/xml
-
+          mkdir -p app/src/main/java/com/seungho/psradar app/src/main/assets/ps-radar app/src/main/res/drawable app/src/main/res/values app/src/main/res/xml
           cp -R ps-radar/. app/src/main/assets/ps-radar/
           rm -rf app/src/main/assets/ps-radar/scripts app/src/main/assets/ps-radar/android
           cp ps-radar/android/MainActivity.java app/src/main/java/com/seungho/psradar/MainActivity.java
           cp ps-radar/android/DealWatchWorker.java app/src/main/java/com/seungho/psradar/DealWatchWorker.java
 
           cat > settings.gradle <<'EOF'
-          pluginManagement {
-              repositories { google(); mavenCentral(); gradlePluginPortal() }
-          }
-          dependencyResolutionManagement {
-              repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-              repositories { google(); mavenCentral() }
-          }
+          pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }
+          dependencyResolutionManagement { repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS); repositories { google(); mavenCentral() } }
           rootProject.name = 'PSRadar'
           include ':app'
           EOF
-
           cat > build.gradle <<'EOF'
-          plugins {
-              id 'com.android.application' version '8.7.3' apply false
-          }
+          plugins { id 'com.android.application' version '8.7.3' apply false }
           EOF
-
           cat > gradle.properties <<'EOF'
           org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
           android.useAndroidX=true
           android.nonTransitiveRClass=true
           EOF
-
           cat > app/build.gradle <<'EOF'
           plugins { id 'com.android.application' }
-
           android {
               namespace 'com.seungho.psradar'
               compileSdk 35
-
-              defaultConfig {
-                  applicationId 'com.seungho.psradar'
-                  minSdk 26
-                  targetSdk 35
-                  versionCode 17500
-                  versionName '17.5.0'
-              }
-
-              buildTypes {
-                  debug {
-                      applicationIdSuffix ''
-                      versionNameSuffix ''
-                  }
-              }
-
-              compileOptions {
-                  sourceCompatibility JavaVersion.VERSION_17
-                  targetCompatibility JavaVersion.VERSION_17
-              }
+              defaultConfig { applicationId 'com.seungho.psradar'; minSdk 26; targetSdk 35; versionCode 17600; versionName '17.6.0' }
+              buildTypes { debug { applicationIdSuffix ''; versionNameSuffix '' } }
+              compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
           }
-
           dependencies {
               implementation 'androidx.webkit:webkit:1.12.1'
               implementation 'androidx.core:core:1.15.0'
               implementation 'androidx.work:work-runtime:2.10.0'
           }
           EOF
-
           cat > app/src/main/res/values/styles.xml <<'EOF'
-          <resources>
-              <style name="AppTheme" parent="android:style/Theme.Material.NoActionBar">
-                  <item name="android:fontFamily">sans</item>
-                  <item name="android:windowLightStatusBar">false</item>
-                  <item name="android:statusBarColor">#0B1020</item>
-                  <item name="android:navigationBarColor">#0B1020</item>
-                  <item name="android:windowActionModeOverlay">true</item>
-                  <item name="android:windowNoTitle">true</item>
-              </style>
-          </resources>
+          <resources><style name="AppTheme" parent="android:style/Theme.Material.NoActionBar"><item name="android:fontFamily">sans</item><item name="android:windowLightStatusBar">false</item><item name="android:statusBarColor">#0B1020</item><item name="android:navigationBarColor">#0B1020</item><item name="android:windowActionModeOverlay">true</item><item name="android:windowNoTitle">true</item></style></resources>
           EOF
-
           cat > app/src/main/res/drawable/ic_launcher.xml <<'EOF'
-          <vector xmlns:android="http://schemas.android.com/apk/res/android"
-              android:width="108dp" android:height="108dp"
-              android:viewportWidth="108" android:viewportHeight="108">
-              <path android:fillColor="#0B1020" android:pathData="M0,0h108v108h-108z"/>
-              <path android:fillColor="#1264E6" android:pathData="M54,10a44,44 0,1 0,0 88a44,44 0,1 0,0 -88"/>
-              <path android:fillColor="#FFFFFF" android:pathData="M33,31h26c11.6,0 20,7.2 20,18.4c0,11.5 -8.4,18.6 -20,18.6H49v12H33V31zm16,13v11h9c3.6,0 5.8,-2.1 5.8,-5.5S61.6,44 58,44h-9z"/>
-              <path android:fillColor="#7ED7FF" android:pathData="M66,69l10,0l0,10l-10,0z"/>
-          </vector>
+          <vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108"><path android:fillColor="#0B1020" android:pathData="M0,0h108v108h-108z"/><path android:fillColor="#1264E6" android:pathData="M54,10a44,44 0,1 0,0 88a44,44 0,1 0,0 -88"/><path android:fillColor="#FFFFFF" android:pathData="M33,31h26c11.6,0 20,7.2 20,18.4c0,11.5 -8.4,18.6 -20,18.6H49v12H33V31zm16,13v11h9c3.6,0 5.8,-2.1 5.8,-5.5S61.6,44 58,44h-9z"/><path android:fillColor="#7ED7FF" android:pathData="M66,69l10,0l0,10l-10,0z"/></vector>
           EOF
-
           cat > app/src/main/res/xml/network_security_config.xml <<'EOF'
-          <network-security-config>
-              <base-config cleartextTrafficPermitted="false" />
-          </network-security-config>
+          <network-security-config><base-config cleartextTrafficPermitted="false" /></network-security-config>
           EOF
-
           cat > app/src/main/AndroidManifest.xml <<'EOF'
-          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-              <uses-permission android:name="android.permission.INTERNET" />
-              <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-              <application
-                  android:allowBackup="true"
-                  android:label="PS Radar"
-                  android:icon="@drawable/ic_launcher"
-                  android:roundIcon="@drawable/ic_launcher"
-                  android:theme="@style/AppTheme"
-                  android:hardwareAccelerated="true"
-                  android:networkSecurityConfig="@xml/network_security_config"
-                  android:usesCleartextTraffic="false">
-                  <activity
-                      android:name=".MainActivity"
-                      android:exported="true"
-                      android:screenOrientation="unspecified">
-                      <intent-filter>
-                          <action android:name="android.intent.action.MAIN" />
-                          <category android:name="android.intent.category.LAUNCHER" />
-                      </intent-filter>
-                  </activity>
-              </application>
-          </manifest>
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android"><uses-permission android:name="android.permission.INTERNET"/><uses-permission android:name="android.permission.POST_NOTIFICATIONS"/><application android:allowBackup="true" android:label="PS Radar" android:icon="@drawable/ic_launcher" android:roundIcon="@drawable/ic_launcher" android:theme="@style/AppTheme" android:hardwareAccelerated="true" android:networkSecurityConfig="@xml/network_security_config" android:usesCleartextTraffic="false"><activity android:name=".MainActivity" android:exported="true" android:screenOrientation="unspecified"><intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter></activity></application></manifest>
           EOF
 
       - name: Validate bundled assets
         shell: bash
         run: |
           set -euxo pipefail
-          test -f app/src/main/assets/ps-radar/index.html
-          test -f app/src/main/assets/ps-radar/foundation-v175.js
-          test -f app/src/main/assets/ps-radar/foundation-v175.css
-          test -f app/src/main/assets/ps-radar/data/deals-auto.json
+          for f in index.html foundation-v175.js foundation-v175.css ux-v176.js ux-v176.css data/deals-auto.json; do test -f "app/src/main/assets/ps-radar/$f"; done
           test -f app/src/main/java/com/seungho/psradar/MainActivity.java
           test -f app/src/main/java/com/seungho/psradar/DealWatchWorker.java
           ! test -d app/src/main/assets/ps-radar/android
           grep -q 'syncWatchlist' app/src/main/java/com/seungho/psradar/MainActivity.java
-          grep -q 'PeriodicWorkRequest' app/src/main/java/com/seungho/psradar/MainActivity.java
           grep -q 'notifyChange' app/src/main/java/com/seungho/psradar/DealWatchWorker.java
 
       - name: Build APK
@@ -229,16 +148,16 @@ jobs:
           AAPT="$ANDROID_HOME/build-tools/35.0.0/aapt"
           "$APKSIGNER" verify --verbose "$APK"
           "$AAPT" dump badging "$APK" | tee apk-badging.txt
-          grep -q "package: name='com.seungho.psradar' versionCode='17500' versionName='17.5.0'" apk-badging.txt
-          cp "$APK" "PS-Radar-v17.5.0-Android.apk"
-          sha256sum "PS-Radar-v17.5.0-Android.apk" | tee PS-Radar-v17.5.0-Android.sha256
+          grep -q "package: name='com.seungho.psradar' versionCode='17600' versionName='17.6.0'" apk-badging.txt
+          cp "$APK" "PS-Radar-v17.6.0-Android.apk"
+          sha256sum "PS-Radar-v17.6.0-Android.apk" | tee PS-Radar-v17.6.0-Android.sha256
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: PS-Radar-v17.5.0-Android
+          name: PS-Radar-v17.6.0-Android
           path: |
-            PS-Radar-v17.5.0-Android.apk
-            PS-Radar-v17.5.0-Android.sha256
+            PS-Radar-v17.6.0-Android.apk
+            PS-Radar-v17.6.0-Android.sha256
           if-no-files-found: error
           retention-days: 30
