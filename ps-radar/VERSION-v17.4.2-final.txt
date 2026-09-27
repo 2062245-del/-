@@ -1,0 +1,5 @@
+PS Radar Android v17.4.2
+Verified deal snapshot: 2491
+Crosschecked visible prices: 2423
+Rejected/hidden inconsistent prices: 68
+Verified data commit: bbbed02635c4b90971390fc17e4616826060cf64
