@@ -1,0 +1,10 @@
+/* PS Radar v17.5 foundation: measured mobile chrome instead of fixed spacer values */
+:root{--ps-bottom-nav:104px;--ps-topbar:78px}
+@media(max-width:700px){
+  body{padding-bottom:0!important}
+  .app{padding-bottom:calc(var(--ps-bottom-nav) + env(safe-area-inset-bottom,0px) + 24px)!important}
+  #resultsSection{padding-bottom:28px!important}
+  #grid{padding-bottom:12px!important}
+  .deal-filter-shell{top:var(--ps-topbar)!important}
+  .bottomnav{padding-bottom:max(8px,env(safe-area-inset-bottom,0px))}
+}
