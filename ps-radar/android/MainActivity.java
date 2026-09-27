@@ -1,10 +1,15 @@
 package com.seungho.psradar;
 
+import android.Manifest;
 import android.app.Activity;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
@@ -13,7 +18,16 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.webkit.WebViewAssetLoader;
+import androidx.work.Constraints;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.ExistingWorkPolicy;
+import androidx.work.NetworkType;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -21,17 +35,20 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class MainActivity extends Activity {
     private static final String HOME = "https://appassets.androidplatform.net/assets/ps-radar/index.html";
-    private static final String PREFS = "psradar-art-cache-v1742";
+    private static final String IMAGE_PREFS = "psradar-art-cache-v1742";
     private static final String IMAGE_API_HOST = "image.api.playstation.com";
+    private static final int NOTIFICATION_PERMISSION_REQUEST = 1750;
     private WebView webView;
     private final ExecutorService imageExecutor = Executors.newFixedThreadPool(4);
-    private SharedPreferences prefs;
+    private SharedPreferences imagePrefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +56,8 @@ public class MainActivity extends Activity {
         getWindow().setStatusBarColor(Color.parseColor("#0B1020"));
         getWindow().setNavigationBarColor(Color.parseColor("#0B1020"));
         getWindow().getDecorView().setSystemUiVisibility(0);
-        prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
+        imagePrefs = getSharedPreferences(IMAGE_PREFS, MODE_PRIVATE);
+        createWatchChannel();
 
         webView = new WebView(this);
         webView.setBackgroundColor(Color.parseColor("#0B1020"));
@@ -85,6 +103,26 @@ public class MainActivity extends Activity {
         else webView.restoreState(savedInstanceState);
     }
 
+    private void createWatchChannel() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return;
+        NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        NotificationChannel channel = new NotificationChannel(DealWatchWorker.CHANNEL_ID, "PS Radar 관심 게임", NotificationManager.IMPORTANCE_DEFAULT);
+        channel.setDescription("찜 게임의 가격, 할인, PS Plus 혜택 변화를 알려드립니다.");
+        manager.createNotificationChannel(channel);
+    }
+
+    private void scheduleWatch(boolean immediate) {
+        Constraints constraints = new Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build();
+        PeriodicWorkRequest periodic = new PeriodicWorkRequest.Builder(DealWatchWorker.class, 6, TimeUnit.HOURS)
+            .setConstraints(constraints)
+            .build();
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork("psradar-watch-v175", ExistingPeriodicWorkPolicy.UPDATE, periodic);
+        if (immediate) {
+            OneTimeWorkRequest once = new OneTimeWorkRequest.Builder(DealWatchWorker.class).setConstraints(constraints).build();
+            WorkManager.getInstance(this).enqueueUniqueWork("psradar-watch-now-v175", ExistingWorkPolicy.REPLACE, once);
+        }
+    }
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         webView.saveState(outState);
@@ -93,8 +131,23 @@ public class MainActivity extends Activity {
 
     @Override
     public void onBackPressed() {
-        if (webView != null && webView.canGoBack()) webView.goBack();
-        else super.onBackPressed();
+        if (webView == null) {
+            super.onBackPressed();
+            return;
+        }
+        webView.evaluateJavascript("(function(){try{return !!(window.__PSRADAR_ANDROID_BACK__&&window.__PSRADAR_ANDROID_BACK__())}catch(e){return false}})()", value -> {
+            if ("true".equals(value)) return;
+            if (webView != null && webView.canGoBack()) webView.goBack();
+            else MainActivity.super.onBackPressed();
+        });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == NOTIFICATION_PERMISSION_REQUEST && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            scheduleWatch(true);
+        }
     }
 
     @Override
@@ -113,7 +166,7 @@ public class MainActivity extends Activity {
             if (!"store.playstation.com".equalsIgnoreCase(storeUri.getHost())) return;
 
             String cacheKey = "art_" + id.replaceAll("[^A-Za-z0-9._-]", "_");
-            String cached = prefs.getString(cacheKey, null);
+            String cached = imagePrefs.getString(cacheKey, null);
             if (cached != null && !cached.isEmpty()) {
                 postImage(id, cached);
                 return;
@@ -125,8 +178,30 @@ public class MainActivity extends Activity {
                     postImageFailure(id);
                     return;
                 }
-                prefs.edit().putString(cacheKey, image).apply();
+                imagePrefs.edit().putString(cacheKey, image).apply();
                 postImage(id, image);
+            });
+        }
+
+        @JavascriptInterface
+        public void syncWatchlist(String json) {
+            try {
+                JSONArray list = new JSONArray(json == null ? "[]" : json);
+                SharedPreferences prefs = getSharedPreferences(DealWatchWorker.PREFS, MODE_PRIVATE);
+                prefs.edit().putString(DealWatchWorker.WATCHLIST_KEY, list.toString()).apply();
+                if (list.length() > 0) scheduleWatch(false);
+            } catch (Exception ignored) { }
+        }
+
+        @JavascriptInterface
+        public void enableNativeNotifications() {
+            runOnUiThread(() -> {
+                createWatchChannel();
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, NOTIFICATION_PERMISSION_REQUEST);
+                    return;
+                }
+                scheduleWatch(true);
             });
         }
     }
