@@ -139,8 +139,25 @@
     };
   }
 
+  function loadMobileV174(){
+    if(!document.querySelector('link[data-mobile-v174]')){
+      const css=document.createElement('link');
+      css.rel='stylesheet';
+      css.href='./mobile-v174.css';
+      css.dataset.mobileV174='1';
+      document.head.appendChild(css);
+    }
+    if(!document.querySelector('script[data-mobile-v174]')){
+      const js=document.createElement('script');
+      js.src='./mobile-v174.js';
+      js.dataset.mobileV174='1';
+      document.head.appendChild(js);
+    }
+  }
+
   patchBrokenImages();
   installNavBehavior();
+  loadMobileV174();
 
   window.addEventListener('DOMContentLoaded',()=>{
     document.addEventListener('click',e=>{
