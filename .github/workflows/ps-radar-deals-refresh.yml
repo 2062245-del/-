@@ -10,6 +10,9 @@ on:
       - 'ps-radar/scripts/fetch-store-deals.mjs'
       - 'ps-radar/scripts/sanitize-deals.mjs'
       - 'ps-radar/scripts/repair-deals-v1742.mjs'
+      - 'ps-radar/scripts/hydrate-missing-art.mjs'
+      - 'ps-radar/scripts/update-deal-history.mjs'
+      - 'ps-radar/scripts/validate-upcoming.mjs'
       - '.github/workflows/ps-radar-deals-refresh.yml'
 
 permissions:
@@ -22,7 +25,7 @@ concurrency:
 jobs:
   refresh:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 50
     steps:
       - name: Checkout main
         uses: actions/checkout@v6
@@ -59,39 +62,60 @@ jobs:
       - name: Sanitize titles and artwork matches
         run: node ps-radar/scripts/sanitize-deals.mjs
 
-      - name: Validate deals snapshot
+      - name: Hydrate missing official artwork server-side
+        env:
+          PSRADAR_ART_MAX_ITEMS: '240'
+          PSRADAR_ART_CONCURRENCY: '8'
+          PSRADAR_ART_TIMEOUT_MS: '8000'
+        run: node ps-radar/scripts/hydrate-missing-art.mjs
+
+      - name: Recheck artwork collisions
+        run: node ps-radar/scripts/sanitize-deals.mjs
+
+      - name: Update PS Radar observed price history
+        env:
+          PSRADAR_PRICE_TOLERANCE: '2.5'
+        run: node ps-radar/scripts/update-deal-history.mjs
+
+      - name: Grade upcoming release verification
+        run: node ps-radar/scripts/validate-upcoming.mjs
+
+      - name: Validate v17.7 data snapshot
         run: |
           node - <<'NODE'
           const fs=require('fs');
           const p=JSON.parse(fs.readFileSync('ps-radar/data/deals-auto.json','utf8'));
+          const h=JSON.parse(fs.readFileSync('ps-radar/data/deal-history.json','utf8'));
+          const u=JSON.parse(fs.readFileSync('ps-radar/data/upcoming.json','utf8'));
           if(!p?.health?.safeToMerge) throw new Error('deals snapshot safety flag is false');
-          if(!Array.isArray(p.items)||p.items.length<20) throw new Error('too few deal items');
-          let validPrices=0,rejectedPrices=0;
+          if(!Array.isArray(p.items)||p.items.length<2000) throw new Error(`too few deal items: ${p.items?.length}`);
+          if(!h?.items||Number(h.itemCount)<2000) throw new Error(`observed history unexpectedly small: ${h?.itemCount}`);
+          if(!u?.verification||!Array.isArray(u.items)||u.items.length<5) throw new Error('upcoming verification missing');
+          let validPrices=0,rejectedPrices=0,historyTagged=0,badVisible=0,badCollision=0;
           for(const x of p.items){
             if(!(Number(x.discountPercent)>0)) throw new Error(`invalid discount: ${x.title}`);
             if(!x.storeVerified) throw new Error(`unverified store item: ${x.title}`);
-            if(x.imageStatus==='collision-removed' && x.image) throw new Error(`rejected image still present: ${x.title}`);
+            if(x.imageStatus==='collision-removed' && x.image) badCollision++;
+            if(x.radarFirstSeenAt) historyTagged++;
             if(String(x.priceStatus||'').startsWith('rejected')){
               if(x.currentPrice!==null) throw new Error(`rejected price must be hidden: ${x.title}`);
-              rejectedPrices++;
-              continue;
+              rejectedPrices++;continue;
             }
-            if(!(Number(x.originalPrice)>Number(x.currentPrice)) || !(Number(x.currentPrice)>0)) throw new Error(`invalid price: ${x.title}`);
-            const implied=(1-Number(x.currentPrice)/Number(x.originalPrice))*100;
-            if(Math.abs(implied-Number(x.discountPercent))>2.5) throw new Error(`price/discount mismatch: ${x.title}`);
-            validPrices++;
+            const c=Number(x.currentPrice),o=Number(x.originalPrice),d=Number(x.discountPercent);
+            if(!(o>c)||!(c>0)){badVisible++;continue;}
+            const implied=(1-c/o)*100;
+            if(Math.abs(implied-d)>2.5)badVisible++;
+            else validPrices++;
           }
-          if(validPrices<20) throw new Error(`too few crosschecked prices: ${validPrices}`);
-          console.log(`Validated ${p.items.length} deals from ${p.health.pagesScanned} pages.`, {
-            validPrices,rejectedPrices,
-            platformCounts:p.health.platformCounts,
-            priceCrosscheckRows:p.health.priceCrosscheckRows||0,
-            priceCrosscheckRepaired:p.health.priceCrosscheckRepaired||0,
-            priceCrosscheckRejected:p.health.priceCrosscheckRejected||0,
-            artworkRefilledV1742:p.health.artworkRefilledV1742||0,
-            titlesCleaned:p.health.titlesCleaned||0,
-            imageCollisionGroupsRemoved:p.health.imageCollisionGroupsRemoved||0,
-            imageCollisionsRemoved:p.health.imageCollisionsRemoved||0
+          if(validPrices<2000) throw new Error(`too few crosschecked prices: ${validPrices}`);
+          if(badVisible) throw new Error(`visible price math regressions: ${badVisible}`);
+          if(badCollision) throw new Error(`collision-removed images still visible: ${badCollision}`);
+          if(historyTagged<p.items.length*0.95) throw new Error(`history tags incomplete: ${historyTagged}/${p.items.length}`);
+          console.log('v17.7 data QA passed',{
+            deals:p.items.length,validPrices,rejectedPrices,historyTagged,
+            observedHistory:h.itemCount,newDeals:h.newDealCount,lows:h.lowCount,
+            artCandidates:p.health.artHydrationCandidates||0,artFilled:p.health.artHydrationFilled||0,
+            upcoming:u.items.length,upcomingVerification:u.verification
           });
           NODE
 
@@ -137,15 +161,11 @@ jobs:
               }
               $ctx.Response.ContentLength64 = $bytes.Length
               $ctx.Response.OutputStream.Write($bytes,0,$bytes.Length)
-            } catch {
-              $ctx.Response.StatusCode = 500
-            } finally {
-              $ctx.Response.OutputStream.Close()
-            }
+            } catch { $ctx.Response.StatusCode = 500 } finally { $ctx.Response.OutputStream.Close() }
           }
           POWERSHELL
           cat > dist/PS-Radar-latest/README.txt <<'TXT'
-          PS Radar v17.4.2 최신 실행 패키지
+          PS Radar v17.7.0 최종 실행 패키지
           1. 압축을 풉니다.
           2. PS-Radar-Start.bat 를 더블클릭합니다.
           3. 브라우저에서 PS Radar가 자동으로 열립니다.
@@ -153,25 +173,25 @@ jobs:
           TXT
           python - <<'PY'
           import shutil
-          shutil.make_archive('PS-Radar-v17.4.2-Latest', 'zip', 'dist/PS-Radar-latest')
+          shutil.make_archive('PS-Radar-v17.7.0-Latest', 'zip', 'dist/PS-Radar-latest')
           PY
 
       - name: Upload latest runnable package
         uses: actions/upload-artifact@v4
         with:
-          name: PS-Radar-v17.4.2-Latest
-          path: PS-Radar-v17.4.2-Latest.zip
+          name: PS-Radar-v17.7.0-Latest
+          path: PS-Radar-v17.7.0-Latest.zip
           if-no-files-found: error
           retention-days: 30
 
-      - name: Commit refreshed deals
+      - name: Commit refreshed v17.7 data
         run: |
-          git add ps-radar/data/deals-auto.json
+          git add ps-radar/data/deals-auto.json ps-radar/data/deal-history.json ps-radar/data/upcoming.json
           if git diff --cached --quiet; then
-            echo 'No deal changes'
+            echo 'No data changes'
             exit 0
           fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git commit -m 'Refresh PS Store deals v17.4.2 crosscheck'
+          git commit -m 'Refresh PS Radar v17.7 verified data'
           git push origin main
