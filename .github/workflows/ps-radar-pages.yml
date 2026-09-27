@@ -10,7 +10,7 @@ on:
     - cron: '17 */6 * * *'
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -25,7 +25,7 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Checkout existing Pages root
+      - name: Checkout main
         uses: actions/checkout@v6
         with:
           ref: main
@@ -37,47 +37,63 @@ jobs:
           ref: ps-radar-v12-render
           path: payload
 
-      - name: Build combined Pages site
+      - name: Restore PS Radar into main/ps-radar
         shell: bash
         run: |
           set -euo pipefail
-          rm -rf site /tmp/psradar-runtime
-          mkdir -p site/ps-radar /tmp/psradar-runtime
+          rm -rf /tmp/psradar-runtime root/ps-radar
+          mkdir -p /tmp/psradar-runtime root/ps-radar
 
-          # Keep the existing Pages root intact.
-          cp -a root/. site/
-          rm -rf site/.git site/.github
-
-          # Restore the complete PS Radar project already stored on GitHub.
           cat payload/ps-radar-v12-runtime.part* | tr -d '\r\n\t ' > /tmp/psradar-runtime.b64
           base64 -d /tmp/psradar-runtime.b64 > /tmp/psradar-runtime.tgz
           tar -xzf /tmp/psradar-runtime.tgz -C /tmp/psradar-runtime
 
-          # Copy only the static files needed by GitHub Pages.
-          cp /tmp/psradar-runtime/index.html site/ps-radar/index.html
-          cp /tmp/psradar-runtime/app.js site/ps-radar/app.js
-          cp /tmp/psradar-runtime/styles.css site/ps-radar/styles.css
-          cp /tmp/psradar-runtime/manifest.json site/ps-radar/manifest.json
-          cp /tmp/psradar-runtime/sw.js site/ps-radar/sw.js
-          mkdir -p site/ps-radar/icons site/ps-radar/data
-          cp -a /tmp/psradar-runtime/icons/. site/ps-radar/icons/
-          cp -a /tmp/psradar-runtime/data/. site/ps-radar/data/
+          cp /tmp/psradar-runtime/index.html root/ps-radar/index.html
+          cp /tmp/psradar-runtime/app.js root/ps-radar/app.js
+          cp /tmp/psradar-runtime/styles.css root/ps-radar/styles.css
+          cp /tmp/psradar-runtime/manifest.json root/ps-radar/manifest.json
+          cp /tmp/psradar-runtime/sw.js root/ps-radar/sw.js
+          mkdir -p root/ps-radar/icons root/ps-radar/data
+          cp -a /tmp/psradar-runtime/icons/. root/ps-radar/icons/
+          cp -a /tmp/psradar-runtime/data/. root/ps-radar/data/
+          cp root/ps-radar/index.html root/ps-radar/404.html
 
-          # A direct fallback for mobile browsers and stale links.
-          cp site/ps-radar/index.html site/ps-radar/404.html
+          test -s root/ps-radar/index.html
+          test -s root/ps-radar/app.js
+          test -s root/ps-radar/styles.css
+          test -s root/ps-radar/manifest.json
+          grep -qi 'PS Radar' root/ps-radar/index.html
 
+      - name: Commit PS Radar files to main
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd root
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add ps-radar
+          if git diff --cached --quiet; then
+            echo 'PS Radar files already current'
+          else
+            git commit -m 'Publish PS Radar static site [skip ci]'
+            git push origin HEAD:main
+          fi
+
+      - name: Build Pages artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf site
+          mkdir -p site
+          cp -a root/. site/
+          rm -rf site/.git site/.github
+          touch site/.nojekyll site/ps-radar/.nojekyll
           test -s site/index.html
           test -s site/ps-radar/index.html
           test -s site/ps-radar/app.js
-          test -s site/ps-radar/styles.css
-          test -s site/ps-radar/manifest.json
           grep -q '유통기한 조사' site/index.html
           grep -qi 'PS Radar' site/ps-radar/index.html
-          touch site/.nojekyll site/ps-radar/.nojekyll
-
-          echo "Root preserved: $(wc -c < site/index.html) bytes"
-          echo "PS Radar static files: $(find site/ps-radar -type f | wc -l)"
-          find site/ps-radar -maxdepth 2 -type f -printf '%p %s bytes\n' | sort
+          echo "PS Radar files: $(find site/ps-radar -type f | wc -l)"
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
