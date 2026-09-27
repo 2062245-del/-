@@ -1,0 +1,22 @@
+/* PS Radar v17.4.1 deal filter polish */
+.deal-filter-shell{margin:14px 0 4px;padding:12px;border:1px solid rgba(255,255,255,.08);border-radius:18px;background:rgba(11,18,32,.92);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.deal-filter-shell[hidden]{display:none!important}
+.deal-filter-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+.deal-filter-head>div{min-width:0}.deal-filter-head b{display:block;font-size:13px;letter-spacing:-.2px}.deal-filter-head span{display:block;margin-top:3px;color:#8191aa;font-size:10px}
+.deal-filter-detail{flex:none;border:1px solid rgba(126,169,255,.18);border-radius:10px;background:#14243d;color:#d8e5fb;padding:7px 10px;font-size:10px;font-weight:800}
+.deal-filter-scroll{display:flex;gap:7px;overflow-x:auto;padding:1px 1px 4px;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+.deal-filter-scroll::-webkit-scrollbar{display:none}
+.deal-qf{flex:none;border:1px solid rgba(255,255,255,.09);border-radius:999px;background:#0e1a2b;color:#9dafc7;padding:8px 11px;font-size:11px;font-weight:800;white-space:nowrap;transition:.16s ease}
+.deal-qf.active{border-color:rgba(106,157,255,.34);background:#1a3154;color:#eef5ff;box-shadow:inset 0 0 0 1px rgba(119,165,255,.08)}
+.deal-qf:active,.deal-filter-detail:active{transform:scale(.97)}
+
+@media(max-width:700px){
+  .deal-filter-shell{margin-top:10px;padding:10px 10px 9px;border-radius:16px}
+  .deal-filter-head{margin-bottom:8px}.deal-filter-head b{font-size:12px}.deal-filter-head span{font-size:9px}
+  .deal-filter-detail{padding:7px 9px;font-size:9px}.deal-qf{padding:7px 10px;font-size:10px}
+}
+
+@media(max-width:540px){
+  .deal-filter-shell{position:relative;margin-left:-1px;margin-right:-1px}
+  .deal-filter-scroll{margin-right:-6px;padding-right:8px}
+}
