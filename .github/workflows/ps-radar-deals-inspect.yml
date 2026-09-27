@@ -1,0 +1,35 @@
+name: PS Radar Deals Inspect
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'ps-radar/scripts/inspect-store-deals.mjs'
+      - '.github/workflows/ps-radar-deals-inspect.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+      - name: Install Playwright
+        run: |
+          npm install --no-save --package-lock=false playwright
+          npx playwright install --with-deps chromium
+      - name: Inspect PS Store deals
+        run: node ps-radar/scripts/inspect-store-deals.mjs
+      - name: Upload diagnostics
+        uses: actions/upload-artifact@v4
+        with:
+          name: ps-radar-deals-inspect
+          path: ps-radar/data/deals-inspect.json
+          retention-days: 3
