@@ -10,9 +10,10 @@
   <link rel="icon" href="./icons/icon.svg" type="image/svg+xml" />
   <link rel="manifest" href="./manifest.json" />
   <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="./ui-v13.css" />
   <title>PS Radar</title>
 </head>
-<body>
+<body data-page="home">
   <div class="ambient ambient-a"></div>
   <div class="ambient ambient-b"></div>
 
@@ -32,10 +33,10 @@
       </div>
     </header>
 
-    <section class="hero">
+    <section class="hero home-block">
       <div class="eyebrow"><span class="live-dot"></span><span id="sourceStatus">공식 데이터 확인 중</span></div>
-      <h2>살 게임, 받을 게임, <span>놓치면 아까운 것</span>만.</h2>
-      <p>PS Plus 카탈로그와 월간 게임, PS Store 가격·할인, 종료 임박 혜택을 한 화면에서 확인하고 찜 게임의 가격·카탈로그 변화를 자동 추적합니다.</p>
+      <h2>PlayStation 혜택을 한눈에</h2>
+      <p>카탈로그, 월간 게임, 할인 정보를 빠르게 확인하세요.</p>
       <div class="searchbar">
         <input id="search" type="search" placeholder="게임명, 장르, PS Plus, 할인 검색" autocomplete="off" />
         <button id="clearBtn" class="softbtn">초기화</button>
@@ -43,9 +44,9 @@
       <div class="chips" id="chips"></div>
     </section>
 
-    <section class="stats" id="stats"></section>
+    <section class="stats home-block" id="stats"></section>
 
-    <section class="section quick-section">
+    <section class="section quick-section home-block">
       <div class="sectionhead">
         <div>
           <p class="kicker">QUICK DISCOVER</p>
@@ -54,10 +55,10 @@
         <span id="profileCoverage">프로필 확인 중</span>
       </div>
       <div id="curationGrid" class="curation-grid"></div>
-      <p class="watch-note">신규 · 최고평점 · 할인추천 · 곧 종료를 먼저 훑고, 원하는 묶음을 누르면 아래 전체 목록이 바로 좁혀집니다.</p>
+      <p class="watch-note">신규 · 최고평점 · 할인추천 · 곧 종료를 먼저 확인할 수 있습니다.</p>
     </section>
 
-    <section class="section">
+    <section class="section home-block">
       <div class="sectionhead">
         <div>
           <p class="kicker">BUY OR WAIT</p>
@@ -66,10 +67,10 @@
         <span>구매 · 수령 · 플레이 우선순위</span>
       </div>
       <div id="decisionStrip" class="decision-strip"></div>
-      <p class="watch-note">가격 이력, 할인폭, PS Plus 포함 여부와 종료 일정을 함께 계산합니다. 종료일이 공개되지 않은 게임은 임의로 예측하지 않습니다.</p>
+      <p class="watch-note">가격 이력, 할인폭, PS Plus 포함 여부와 종료 일정을 함께 확인합니다.</p>
     </section>
 
-    <section class="section">
+    <section class="section home-block">
       <div class="sectionhead">
         <div>
           <p class="kicker">FOR YOU</p>
@@ -81,7 +82,7 @@
       <p id="personalNote" class="watch-note"></p>
     </section>
 
-    <section class="section">
+    <section class="section home-block">
       <div class="sectionhead">
         <div>
           <p class="kicker">TODAY</p>
@@ -93,7 +94,7 @@
       <p class="watch-note" id="watchNote"></p>
     </section>
 
-    <section class="section">
+    <section class="section home-block">
       <div class="sectionhead">
         <div>
           <p class="kicker">OFFICIAL FEED</p>
@@ -104,7 +105,7 @@
       <div id="feedStrip" class="feed-strip"></div>
     </section>
 
-    <section class="section">
+    <section class="section home-block">
       <div class="sectionhead">
         <div>
           <p class="kicker">PLUS HISTORY</p>
@@ -115,7 +116,13 @@
       <div id="catalogTimeline" class="timeline"></div>
     </section>
 
-    <section class="section">
+    <section id="pageHeader" class="page-header" hidden>
+      <p class="page-kicker" data-page-kicker>PS RADAR</p>
+      <h2 data-page-title>게임</h2>
+      <p data-page-desc></p>
+    </section>
+
+    <section class="section" id="resultsSection">
       <div class="sectionhead">
         <div>
           <p class="kicker">DISCOVER</p>
@@ -127,24 +134,25 @@
       <div class="loadmore-wrap"><button id="loadMoreBtn" class="loadmore" hidden>더 보기</button></div>
     </section>
 
-    <section class="section compact-info">
+    <section class="section compact-info home-block">
       <div class="info-card">
-        <b>V12 멀티호스트 · 실서비스 준비</b>
-        <p>PS Plus A-Z·새소식·PS Store를 교차 확인하고, 출처 신뢰도와 폴백 상태를 구분해 잘못된 0원·카탈로그 오분류를 줄였습니다.</p>
+        <b>출처를 구분해 보여드립니다</b>
+        <p>PS Plus·PS Store·PlayStation 공식 정보를 우선 사용하고, 확인되지 않은 항목은 임의로 확정하지 않습니다.</p>
       </div>
       <div class="info-card">
-        <b>오탐 억제 · 출처 우선순위</b>
-        <p>게임 체험판과 최신 카탈로그·월간·클래식을 별도 출처로 병합하고 DLC/업그레이드 오탐을 필터링합니다. 기존 가격·혜택·프로필·알림 기능은 유지합니다.</p>
+        <b>이미지는 정확도를 우선합니다</b>
+        <p>공식 대표 이미지를 우선 사용하고, 검증되지 않은 이미지는 억지로 채우지 않고 전용 플레이스홀더로 표시합니다.</p>
       </div>
     </section>
   </main>
 
   <nav class="bottomnav" aria-label="주 메뉴">
-    <button class="navbtn active" data-view="all"><b>⌂</b><span>홈</span></button>
-    <button class="navbtn" data-view="catalog"><b>＋</b><span>카탈로그</span></button>
-    <button class="navbtn" data-view="monthly"><b>◇</b><span>월간</span></button>
-    <button class="navbtn" data-view="promo"><b>%</b><span>할인</span></button>
-    <button class="navbtn" data-view="wishlist"><b>♥</b><span>찜</span></button>
+    <button class="navbtn active" data-page="home" data-view="all"><b>⌂</b><span>홈</span></button>
+    <button class="navbtn" data-page="catalog" data-view="catalog"><b>＋</b><span>카탈로그</span></button>
+    <button class="navbtn" data-page="monthly" data-view="monthly"><b>◇</b><span>월간</span></button>
+    <button class="navbtn" data-page="promo" data-view="promo"><b>%</b><span>할인</span></button>
+    <button class="navbtn" data-page="upcoming" data-view="all"><b>◷</b><span>발매예정</span></button>
+    <button class="navbtn" data-page="wishlist" data-view="wishlist"><b>♥</b><span>찜</span></button>
   </nav>
 
   <div id="drawer" class="drawer" aria-hidden="true">
@@ -204,5 +212,6 @@
   </template>
 
   <script src="./app.js" defer></script>
+  <script src="./ui-v13.js" defer></script>
 </body>
 </html>
