@@ -1,4 +1,4 @@
-name: Build PS Radar v17.7 Android APK
+name: Build PS Radar v17.7 Final Android APK
 
 on:
   push:
@@ -21,9 +21,9 @@ jobs:
       ANDROID_HOME: /usr/local/lib/android/sdk
       ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
       PSRADAR_KEYSTORE_B64: ${{ secrets.PSRADAR_KEYSTORE_B64 }}
-      PSRADAR_KEYSTORE_PASSWORD: ${{ secrets.PSRADAR_KEYSTORE_PASSWORD }}
-      PSRADAR_KEY_ALIAS: ${{ secrets.PSRADAR_KEY_ALIAS }}
-      PSRADAR_KEY_PASSWORD: ${{ secrets.PSRADAR_KEY_PASSWORD }}
+      PSRADAR_KEYSTORE_PASSWORD_SECRET: ${{ secrets.PSRADAR_KEYSTORE_PASSWORD }}
+      PSRADAR_KEY_ALIAS_SECRET: ${{ secrets.PSRADAR_KEY_ALIAS }}
+      PSRADAR_KEY_PASSWORD_SECRET: ${{ secrets.PSRADAR_KEY_PASSWORD }}
 
     steps:
       - name: Checkout main
@@ -48,15 +48,23 @@ jobs:
         with:
           gradle-version: '8.11.1'
 
-      - name: Validate PS Radar v17.7 final code
+      - name: Validate JavaScript syntax
         shell: bash
         run: |
           set -euxo pipefail
           for f in ps-radar/app.js ps-radar/ui-v13.js ps-radar/catalog-v14.js ps-radar/deals-v16.js ps-radar/mobile-v174.js ps-radar/mobile-v1741.js ps-radar/foundation-v175.js ps-radar/ux-v176.js ps-radar/content-v177.js; do node --check "$f"; done
-          for f in ps-radar/scripts/update-deal-history.mjs ps-radar/scripts/hydrate-missing-art.mjs ps-radar/scripts/validate-upcoming.mjs; do node --check "$f"; done
+          for f in ps-radar/scripts/update-deal-history.mjs ps-radar/scripts/hydrate-missing-art.mjs ps-radar/scripts/validate-upcoming.mjs ps-radar/scripts/validate-final-v177.mjs; do node --check "$f"; done
           test -s ps-radar/foundation-v175.css
           test -s ps-radar/ux-v176.css
           test -s ps-radar/content-v177.css
+
+      - name: Stage gates v17.5 to v17.7
+        run: node ps-radar/scripts/validate-final-v177.mjs
+
+      - name: Validate final regressions
+        shell: bash
+        run: |
+          set -euxo pipefail
           node - <<'NODE'
           const fs=require('fs');
           const index=fs.readFileSync('ps-radar/index.html','utf8');
@@ -67,8 +75,10 @@ jobs:
           const worker=fs.readFileSync('ps-radar/android/DealWatchWorker.java','utf8');
           const deals=JSON.parse(fs.readFileSync('ps-radar/data/deals-auto.json','utf8'));
           const upcoming=JSON.parse(fs.readFileSync('ps-radar/data/upcoming.json','utf8'));
-          const nav=(index.match(/class="navbtn/g)||[]).length;
+          const navBlock=index.match(/<nav class="bottomnav"[\s\S]*?<\/nav>/i)?.[0]||'';
+          const nav=(navBlock.match(/class="navbtn/g)||[]).length;
           if(nav!==5) throw new Error(`expected 5 bottom tabs, found ${nav}`);
+          for(const token of ['홈','PS Plus','할인','발매예정','MY']) if(!navBlock.includes(token)) throw new Error(`bottom navigation missing ${token}`);
           for(const token of ['foundation-v175.js','ux-v176.js','content-v177.js','content-v177.css']) if(!index.includes(token)) throw new Error(`final index missing ${token}`);
           for(const token of ['오늘의 변화','지금 볼 게임','이번 주 PlayStation','가격알림','보유게임','최근 본']) if(!ux.includes(token)) throw new Error(`v17.6 regression ${token}`);
           for(const token of ['오늘 새 할인','PS Radar 관측 최저','할인 종료 임박','PS Plus 최근 추가','무료 · 체험 가능','1만원 이하 추천','지금 사기','기다려도 됨','출시 캘린더','출시 알림']) if(!content.includes(token)) throw new Error(`v17.7 content missing ${token}`);
@@ -77,14 +87,7 @@ jobs:
           for(const token of ['UPCOMING_URL','RELEASE_WATCHLIST_KEY','checkReleaseAlerts','notifyChange']) if(!worker.includes(token)) throw new Error(`native watcher missing ${token}`);
           if(!Array.isArray(deals.items)||deals.items.length<2000) throw new Error('deals dataset unexpectedly small');
           if(!Array.isArray(upcoming.items)||upcoming.items.length<5) throw new Error('upcoming dataset unexpectedly small');
-          let bad=0;
-          for(const x of deals.items){
-            if(String(x.priceStatus||'').startsWith('rejected'))continue;
-            const c=Number(x.currentPrice),o=Number(x.originalPrice),d=Number(x.discountPercent);
-            if(c>0&&o>c&&d>0&&Math.abs((1-c/o)*100-d)>2.5)bad++;
-          }
-          if(bad)throw new Error(`price math regressions visible: ${bad}`);
-          console.log(`v17.7 static QA passed: nav=${nav}, deals=${deals.items.length}, upcoming=${upcoming.items.length}`);
+          console.log(`Final regression QA passed: nav=${nav}, deals=${deals.items.length}, upcoming=${upcoming.items.length}`);
           NODE
 
       - name: Generate Android wrapper project
@@ -119,18 +122,15 @@ jobs:
               compileSdk 35
               defaultConfig { applicationId 'com.seungho.psradar'; minSdk 26; targetSdk 35; versionCode 17700; versionName '17.7.0' }
               signingConfigs {
-                  if (releaseKeystore) {
-                      release {
-                          storeFile file(releaseKeystore)
-                          storePassword System.getenv('PSRADAR_KEYSTORE_PASSWORD')
-                          keyAlias System.getenv('PSRADAR_KEY_ALIAS')
-                          keyPassword System.getenv('PSRADAR_KEY_PASSWORD')
-                      }
+                  release {
+                      storeFile file(releaseKeystore)
+                      storePassword System.getenv('PSRADAR_KEYSTORE_PASSWORD')
+                      keyAlias System.getenv('PSRADAR_KEY_ALIAS')
+                      keyPassword System.getenv('PSRADAR_KEY_PASSWORD')
                   }
               }
               buildTypes {
-                  debug { applicationIdSuffix ''; versionNameSuffix '' }
-                  release { minifyEnabled false; if (releaseKeystore) signingConfig signingConfigs.release }
+                  release { minifyEnabled false; signingConfig signingConfigs.release }
               }
               compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
           }
@@ -138,6 +138,7 @@ jobs:
               implementation 'androidx.webkit:webkit:1.12.1'
               implementation 'androidx.core:core:1.15.0'
               implementation 'androidx.work:work-runtime:2.10.0'
+              implementation 'com.squareup.okhttp3:okhttp:4.12.0'
           }
           EOF
           cat > app/src/main/res/values/styles.xml <<'EOF'
@@ -163,32 +164,50 @@ jobs:
           ! test -d app/src/main/assets/ps-radar/android
           grep -q 'syncReleaseWatchlist' app/src/main/java/com/seungho/psradar/MainActivity.java
           grep -q 'checkReleaseAlerts' app/src/main/java/com/seungho/psradar/DealWatchWorker.java
+          grep -q "com.squareup.okhttp3:okhttp:4.12.0" app/build.gradle
 
-      - name: Build APK
+      - name: Restore persistent development signing key
+        uses: actions/cache@v4
+        with:
+          path: .ci-signing/psradar-dev.jks
+          key: psradar-dev-release-keystore-v1
+
+      - name: Prepare release signing
         shell: bash
         run: |
-          set -euxo pipefail
-          if [ -n "${PSRADAR_KEYSTORE_B64:-}" ] && [ -n "${PSRADAR_KEYSTORE_PASSWORD:-}" ] && [ -n "${PSRADAR_KEY_ALIAS:-}" ] && [ -n "${PSRADAR_KEY_PASSWORD:-}" ]; then
-            echo "$PSRADAR_KEYSTORE_B64" | base64 --decode > "$PWD/psradar-release.jks"
-            export PSRADAR_KEYSTORE_PATH="$PWD/psradar-release.jks"
-            gradle :app:assembleRelease --stacktrace
-            cp app/build/outputs/apk/release/app-release.apk final.apk
-            echo release > signing-mode.txt
+          set -euo pipefail
+          mkdir -p .ci-signing
+          if [ -n "${PSRADAR_KEYSTORE_B64:-}" ] && [ -n "${PSRADAR_KEYSTORE_PASSWORD_SECRET:-}" ] && [ -n "${PSRADAR_KEY_ALIAS_SECRET:-}" ] && [ -n "${PSRADAR_KEY_PASSWORD_SECRET:-}" ]; then
+            echo "$PSRADAR_KEYSTORE_B64" | base64 --decode > "$PWD/.ci-signing/psradar-release.jks"
+            echo "PSRADAR_KEYSTORE_PATH=$PWD/.ci-signing/psradar-release.jks" >> "$GITHUB_ENV"
+            echo "PSRADAR_KEYSTORE_PASSWORD=$PSRADAR_KEYSTORE_PASSWORD_SECRET" >> "$GITHUB_ENV"
+            echo "PSRADAR_KEY_ALIAS=$PSRADAR_KEY_ALIAS_SECRET" >> "$GITHUB_ENV"
+            echo "PSRADAR_KEY_PASSWORD=$PSRADAR_KEY_PASSWORD_SECRET" >> "$GITHUB_ENV"
+            echo "production-secret" > signing-mode.txt
           else
-            gradle :app:assembleDebug --stacktrace
-            cp app/build/outputs/apk/debug/app-debug.apk final.apk
-            echo debug > signing-mode.txt
+            DEV_KEY="$PWD/.ci-signing/psradar-dev.jks"
+            if [ ! -s "$DEV_KEY" ]; then
+              keytool -genkeypair -v -keystore "$DEV_KEY" -storepass psradar-dev-local -keypass psradar-dev-local -alias psradar -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=PS Radar Development, OU=PS Radar, O=Local, L=Seoul, C=KR"
+            fi
+            echo "PSRADAR_KEYSTORE_PATH=$DEV_KEY" >> "$GITHUB_ENV"
+            echo "PSRADAR_KEYSTORE_PASSWORD=psradar-dev-local" >> "$GITHUB_ENV"
+            echo "PSRADAR_KEY_ALIAS=psradar" >> "$GITHUB_ENV"
+            echo "PSRADAR_KEY_PASSWORD=psradar-dev-local" >> "$GITHUB_ENV"
+            echo "persistent-development-release" > signing-mode.txt
           fi
+
+      - name: Build release APK
+        run: gradle :app:assembleRelease --stacktrace
 
       - name: Verify APK
         shell: bash
         run: |
           set -euxo pipefail
-          APK=final.apk
+          APK=app/build/outputs/apk/release/app-release.apk
           test -s "$APK"
           APKSIGNER="$ANDROID_HOME/build-tools/35.0.0/apksigner"
           AAPT="$ANDROID_HOME/build-tools/35.0.0/aapt"
-          "$APKSIGNER" verify --verbose "$APK"
+          "$APKSIGNER" verify --verbose --print-certs "$APK" | tee apk-signature.txt
           "$AAPT" dump badging "$APK" | tee apk-badging.txt
           grep -q "package: name='com.seungho.psradar' versionCode='17700' versionName='17.7.0'" apk-badging.txt
           cp "$APK" "PS-Radar-v17.7.0-Final.apk"
@@ -203,5 +222,6 @@ jobs:
             PS-Radar-v17.7.0-Final.apk
             PS-Radar-v17.7.0-Final.sha256
             signing-mode.txt
+            apk-signature.txt
           if-no-files-found: error
           retention-days: 30
