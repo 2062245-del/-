@@ -75,20 +75,20 @@ jobs:
           const fs=require('fs');
           const p='ps-radar/data/catalog-auto.json';
           const j=JSON.parse(fs.readFileSync(p,'utf8'));
+          if(j.source!=='playstation-official-gameslist-api') throw new Error('unexpected catalog source');
           if(!j.health?.safeToMerge) throw new Error('catalog snapshot is not safe to merge');
           if(!j.health?.categoriesDistinct) throw new Error('catalog/classics fingerprints are identical');
-          if(!j.health?.urlsCorrect) throw new Error('category URLs were not preserved');
-          if((j.health.counts?.catalog||0)<40) throw new Error('catalog count below safety threshold');
-          if((j.health.counts?.classic||0)<10) throw new Error('classic count below safety threshold');
-          if(!Array.isArray(j.items)||j.items.length<50) throw new Error('catalog item count unexpectedly low');
-          const keys=new Set();
+          if(!j.health?.declaredConsistent) throw new Error('API bucket counts are inconsistent');
+          if((j.health.counts?.catalog||0)<100) throw new Error('catalog count below safety threshold');
+          if((j.health.counts?.classic||0)<30) throw new Error('classic count below safety threshold');
+          if(!Array.isArray(j.items)||j.items.length<130) throw new Error('catalog item count unexpectedly low');
+          const ids=new Set();
           for(const x of j.items){
-            if(!x.title||!x.type) throw new Error('invalid item');
-            const k=String(x.title).toLowerCase().replace(/[^a-z0-9가-힣]+/g,'');
-            if(keys.has(k)) throw new Error('duplicate title: '+x.title);
-            keys.add(k);
+            if(!x.id||!x.title||!Array.isArray(x.categories)) throw new Error('invalid item');
+            if(ids.has(x.id)) throw new Error('duplicate id: '+x.id);
+            ids.add(x.id);
           }
-          console.log('catalog snapshot validated',j.health);
+          console.log('official catalog snapshot validated',j.health);
           NODE
 
       - name: Commit refreshed snapshot
