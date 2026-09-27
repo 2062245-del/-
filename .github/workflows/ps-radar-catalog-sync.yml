@@ -67,6 +67,8 @@ jobs:
           const p='ps-radar/data/catalog-auto.json';
           const j=JSON.parse(fs.readFileSync(p,'utf8'));
           if(!j.health?.safeToMerge) throw new Error('catalog snapshot is not safe to merge');
+          if(!j.health?.categoriesDistinct) throw new Error('catalog/classics fingerprints are identical');
+          if(!j.health?.urlsCorrect) throw new Error('category URLs were not preserved');
           if((j.health.counts?.catalog||0)<40) throw new Error('catalog count below safety threshold');
           if((j.health.counts?.classic||0)<10) throw new Error('classic count below safety threshold');
           if(!Array.isArray(j.items)||j.items.length<50) throw new Error('catalog item count unexpectedly low');
@@ -85,15 +87,15 @@ jobs:
         run: |
           set -euo pipefail
           rm -f ps-radar/data/catalog-auto-debug.json
-          if git diff --quiet -- ps-radar/data/catalog-auto.json; then
+          if [ -z "$(git status --porcelain -- ps-radar/data/catalog-auto.json)" ]; then
             echo 'No catalog snapshot changes.'
-            exit 0
+          else
+            git config user.name 'ps-radar-bot'
+            git config user.email 'actions@users.noreply.github.com'
+            git add ps-radar/data/catalog-auto.json
+            git commit -m 'Refresh PS Radar PS Plus catalog snapshot'
+            git push
           fi
-          git config user.name 'ps-radar-bot'
-          git config user.email 'actions@users.noreply.github.com'
-          git add ps-radar/data/catalog-auto.json
-          git commit -m 'Refresh PS Radar PS Plus catalog snapshot'
-          git push
 
       - name: Build Pages artifact
         shell: bash
@@ -101,9 +103,9 @@ jobs:
           set -euo pipefail
           rm -rf site
           mkdir -p site
-          cp -a . site/
-          rm -rf site/.git site/.github site/node_modules
+          rsync -a --exclude='.git' --exclude='.github' --exclude='node_modules' --exclude='site' ./ site/
           touch site/.nojekyll site/ps-radar/.nojekyll
+          test -s site/index.html
           test -s site/ps-radar/index.html
           test -s site/ps-radar/data/catalog-auto.json
 
