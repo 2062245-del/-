@@ -1,8 +1,10 @@
 {
-  "name": "PS Radar V12",
+  "id": "./",
+  "name": "PS Radar",
   "short_name": "PS Radar",
-  "description": "PlayStation 게임, PS Plus 카탈로그, 월간 게임, PS Store 가격·혜택과 신규·최고평점·할인추천·곧 종료 큐레이션, 자동 게임 프로필을 한눈에 확인합니다.",
+  "description": "PlayStation 게임, PS Plus 카탈로그, 월간 게임, PS Store 가격·혜택, 할인과 발매예정을 한눈에 확인합니다.",
   "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#050914",
   "theme_color": "#07111f",
