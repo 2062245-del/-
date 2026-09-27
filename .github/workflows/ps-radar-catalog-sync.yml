@@ -1,0 +1,120 @@
+name: PS Radar Catalog Sync
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 3 * * *'
+  push:
+    branches: [main]
+    paths:
+      - 'ps-radar/scripts/sync-plus-catalog.mjs'
+      - '.github/workflows/ps-radar-catalog-sync.yml'
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: ps-radar-catalog-sync
+  cancel-in-progress: true
+
+jobs:
+  sync-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout current main
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+
+      - name: Install browser collector
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --no-save --package-lock=false playwright
+          npx playwright install --with-deps chromium
+
+      - name: Collect official PS Plus catalog
+        id: collect
+        shell: bash
+        run: |
+          set -euo pipefail
+          node ps-radar/scripts/sync-plus-catalog.mjs
+
+      - name: Upload collector diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ps-radar-catalog-debug
+          path: ps-radar/data/catalog-auto-debug.json
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Validate generated catalog snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check ps-radar/scripts/sync-plus-catalog.mjs
+          node - <<'NODE'
+          const fs=require('fs');
+          const p='ps-radar/data/catalog-auto.json';
+          const j=JSON.parse(fs.readFileSync(p,'utf8'));
+          if(!j.health?.safeToMerge) throw new Error('catalog snapshot is not safe to merge');
+          if((j.health.counts?.catalog||0)<40) throw new Error('catalog count below safety threshold');
+          if((j.health.counts?.classic||0)<10) throw new Error('classic count below safety threshold');
+          if(!Array.isArray(j.items)||j.items.length<50) throw new Error('catalog item count unexpectedly low');
+          const keys=new Set();
+          for(const x of j.items){
+            if(!x.title||!x.type) throw new Error('invalid item');
+            const k=String(x.title).toLowerCase().replace(/[^a-z0-9가-힣]+/g,'');
+            if(keys.has(k)) throw new Error('duplicate title: '+x.title);
+            keys.add(k);
+          }
+          console.log('catalog snapshot validated',j.health);
+          NODE
+
+      - name: Commit refreshed snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f ps-radar/data/catalog-auto-debug.json
+          if git diff --quiet -- ps-radar/data/catalog-auto.json; then
+            echo 'No catalog snapshot changes.'
+            exit 0
+          fi
+          git config user.name 'ps-radar-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add ps-radar/data/catalog-auto.json
+          git commit -m 'Refresh PS Radar PS Plus catalog snapshot'
+          git push
+
+      - name: Build Pages artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf site
+          mkdir -p site
+          cp -a . site/
+          rm -rf site/.git site/.github site/node_modules
+          touch site/.nojekyll site/ps-radar/.nojekyll
+          test -s site/ps-radar/index.html
+          test -s site/ps-radar/data/catalog-auto.json
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+
+      - name: Deploy refreshed PS Radar
+        id: deployment
+        uses: actions/deploy-pages@v4
