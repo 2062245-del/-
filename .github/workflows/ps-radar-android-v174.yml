@@ -1,0 +1,230 @@
+name: Build PS Radar v17.4 Android APK
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'ps-radar/**'
+      - '.github/workflows/ps-radar-android-v174.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      ANDROID_HOME: /usr/local/lib/android/sdk
+      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v6
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install Android SDK packages
+        shell: bash
+        run: |
+          set -euxo pipefail
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$SDKMANAGER" --licenses >/dev/null 2>&1 || true
+          "$SDKMANAGER" "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+
+      - name: Validate PS Radar v17.4 web layer
+        shell: bash
+        run: |
+          set -euxo pipefail
+          node --check ps-radar/deals-v16.js
+          node --check ps-radar/mobile-v174.js
+          test -s ps-radar/mobile-v174.css
+          node - <<'NODE'
+          const fs=require('fs');
+          const games=JSON.parse(fs.readFileSync('ps-radar/data/games.json','utf8'));
+          const deals=JSON.parse(fs.readFileSync('ps-radar/data/deals-auto.json','utf8'));
+          if(!Array.isArray(games)||games.length<10) throw new Error('games dataset missing');
+          if(!Array.isArray(deals.items)||deals.items.length<2000) throw new Error('verified deals dataset unexpectedly small');
+          for(const id of ['wobbly','chained']){
+            const g=games.find(x=>x.id===id);
+            if(!g||!/store\.playstation\.com\/ko-kr\/(?:product|concept)\//.test(g.store||'')) throw new Error(`direct official Store URL missing: ${id}`);
+          }
+          const patch=fs.readFileSync('ps-radar/mobile-v174.js','utf8');
+          for(const title of ['ninjagaidenragebound','dungeonsofhinterberg','snipereliteresistance','mlbtheshow26']){
+            if(!patch.includes(title)) throw new Error(`official image seed missing: ${title}`);
+          }
+          console.log(`Web QA: games=${games.length}, verified deals=${deals.items.length}`);
+          NODE
+
+      - name: Generate Android wrapper project
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p app/src/main/java/com/seungho/psradar
+          mkdir -p app/src/main/assets/ps-radar
+          mkdir -p app/src/main/res/drawable
+          mkdir -p app/src/main/res/values
+          mkdir -p app/src/main/res/xml
+
+          cp -R ps-radar/. app/src/main/assets/ps-radar/
+          rm -rf app/src/main/assets/ps-radar/scripts app/src/main/assets/ps-radar/android
+          cp ps-radar/android/MainActivity.java app/src/main/java/com/seungho/psradar/MainActivity.java
+
+          cat > settings.gradle <<'EOF'
+          pluginManagement {
+              repositories { google(); mavenCentral(); gradlePluginPortal() }
+          }
+          dependencyResolutionManagement {
+              repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+              repositories { google(); mavenCentral() }
+          }
+          rootProject.name = 'PSRadar'
+          include ':app'
+          EOF
+
+          cat > build.gradle <<'EOF'
+          plugins {
+              id 'com.android.application' version '8.7.3' apply false
+          }
+          EOF
+
+          cat > gradle.properties <<'EOF'
+          org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
+          android.useAndroidX=true
+          android.nonTransitiveRClass=true
+          EOF
+
+          cat > app/build.gradle <<'EOF'
+          plugins { id 'com.android.application' }
+
+          android {
+              namespace 'com.seungho.psradar'
+              compileSdk 35
+
+              defaultConfig {
+                  applicationId 'com.seungho.psradar'
+                  minSdk 26
+                  targetSdk 35
+                  versionCode 17400
+                  versionName '17.4.0'
+              }
+
+              buildTypes {
+                  debug {
+                      applicationIdSuffix ''
+                      versionNameSuffix ''
+                  }
+              }
+
+              compileOptions {
+                  sourceCompatibility JavaVersion.VERSION_17
+                  targetCompatibility JavaVersion.VERSION_17
+              }
+          }
+
+          dependencies {
+              implementation 'androidx.webkit:webkit:1.12.1'
+          }
+          EOF
+
+          cat > app/src/main/res/values/styles.xml <<'EOF'
+          <resources>
+              <style name="AppTheme" parent="android:style/Theme.Material.NoActionBar">
+                  <item name="android:fontFamily">sans</item>
+                  <item name="android:windowLightStatusBar">false</item>
+                  <item name="android:statusBarColor">#0B1020</item>
+                  <item name="android:navigationBarColor">#0B1020</item>
+                  <item name="android:windowActionModeOverlay">true</item>
+                  <item name="android:windowNoTitle">true</item>
+              </style>
+          </resources>
+          EOF
+
+          cat > app/src/main/res/drawable/ic_launcher.xml <<'EOF'
+          <vector xmlns:android="http://schemas.android.com/apk/res/android"
+              android:width="108dp" android:height="108dp"
+              android:viewportWidth="108" android:viewportHeight="108">
+              <path android:fillColor="#0B1020" android:pathData="M0,0h108v108h-108z"/>
+              <path android:fillColor="#1264E6" android:pathData="M54,10a44,44 0,1 0,0 88a44,44 0,1 0,0 -88"/>
+              <path android:fillColor="#FFFFFF" android:pathData="M33,31h26c11.6,0 20,7.2 20,18.4c0,11.5 -8.4,18.6 -20,18.6H49v12H33V31zm16,13v11h9c3.6,0 5.8,-2.1 5.8,-5.5S61.6,44 58,44h-9z"/>
+              <path android:fillColor="#7ED7FF" android:pathData="M66,69l10,0l0,10l-10,0z"/>
+          </vector>
+          EOF
+
+          cat > app/src/main/res/xml/network_security_config.xml <<'EOF'
+          <network-security-config>
+              <base-config cleartextTrafficPermitted="false" />
+          </network-security-config>
+          EOF
+
+          cat > app/src/main/AndroidManifest.xml <<'EOF'
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+              <uses-permission android:name="android.permission.INTERNET" />
+              <application
+                  android:allowBackup="true"
+                  android:label="PS Radar"
+                  android:icon="@drawable/ic_launcher"
+                  android:roundIcon="@drawable/ic_launcher"
+                  android:theme="@style/AppTheme"
+                  android:hardwareAccelerated="true"
+                  android:networkSecurityConfig="@xml/network_security_config"
+                  android:usesCleartextTraffic="false">
+                  <activity
+                      android:name=".MainActivity"
+                      android:exported="true"
+                      android:screenOrientation="unspecified">
+                      <intent-filter>
+                          <action android:name="android.intent.action.MAIN" />
+                          <category android:name="android.intent.category.LAUNCHER" />
+                      </intent-filter>
+                  </activity>
+              </application>
+          </manifest>
+          EOF
+
+      - name: Validate bundled assets
+        shell: bash
+        run: |
+          set -euxo pipefail
+          test -f app/src/main/assets/ps-radar/index.html
+          test -f app/src/main/assets/ps-radar/mobile-v174.js
+          test -f app/src/main/assets/ps-radar/mobile-v174.css
+          test -f app/src/main/assets/ps-radar/data/deals-auto.json
+          test -f app/src/main/java/com/seungho/psradar/MainActivity.java
+          ! test -d app/src/main/assets/ps-radar/android
+          grep -q 'resolveStoreImage' app/src/main/java/com/seungho/psradar/MainActivity.java
+
+      - name: Build APK
+        run: gradle :app:assembleDebug --stacktrace
+
+      - name: Verify APK
+        shell: bash
+        run: |
+          set -euxo pipefail
+          APK=app/build/outputs/apk/debug/app-debug.apk
+          test -s "$APK"
+          APKSIGNER="$ANDROID_HOME/build-tools/35.0.0/apksigner"
+          AAPT="$ANDROID_HOME/build-tools/35.0.0/aapt"
+          "$APKSIGNER" verify --verbose "$APK"
+          "$AAPT" dump badging "$APK" | tee apk-badging.txt
+          grep -q "package: name='com.seungho.psradar' versionCode='17400' versionName='17.4.0'" apk-badging.txt
+          cp "$APK" "PS-Radar-v17.4.0-Android.apk"
+          sha256sum "PS-Radar-v17.4.0-Android.apk" | tee PS-Radar-v17.4.0-Android.sha256
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: PS-Radar-v17.4.0-Android
+          path: |
+            PS-Radar-v17.4.0-Android.apk
+            PS-Radar-v17.4.0-Android.sha256
+          if-no-files-found: error
+          retention-days: 30
