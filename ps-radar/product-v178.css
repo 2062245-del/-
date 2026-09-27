@@ -1,4 +1,4 @@
-/* PS Radar v17.8 consolidated product layer - stage 1 */
+/* PS Radar v17.8 consolidated product layer - stage 2 */
 :root{--v178-card-radius:16px;--v178-gap:10px}
 
 body.v178-home .hero{margin-bottom:10px}
@@ -11,6 +11,13 @@ body.v178-home .hero{margin-bottom:10px}
 
 .v178-compact-card .rating-line .score-pill{display:none!important}
 .v178-card-reason{font-size:9px;line-height:1.35;color:#8295af;margin:-2px 0 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.v178-price-panel{margin-top:16px;border:1px solid rgba(94,146,224,.18);border-radius:20px;background:linear-gradient(150deg,rgba(15,28,49,.98),rgba(7,14,25,.98));padding:15px;box-shadow:0 18px 40px rgba(0,0,0,.22)}
+.v178-price-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}.v178-price-head small{display:block;color:#7697c8;font-size:9px;font-weight:900;letter-spacing:1.4px}.v178-price-head h3{margin:4px 0 0;font-size:19px}.v178-decision-score{width:46px;height:46px;border-radius:15px;display:grid;place-items:center;font-size:17px;font-weight:900;background:#1a2c46;color:#dce9ff}.v178-decision-score.buy{background:#173e2b;color:#8ff0b5}.v178-decision-score.plus{background:#12375f;color:#9fd2ff}.v178-decision-score.wait{background:#3d2d19;color:#f2c179}
+.v178-decision-reasons{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-bottom:12px}.v178-decision-reasons::-webkit-scrollbar{display:none}.v178-decision-reasons span{flex:0 0 auto;border:1px solid rgba(255,255,255,.08);border-radius:999px;background:#0a1728;color:#a8b8ce;padding:6px 9px;font-size:9px;font-weight:750}
+.v178-price-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-bottom:12px}.v178-price-metrics>div{border:1px solid rgba(255,255,255,.065);border-radius:13px;background:#0b1726;padding:9px 10px}.v178-price-metrics small{display:block;color:#7588a3;font-size:8px;margin-bottom:4px}.v178-price-metrics b{display:block;color:#edf5ff;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v178-history-chart{width:100%;height:90px;border-radius:13px;background:linear-gradient(180deg,rgba(28,52,82,.55),rgba(9,19,33,.65));color:#6db6ff;padding:8px;box-sizing:border-box}.v178-history-empty{border-radius:13px;background:#0b1726;color:#7589a4;padding:14px;font-size:10px;text-align:center}
+.v178-history-list{display:grid;gap:6px;margin-top:10px}.v178-history-list>div{display:grid;grid-template-columns:82px minmax(0,1fr) auto;align-items:center;gap:7px;border-top:1px solid rgba(255,255,255,.055);padding-top:7px;font-size:9px}.v178-history-list span{color:#7588a3}.v178-history-list b{color:#e7f0fb;overflow:hidden;text-overflow:ellipsis}.v178-history-list em{font-style:normal;color:#75bfff;font-weight:800}.v178-history-list p{margin:0;color:#7e91aa;font-size:9px}
 
 @media(max-width:700px){
   .topbar{padding-block:8px!important}
@@ -34,6 +41,7 @@ body.v178-home .hero{margin-bottom:10px}
   .bottomnav .navbtn{min-height:50px!important;border-radius:12px!important}
   .bottomnav .navbtn b{font-size:14px!important}
   .bottomnav .navbtn span{font-size:8.5px!important}
+  .v178-price-panel{border-radius:17px;padding:12px;margin-top:12px}.v178-price-head h3{font-size:17px}.v178-decision-score{width:42px;height:42px;border-radius:13px;font-size:15px}
 }
 
 @media(max-width:430px){
