@@ -40,42 +40,33 @@ jobs:
           test -s root/ps-radar/ui-v13.css
           test -s root/ps-radar/ui-v13.js
           test -s root/ps-radar/catalog-v14.js
+          test -s root/ps-radar/stability-v15.js
+          test -s root/ps-radar/sw.js
           test -s root/ps-radar/data/games.json
           test -s root/ps-radar/data/discovery.json
           test -s root/ps-radar/data/catalog-auto.json
           test -s root/ps-radar/data/store.json
+          test -s root/ps-radar/data/store-auto.json
           test -s root/ps-radar/data/upcoming.json
           grep -qi 'PS Radar' root/ps-radar/index.html
           grep -q 'PlayStation 혜택을 한눈에' root/ps-radar/index.html
           grep -q 'data-page="upcoming"' root/ps-radar/index.html
           grep -q 'catalog-v14.js' root/ps-radar/index.html
+          grep -q 'stability-v15.js' root/ps-radar/index.html
           node --check root/ps-radar/app.js
           node --check root/ps-radar/ui-v13.js
           node --check root/ps-radar/catalog-v14.js
-          node - <<'NODE'
-          const fs=require('fs');
-          const files=['games.json','store.json','discovery.json','upcoming.json'];
-          for(const f of files)JSON.parse(fs.readFileSync(`root/ps-radar/data/${f}`,'utf8'));
-          const c=JSON.parse(fs.readFileSync('root/ps-radar/data/catalog-auto.json','utf8'));
-          if(c.source!=='playstation-official-gameslist-api')throw new Error('unexpected catalog source');
-          if(!c.health?.safeToMerge)throw new Error('official catalog safety flag failed');
-          if((c.health.counts?.catalog||0)<100)throw new Error('official game catalog unexpectedly small');
-          if((c.health.counts?.classic||0)<30)throw new Error('official classics catalog unexpectedly small');
-          if(!Array.isArray(c.items)||c.items.length<130)throw new Error('official catalog snapshot unexpectedly small');
-          console.log('PS Radar official catalog:',c.health);
-          const storePath='root/ps-radar/data/store-auto.json';
-          if(fs.existsSync(storePath)){
-            const s=JSON.parse(fs.readFileSync(storePath,'utf8'));
-            if(!s.health?.safeToMerge)throw new Error('Store enrichment safety flag failed');
-            if(!Array.isArray(s.items)||s.items.length<100)throw new Error('Store enrichment unexpectedly small');
-            if((s.health.price||0)<50)throw new Error('Store price coverage unexpectedly low');
-            if((s.health.rating||0)<50)throw new Error('Store rating coverage unexpectedly low');
-            console.log('PS Radar Store enrichment:',s.health);
-          } else {
-            console.log('Store enrichment snapshot not generated yet; deploying catalog-only mode.');
-          }
-          NODE
-          echo "PS Radar files: $(find root/ps-radar -type f | wc -l)"
+          node --check root/ps-radar/stability-v15.js
+          node --check root/ps-radar/sw.js
+          cd root
+          node ps-radar/scripts/qa-static.mjs
+
+      - name: Run browser menu smoke test
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd root
+          node ps-radar/scripts/qa-browser-smoke.mjs
 
       - name: Build Pages artifact
         shell: bash
@@ -89,6 +80,7 @@ jobs:
           test -s site/index.html
           test -s site/ps-radar/index.html
           test -s site/ps-radar/data/catalog-auto.json
+          test -s site/ps-radar/data/store-auto.json
           grep -q '유통기한 조사' site/index.html
           grep -qi 'PS Radar' site/ps-radar/index.html
 
