@@ -63,6 +63,17 @@ jobs:
           if((c.health.counts?.classic||0)<30)throw new Error('official classics catalog unexpectedly small');
           if(!Array.isArray(c.items)||c.items.length<130)throw new Error('official catalog snapshot unexpectedly small');
           console.log('PS Radar official catalog:',c.health);
+          const storePath='root/ps-radar/data/store-auto.json';
+          if(fs.existsSync(storePath)){
+            const s=JSON.parse(fs.readFileSync(storePath,'utf8'));
+            if(!s.health?.safeToMerge)throw new Error('Store enrichment safety flag failed');
+            if(!Array.isArray(s.items)||s.items.length<100)throw new Error('Store enrichment unexpectedly small');
+            if((s.health.price||0)<50)throw new Error('Store price coverage unexpectedly low');
+            if((s.health.rating||0)<50)throw new Error('Store rating coverage unexpectedly low');
+            console.log('PS Radar Store enrichment:',s.health);
+          } else {
+            console.log('Store enrichment snapshot not generated yet; deploying catalog-only mode.');
+          }
           NODE
           echo "PS Radar files: $(find root/ps-radar -type f | wc -l)"
 
