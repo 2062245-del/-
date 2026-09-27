@@ -127,7 +127,7 @@
       let arr = baseFilteredGames();
       if (!isPromoView()) return arr;
       if (dealFilter.minDiscount > 0) arr = arr.filter(g => Number(g.discountPercent) >= dealFilter.minDiscount);
-      if (Number.isFinite(Number(dealFilter.maxPrice))) arr = arr.filter(g => Number(g.currentPrice) <= Number(dealFilter.maxPrice));
+      if (dealFilter.maxPrice !== null && Number.isFinite(Number(dealFilter.maxPrice))) arr = arr.filter(g => Number(g.currentPrice) <= Number(dealFilter.maxPrice));
       return arr;
     };
   }
