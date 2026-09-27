@@ -1,0 +1,73 @@
+name: PS Radar Deals Refresh
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 3 * * *'
+  push:
+    branches: [main]
+    paths:
+      - 'ps-radar/scripts/fetch-store-deals.mjs'
+      - '.github/workflows/ps-radar-deals-refresh.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ps-radar-deals-refresh
+  cancel-in-progress: true
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v6
+        with:
+          ref: main
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright@1.51.1
+          npx playwright install --with-deps chromium
+
+      - name: Collect PS Store deals
+        env:
+          PSRADAR_MAX_CAMPAIGNS: '8'
+          PSRADAR_MAX_PAGES_PER_CAMPAIGN: '120'
+          PSRADAR_MAX_TOTAL_PAGES: '220'
+          PSRADAR_MIN_SAFE_ITEMS: '20'
+        run: node ps-radar/scripts/fetch-store-deals.mjs
+
+      - name: Validate deals snapshot
+        run: |
+          node - <<'NODE'
+          const fs=require('fs');
+          const p=JSON.parse(fs.readFileSync('ps-radar/data/deals-auto.json','utf8'));
+          if(!p?.health?.safeToMerge) throw new Error('deals snapshot safety flag is false');
+          if(!Array.isArray(p.items)||p.items.length<20) throw new Error('too few deal items');
+          for(const x of p.items){
+            if(!(Number(x.originalPrice)>Number(x.currentPrice))) throw new Error(`invalid price: ${x.title}`);
+            if(!(Number(x.discountPercent)>0)) throw new Error(`invalid discount: ${x.title}`);
+            if(!x.storeVerified||x.priceStatus!=='verified') throw new Error(`unverified deal: ${x.title}`);
+          }
+          console.log(`Validated ${p.items.length} deals from ${p.health.pagesScanned} pages.`);
+          NODE
+
+      - name: Commit refreshed deals
+        run: |
+          if git diff --quiet -- ps-radar/data/deals-auto.json; then
+            echo 'No deal changes'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add ps-radar/data/deals-auto.json
+          git commit -m 'Refresh PS Store deals'
+          git push origin main
