@@ -39,10 +39,16 @@ jobs:
           test -s root/ps-radar/styles.css
           test -s root/ps-radar/ui-v13.css
           test -s root/ps-radar/ui-v13.js
+          test -s root/ps-radar/data/games.json
+          test -s root/ps-radar/data/discovery.json
+          test -s root/ps-radar/data/store.json
           test -s root/ps-radar/data/upcoming.json
           grep -qi 'PS Radar' root/ps-radar/index.html
           grep -q 'PlayStation 혜택을 한눈에' root/ps-radar/index.html
           grep -q 'data-page="upcoming"' root/ps-radar/index.html
+          node --check root/ps-radar/app.js
+          node --check root/ps-radar/ui-v13.js
+          node -e "JSON.parse(require('fs').readFileSync('root/ps-radar/data/games.json','utf8')); JSON.parse(require('fs').readFileSync('root/ps-radar/data/store.json','utf8')); JSON.parse(require('fs').readFileSync('root/ps-radar/data/discovery.json','utf8')); JSON.parse(require('fs').readFileSync('root/ps-radar/data/upcoming.json','utf8'));"
           echo "PS Radar files: $(find root/ps-radar -type f | wc -l)"
 
       - name: Build Pages artifact
