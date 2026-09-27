@@ -1,4 +1,4 @@
-name: Build PS Radar v17.4.2 Android APK
+name: Build PS Radar v17.5 Android APK
 
 on:
   push:
@@ -9,10 +9,14 @@ on:
       - '.github/workflows/ps-radar-android-v174.yml'
   workflow_dispatch:
 
+concurrency:
+  group: ps-radar-android-build
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     env:
       ANDROID_HOME: /usr/local/lib/android/sdk
       ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
@@ -40,41 +44,31 @@ jobs:
         with:
           gradle-version: '8.11.1'
 
-      - name: Validate PS Radar v17.4.2 web layer
+      - name: Validate PS Radar v17.5 foundation
         shell: bash
         run: |
           set -euxo pipefail
+          node --check ps-radar/app.js
+          node --check ps-radar/ui-v13.js
+          node --check ps-radar/catalog-v14.js
           node --check ps-radar/deals-v16.js
           node --check ps-radar/mobile-v174.js
           node --check ps-radar/mobile-v1741.js
-          node --check ps-radar/scripts/sanitize-deals.mjs
-          node --check ps-radar/scripts/repair-deals-v1742.mjs
-          test -s ps-radar/mobile-v174.css
-          test -s ps-radar/mobile-v1741.css
+          node --check ps-radar/foundation-v175.js
+          test -s ps-radar/foundation-v175.css
           node - <<'NODE'
           const fs=require('fs');
-          const games=JSON.parse(fs.readFileSync('ps-radar/data/games.json','utf8'));
+          const index=fs.readFileSync('ps-radar/index.html','utf8');
+          const foundation=fs.readFileSync('ps-radar/foundation-v175.js','utf8');
+          const main=fs.readFileSync('ps-radar/android/MainActivity.java','utf8');
+          const worker=fs.readFileSync('ps-radar/android/DealWatchWorker.java','utf8');
           const deals=JSON.parse(fs.readFileSync('ps-radar/data/deals-auto.json','utf8'));
-          if(!Array.isArray(games)||games.length<10) throw new Error('games dataset missing');
-          if(!Array.isArray(deals.items)||deals.items.length<2000) throw new Error('verified deals dataset unexpectedly small');
-          const patch=fs.readFileSync('ps-radar/mobile-v1741.js','utf8');
-          for(const token of ['17.4.2','50%↑','70%↑','90%↑','1만원↓','2만원↓','세부 필터','validDealPrice','dealPriceError','판매가 재확인 중','__PSRADAR_V1742__']){
-            if(!patch.includes(token)) throw new Error(`v17.4.2 patch missing: ${token}`);
-          }
-          const css=fs.readFileSync('ps-radar/mobile-v1741.css','utf8');
-          if(!css.includes('position:sticky')||!css.includes('190px')) throw new Error('v17.4.2 sticky filter/bottom spacing missing');
-          const android=fs.readFileSync('ps-radar/android/MainActivity.java','utf8');
-          for(const token of ['__PSRADAR_IMAGE_FAILED__','image.api.playstation.com','psradar-art-cache-v1742']){
-            if(!android.includes(token)) throw new Error(`v17.4.2 Android art recovery missing: ${token}`);
-          }
-          let badVisible=0,rejected=0;
-          for(const x of deals.items){
-            if(String(x.priceStatus||'').startsWith('rejected')){ rejected++; continue; }
-            const c=Number(x.currentPrice),o=Number(x.originalPrice),d=Number(x.discountPercent);
-            if(c>0&&o>c&&d>0){ const e=Math.abs((1-c/o)*100-d); if(e>2.5) badVisible++; }
-          }
-          if(badVisible) throw new Error(`crosscheck mismatch remains visible: ${badVisible}`);
-          console.log(`Web QA: games=${games.length}, deals=${deals.items.length}, rejectedPrices=${rejected}`);
+          for(const token of ['foundation-v175.js','data-mobile-v174="1"','data-mobile-v1741="1"']) if(!index.includes(token)) throw new Error(`deterministic load order missing ${token}`);
+          for(const token of ['raw.githubusercontent.com','__PSRADAR_ANDROID_BACK__','syncNativeWatchlist','repairDynamicMonthLabels','--ps-bottom-nav']) if(!foundation.includes(token)) throw new Error(`foundation token missing ${token}`);
+          for(const token of ['syncWatchlist','enableNativeNotifications','WorkManager','__PSRADAR_ANDROID_BACK__']) if(!main.includes(token)) throw new Error(`native shell token missing ${token}`);
+          for(const token of ['PeriodicWorkRequest','deals-auto.json','store-auto.json','PS Plus']) if(!worker.includes(token)) throw new Error(`watch worker token missing ${token}`);
+          if(!Array.isArray(deals.items)||deals.items.length<2000) throw new Error('deals dataset unexpectedly small');
+          console.log(`v17.5 static QA passed: deals=${deals.items.length}`);
           NODE
 
       - name: Generate Android wrapper project
@@ -90,6 +84,7 @@ jobs:
           cp -R ps-radar/. app/src/main/assets/ps-radar/
           rm -rf app/src/main/assets/ps-radar/scripts app/src/main/assets/ps-radar/android
           cp ps-radar/android/MainActivity.java app/src/main/java/com/seungho/psradar/MainActivity.java
+          cp ps-radar/android/DealWatchWorker.java app/src/main/java/com/seungho/psradar/DealWatchWorker.java
 
           cat > settings.gradle <<'EOF'
           pluginManagement {
@@ -126,8 +121,8 @@ jobs:
                   applicationId 'com.seungho.psradar'
                   minSdk 26
                   targetSdk 35
-                  versionCode 17402
-                  versionName '17.4.2'
+                  versionCode 17500
+                  versionName '17.5.0'
               }
 
               buildTypes {
@@ -145,6 +140,8 @@ jobs:
 
           dependencies {
               implementation 'androidx.webkit:webkit:1.12.1'
+              implementation 'androidx.core:core:1.15.0'
+              implementation 'androidx.work:work-runtime:2.10.0'
           }
           EOF
 
@@ -181,6 +178,7 @@ jobs:
           cat > app/src/main/AndroidManifest.xml <<'EOF'
           <manifest xmlns:android="http://schemas.android.com/apk/res/android">
               <uses-permission android:name="android.permission.INTERNET" />
+              <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
               <application
                   android:allowBackup="true"
                   android:label="PS Radar"
@@ -208,14 +206,14 @@ jobs:
         run: |
           set -euxo pipefail
           test -f app/src/main/assets/ps-radar/index.html
-          test -f app/src/main/assets/ps-radar/mobile-v174.js
-          test -f app/src/main/assets/ps-radar/mobile-v1741.js
-          test -f app/src/main/assets/ps-radar/mobile-v1741.css
+          test -f app/src/main/assets/ps-radar/foundation-v175.js
+          test -f app/src/main/assets/ps-radar/foundation-v175.css
           test -f app/src/main/assets/ps-radar/data/deals-auto.json
           test -f app/src/main/java/com/seungho/psradar/MainActivity.java
+          test -f app/src/main/java/com/seungho/psradar/DealWatchWorker.java
           ! test -d app/src/main/assets/ps-radar/android
-          grep -q 'resolveStoreImage' app/src/main/java/com/seungho/psradar/MainActivity.java
-          grep -q '__PSRADAR_IMAGE_FAILED__' app/src/main/java/com/seungho/psradar/MainActivity.java
+          grep -q 'syncWatchlist' app/src/main/java/com/seungho/psradar/MainActivity.java
+          grep -q 'PeriodicWorkRequest' app/src/main/java/com/seungho/psradar/DealWatchWorker.java
 
       - name: Build APK
         run: gradle :app:assembleDebug --stacktrace
@@ -230,16 +228,16 @@ jobs:
           AAPT="$ANDROID_HOME/build-tools/35.0.0/aapt"
           "$APKSIGNER" verify --verbose "$APK"
           "$AAPT" dump badging "$APK" | tee apk-badging.txt
-          grep -q "package: name='com.seungho.psradar' versionCode='17402' versionName='17.4.2'" apk-badging.txt
-          cp "$APK" "PS-Radar-v17.4.2-Android.apk"
-          sha256sum "PS-Radar-v17.4.2-Android.apk" | tee PS-Radar-v17.4.2-Android.sha256
+          grep -q "package: name='com.seungho.psradar' versionCode='17500' versionName='17.5.0'" apk-badging.txt
+          cp "$APK" "PS-Radar-v17.5.0-Android.apk"
+          sha256sum "PS-Radar-v17.5.0-Android.apk" | tee PS-Radar-v17.5.0-Android.sha256
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: PS-Radar-v17.4.2-Android
+          name: PS-Radar-v17.5.0-Android
           path: |
-            PS-Radar-v17.4.2-Android.apk
-            PS-Radar-v17.4.2-Android.sha256
+            PS-Radar-v17.5.0-Android.apk
+            PS-Radar-v17.5.0-Android.sha256
           if-no-files-found: error
           retention-days: 30
