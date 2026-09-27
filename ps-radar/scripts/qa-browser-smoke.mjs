@@ -101,8 +101,10 @@ try{
       }
       if(page==='wishlist')check('wishlist shows saved item',document.querySelectorAll('#grid .card').length>0,document.querySelector('#countText')?.textContent||'');
     }
+    const merged=typeof state!=='undefined'&&Array.isArray(state.games)?state.games.map(g=>typeof mergeGame==='function'?mergeGame(g):g):[];
+    const unverifiedCatalog=merged.filter(g=>(g.type==='catalog'||g.type==='classic'||g.categories?.includes('catalog')||g.categories?.includes('classic'))&&!g.catalogVerified).map(g=>({id:g.id,title:g.title,type:g.type,categories:g.categories||[]}));
     const failed=tests.filter(x=>!x.ok);
-    return {pass:failed.length===0,failed,tests,source:document.querySelector('#sourceStatus')?.textContent||'',count:document.querySelector('#countText')?.textContent||''};
+    return {pass:failed.length===0,failed,tests,source:document.querySelector('#sourceStatus')?.textContent||'',count:document.querySelector('#countText')?.textContent||'',unverifiedCatalog};
   })()`;
   const evalResult=await send('Runtime.evaluate',{expression,awaitPromise:true,returnByValue:true,userGesture:true});
   const report=evalResult?.result?.value;
