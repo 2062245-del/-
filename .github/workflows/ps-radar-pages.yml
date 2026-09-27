@@ -1,0 +1,56 @@
+name: PS Radar Pages
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ps-radar-pages.yml'
+  schedule:
+    - cron: '17 */6 * * *'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+environment:
+  name: github-pages
+  url: ${{ steps.deployment.outputs.page_url }}
+
+concurrency:
+  group: ps-radar-pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PS Radar branch
+        uses: actions/checkout@v6
+        with:
+          ref: ps-radar-v13-pages
+
+      - name: Rebuild static site package
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat ps-radar-v13-runtime.part* > /tmp/ps-radar-v13.b64
+          base64 -d /tmp/ps-radar-v13.b64 > /tmp/ps-radar-v13.tgz
+          mkdir -p site
+          tar -xzf /tmp/ps-radar-v13.tgz -C site
+          test -f site/index.html
+          touch site/.nojekyll
+          echo "Recovered $(find site -type f | wc -l) site files"
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
