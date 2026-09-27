@@ -11,6 +11,14 @@
     return m ? m[1] : '';
   };
   const titleKeySafe = (v='') => typeof titleKey==='function' ? titleKey(v) : String(v).toLowerCase().replace(/[^a-z0-9가-힣]+/g,'');
+  const officialKorean = g => g?.ko===true && ['verified-store','verified-store-positive'].includes(g?.languageStatus);
+  const verifiedCurrentSale = g => {
+    const current=Number(g?.currentPrice), original=Number(g?.originalPrice), discount=Number(g?.discountPercent);
+    if(!g?.storeVerified || g?.priceStatus!=='verified' || !Number.isFinite(current) || !Number.isFinite(original)) return false;
+    if(!(original>current && current>=0 && discount>0)) return false;
+    if(g?.saleEndsAt){const end=new Date(g.saleEndsAt).getTime();if(Number.isFinite(end)&&end<=Date.now())return false;}
+    return true;
+  };
 
   function mergedCategories(a,b){
     return [...new Set([...(Array.isArray(a?.categories)?a.categories:(a?.type?[a.type]:[])),...(Array.isArray(b?.categories)?b.categories:(b?.type?[b.type]:[]))])];
@@ -100,7 +108,7 @@
       const match=(cid&&byConcept.get(cid)) || byStore.get(cleanStore(raw?.store)) || byTitle.get(titleKeySafe(raw?.title||''));
       if(!match) continue;
       const patch={storeVerified:true,storeVerifiedAt:raw.fetchedAt||payload.generatedAt||null};
-      for(const key of ['productId','storeProductName','currentPrice','originalPrice','discountPercent','saleEndsAt','rating','ratingCount','plusIncluded','plusTier']){
+      for(const key of ['store','productId','storeProductName','currentPrice','originalPrice','discountPercent','saleEndsAt','priceStatus','rating','ratingCount','plusIncluded','plusTier','marketStatus','fallbackReason']){
         if(raw[key]!==null && raw[key]!==undefined) patch[key]=raw[key];
       }
       if(['verified-store','verified-store-positive'].includes(raw.languageStatus) && typeof raw.ko==='boolean'){
@@ -147,7 +155,7 @@
           box.dataset.catalogSignature=signature;
           box.className='page-coverage complete';
           const storeLine=sh?.safeToMerge
-            ? ` · Store 보강: 가격 ${Number(sh.price||0).toLocaleString('ko-KR')} · 평점 ${Number(sh.rating||0).toLocaleString('ko-KR')} · 언어 확인 ${Number(sh.languageVerified||0).toLocaleString('ko-KR')}`
+            ? ` · Store 보강: 가격 ${Number(sh.price||0).toLocaleString('ko-KR')} · 평점 ${Number(sh.rating||0).toLocaleString('ko-KR')} · 한국어 공식 확인 ${Number(sh.languageVerified||0).toLocaleString('ko-KR')}`
             : '';
           box.innerHTML=`<div><strong>공식 현재 목록 · 게임 카탈로그 ${catalog}개 · 클래식 ${classic}개</strong><span>PlayStation 공식 gameslist 기준 전체 스냅샷 · ${formatSync(state.catalogGeneratedAt)} 동기화${storeLine}</span></div><a href="https://www.playstation.com/ko-kr/ps-plus/games/" target="_blank" rel="noopener">공식 전체 목록 ↗</a>`;
         }
@@ -189,6 +197,15 @@
       if(hasKind(g,'classic'))return 'Deluxe';
       if(hasKind(g,'catalog'))return g.catalogTier||'Extra';
       return g?.tier||null;
+    };
+  }
+  if(typeof filteredGames==='function'){
+    const baseFilteredGames=filteredGames;
+    filteredGames=function(){
+      let games=baseFilteredGames();
+      if(typeof state!=='undefined'&&state.korean==='yes')games=games.filter(officialKorean);
+      if(typeof state!=='undefined'&&state.view==='promo')games=games.filter(verifiedCurrentSale);
+      return games;
     };
   }
 
