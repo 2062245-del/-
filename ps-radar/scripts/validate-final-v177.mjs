@@ -10,13 +10,14 @@ const tokens = (text, required, scope) => {
 const root = 'ps-radar';
 const foundation = read(`${root}/foundation-v175.js`);
 const ux = read(`${root}/ux-v176.js`);
+const uxCss = read(`${root}/ux-v176.css`);
 const content = read(`${root}/content-v177.js`);
 const index = read(`${root}/index.html`);
 const main = read(`${root}/android/MainActivity.java`);
 const worker = read(`${root}/android/DealWatchWorker.java`);
 const css = [
   fs.existsSync(`${root}/foundation-v175.css`) ? read(`${root}/foundation-v175.css`) : '',
-  fs.existsSync(`${root}/ux-v176.css`) ? read(`${root}/ux-v176.css`) : '',
+  uxCss,
   fs.existsSync(`${root}/mobile-v1741.css`) ? read(`${root}/mobile-v1741.css`) : ''
 ].join('\n');
 const deals = json(`${root}/data/deals-auto.json`);
@@ -35,7 +36,14 @@ function stage175() {
 }
 
 function stage176() {
-  tokens(ux, ['17.6.0', 'contentSections', 'psplus', 'my', 'renderHomeSummary', 'compact'], 'v17.6 UX');
+  tokens(ux, [
+    '17.6.0', 'ensureDashboard', 'renderDashboard', 'setPlusMode', 'setMyMode', 'updateContextTabs',
+    '오늘의 변화', '지금 볼 게임', '이번 주 PlayStation', '월간 게임', '게임 카탈로그', '클래식', '종료 예정',
+    '가격알림', '보유게임', '최근 본'
+  ], 'v17.6 UX');
+  tokens(uxCss, [
+    '.v176-game-mini', 'grid-template-columns:repeat(5,1fr)', '#grid .card .game-desc{display:none}', '@media(max-width:430px)'
+  ], 'v17.6 compact CSS');
   const navBlock = index.match(/<nav class="bottomnav"[\s\S]*?<\/nav>/i)?.[0] || '';
   const navCount = (navBlock.match(/class="navbtn/g) || []).length;
   must(navCount === 5, `v17.6 bottom navigation must have exactly 5 tabs, got ${navCount}`);
