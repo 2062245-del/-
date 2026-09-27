@@ -3,6 +3,7 @@
   const VERSION='17.7.1';
   let upcomingByTitle=new Map();
   let decorateFrame=0;
+  let started=false;
 
   const key=s=>String(s||'').toLowerCase().replace(/[^a-z0-9가-힣]+/g,'');
 
@@ -42,6 +43,11 @@
     });
   }
 
+  function scheduleDecorate(){
+    if(decorateFrame)return;
+    decorateFrame=requestAnimationFrame(()=>{decorateFrame=0;decorateReleaseRows();});
+  }
+
   function compactUpcoming(){
     const active=document.body.dataset.page==='upcoming';
     document.body.classList.toggle('v1771-upcoming-compact',active);
@@ -50,11 +56,6 @@
     const coverage=document.querySelector('#pageCoverage');
     if(coverage)coverage.hidden=true;
     scheduleDecorate();
-  }
-
-  function scheduleDecorate(){
-    if(decorateFrame)return;
-    decorateFrame=requestAnimationFrame(()=>{decorateFrame=0;decorateReleaseRows();});
   }
 
   async function loadUpcoming(){
@@ -68,15 +69,22 @@
     scheduleDecorate();
   }
 
-  const pageObserver=new MutationObserver(()=>compactUpcoming());
-  const calendarObserver=new MutationObserver(()=>scheduleDecorate());
-
-  window.addEventListener('DOMContentLoaded',()=>{
+  function start(){
+    if(started||!document.body)return;started=true;
+    const pageObserver=new MutationObserver(()=>compactUpcoming());
     normalizeNavigation();compactUpcoming();loadUpcoming();
     pageObserver.observe(document.body,{attributes:true,attributeFilter:['data-page']});
-    const calendar=document.querySelector('#v177ReleaseCalendar');
-    if(calendar)calendarObserver.observe(calendar,{childList:true,subtree:true});
-  });
+    const attachCalendarObserver=()=>{
+      const calendar=document.querySelector('#v177ReleaseCalendar');
+      if(!calendar)return false;
+      new MutationObserver(()=>scheduleDecorate()).observe(calendar,{childList:true,subtree:true});
+      return true;
+    };
+    if(!attachCalendarObserver()) setTimeout(attachCalendarObserver,250);
+  }
+
+  if(document.readyState==='loading') window.addEventListener('DOMContentLoaded',start,{once:true});
+  else start();
 
   window.__PSRADAR_V1771__={VERSION,normalizeNavigation,compactUpcoming};
 })();
