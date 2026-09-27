@@ -25,6 +25,8 @@
     let n=0; for(const c of title)n=(n+c.charCodeAt(0)*17)%360;
     return [`hsl(${n} 46% 31%)`,`hsl(${(n+62)%360} 42% 17%)`];
   };
+  const priceText = (g) => Number.isFinite(Number(g?.priceKRW)) && Number(g.priceKRW)>0 ? `${Number(g.priceKRW).toLocaleString('ko-KR')}원` : '가격 미정';
+  const priceStateText = (g) => g?.priceStatus==='preorder' ? '예약구매' : g?.priceStatus==='released' ? '판매 중' : '공식 가격 미공개';
 
   async function loadUpcoming(){
     try{
@@ -59,9 +61,10 @@
     const image=g.image?`<img class="cover-image" src="${safeEsc(g.image)}" alt="${safeEsc(g.title)} 커버" loading="lazy" referrerpolicy="no-referrer" />`:'';
     const badges=[...(g.platform||[]).slice(0,2).map(x=>`<span class="badge ps">${safeEsc(x)}</span>`),g.ko===true?'<span class="badge">한국어</span>':'',g.dataQuality==='verified'?'<span class="badge quality">공식확인</span>':''].join('');
     const genres=(g.genre||[]).slice(0,2).join(' · ');
+    const edition=g.edition?`<span class="upcoming-edition">${safeEsc(g.edition)}</span>`:'';
     return `<article class="card upcoming-card">
       <div class="cover ${image?'has-image':'image-missing'}" style="--c1:${c1};--c2:${c2}">${image}<div class="cover-content"><span class="cover-kicker">UPCOMING</span><strong class="cover-title">${safeEsc(g.title)}</strong></div></div>
-      <div class="body"><div class="meta">${badges}</div><h4>${safeEsc(g.title)}</h4><p>${safeEsc(g.desc||'PlayStation 공식 출시 예정 타이틀입니다.')}</p><span class="release-date">◷ ${safeEsc(dateText(g.releaseDate,g.releaseWindow))}</span>${genres?`<div class="sub">${safeEsc(genres)}</div>`:''}<a class="official-source" href="${safeEsc(g.store||'https://www.playstation.com/ko-kr/ps5/games/')}" target="_blank" rel="noopener">PlayStation 공식 정보 보기 →</a></div>
+      <div class="body"><div class="meta">${badges}</div><h4>${safeEsc(g.title)}</h4><p>${safeEsc(g.desc||'PlayStation 공식 출시 예정 타이틀입니다.')}</p><span class="release-date">◷ ${safeEsc(dateText(g.releaseDate,g.releaseWindow))}</span>${genres?`<div class="sub">${safeEsc(genres)}</div>`:''}<div class="upcoming-price"><strong>${safeEsc(priceText(g))}</strong><span>${safeEsc(priceStateText(g))}</span>${edition}</div><a class="official-source" href="${safeEsc(g.store||'https://www.playstation.com/ko-kr/ps5/games/')}" target="_blank" rel="noopener">PlayStation 공식 정보 보기 →</a></div>
     </article>`;
   }
 
