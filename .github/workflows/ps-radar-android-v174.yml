@@ -65,8 +65,8 @@ jobs:
           const deals=JSON.parse(fs.readFileSync('ps-radar/data/deals-auto.json','utf8'));
           for(const token of ['foundation-v175.js','data-mobile-v174="1"','data-mobile-v1741="1"']) if(!index.includes(token)) throw new Error(`deterministic load order missing ${token}`);
           for(const token of ['raw.githubusercontent.com','__PSRADAR_ANDROID_BACK__','syncNativeWatchlist','repairDynamicMonthLabels','--ps-bottom-nav']) if(!foundation.includes(token)) throw new Error(`foundation token missing ${token}`);
-          for(const token of ['syncWatchlist','enableNativeNotifications','WorkManager','__PSRADAR_ANDROID_BACK__']) if(!main.includes(token)) throw new Error(`native shell token missing ${token}`);
-          for(const token of ['PeriodicWorkRequest','deals-auto.json','store-auto.json','PS Plus']) if(!worker.includes(token)) throw new Error(`watch worker token missing ${token}`);
+          for(const token of ['syncWatchlist','enableNativeNotifications','WorkManager','PeriodicWorkRequest','__PSRADAR_ANDROID_BACK__']) if(!main.includes(token)) throw new Error(`native shell token missing ${token}`);
+          for(const token of ['deals-auto.json','store-auto.json','PS Plus','notifyChange']) if(!worker.includes(token)) throw new Error(`watch worker token missing ${token}`);
           if(!Array.isArray(deals.items)||deals.items.length<2000) throw new Error('deals dataset unexpectedly small');
           console.log(`v17.5 static QA passed: deals=${deals.items.length}`);
           NODE
@@ -213,7 +213,8 @@ jobs:
           test -f app/src/main/java/com/seungho/psradar/DealWatchWorker.java
           ! test -d app/src/main/assets/ps-radar/android
           grep -q 'syncWatchlist' app/src/main/java/com/seungho/psradar/MainActivity.java
-          grep -q 'PeriodicWorkRequest' app/src/main/java/com/seungho/psradar/DealWatchWorker.java
+          grep -q 'PeriodicWorkRequest' app/src/main/java/com/seungho/psradar/MainActivity.java
+          grep -q 'notifyChange' app/src/main/java/com/seungho/psradar/DealWatchWorker.java
 
       - name: Build APK
         run: gradle :app:assembleDebug --stacktrace
