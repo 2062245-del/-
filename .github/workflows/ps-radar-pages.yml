@@ -39,16 +39,31 @@ jobs:
           test -s root/ps-radar/styles.css
           test -s root/ps-radar/ui-v13.css
           test -s root/ps-radar/ui-v13.js
+          test -s root/ps-radar/catalog-v14.js
           test -s root/ps-radar/data/games.json
           test -s root/ps-radar/data/discovery.json
+          test -s root/ps-radar/data/catalog-auto.json
           test -s root/ps-radar/data/store.json
           test -s root/ps-radar/data/upcoming.json
           grep -qi 'PS Radar' root/ps-radar/index.html
           grep -q 'PlayStation 혜택을 한눈에' root/ps-radar/index.html
           grep -q 'data-page="upcoming"' root/ps-radar/index.html
+          grep -q 'catalog-v14.js' root/ps-radar/index.html
           node --check root/ps-radar/app.js
           node --check root/ps-radar/ui-v13.js
-          node -e "JSON.parse(require('fs').readFileSync('root/ps-radar/data/games.json','utf8')); JSON.parse(require('fs').readFileSync('root/ps-radar/data/store.json','utf8')); JSON.parse(require('fs').readFileSync('root/ps-radar/data/discovery.json','utf8')); JSON.parse(require('fs').readFileSync('root/ps-radar/data/upcoming.json','utf8'));"
+          node --check root/ps-radar/catalog-v14.js
+          node - <<'NODE'
+          const fs=require('fs');
+          const files=['games.json','store.json','discovery.json','upcoming.json'];
+          for(const f of files)JSON.parse(fs.readFileSync(`root/ps-radar/data/${f}`,'utf8'));
+          const c=JSON.parse(fs.readFileSync('root/ps-radar/data/catalog-auto.json','utf8'));
+          if(c.source!=='playstation-official-gameslist-api')throw new Error('unexpected catalog source');
+          if(!c.health?.safeToMerge)throw new Error('official catalog safety flag failed');
+          if((c.health.counts?.catalog||0)<100)throw new Error('official game catalog unexpectedly small');
+          if((c.health.counts?.classic||0)<30)throw new Error('official classics catalog unexpectedly small');
+          if(!Array.isArray(c.items)||c.items.length<130)throw new Error('official catalog snapshot unexpectedly small');
+          console.log('PS Radar official catalog:',c.health);
+          NODE
           echo "PS Radar files: $(find root/ps-radar -type f | wc -l)"
 
       - name: Build Pages artifact
@@ -62,6 +77,7 @@ jobs:
           touch site/.nojekyll site/ps-radar/.nojekyll
           test -s site/index.html
           test -s site/ps-radar/index.html
+          test -s site/ps-radar/data/catalog-auto.json
           grep -q '유통기한 조사' site/index.html
           grep -qi 'PS Radar' site/ps-radar/index.html
 
