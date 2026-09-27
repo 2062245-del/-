@@ -30,7 +30,7 @@ function stage175() {
     'WorkManager', 'PeriodicWorkRequest', 'POST_NOTIFICATIONS', 'syncWatchlist',
     'syncReleaseWatchlist', 'enableNativeNotifications'
   ], 'v17.5 MainActivity');
-  tokens(worker, ['Worker', 'OkHttpClient', 'NotificationCompat', 'deals-auto.json'], 'v17.5 DealWatchWorker');
+  tokens(worker, ['Worker', 'HttpURLConnection', 'NotificationCompat', 'deals-auto.json'], 'v17.5 DealWatchWorker');
   console.log('[v17.5 Foundation] PASS - remote-first data, routing/back, dynamic month, native WorkManager notifications');
 }
 
