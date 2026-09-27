@@ -20,17 +20,17 @@ function endpoint(op,hash,conceptId){
   const q=new URLSearchParams({operationName:op,variables:JSON.stringify({conceptId:String(conceptId)}),extensions:JSON.stringify({persistedQuery:{version:1,sha256Hash:hash}})});
   return `${API}?${q}`;
 }
-async function callOfficial(opKey,conceptId){
+async function callOfficial(opKey,conceptId,maxAttempts=5){
   const [op,hash]=OPS[opKey]; let last;
-  for(let attempt=0;attempt<5;attempt++){
+  for(let attempt=0;attempt<maxAttempts;attempt++){
     try{
       const r=await fetch(endpoint(op,hash,conceptId),{headers:{accept:'application/json','accept-language':'ko-KR,ko;q=0.9,en;q=0.7',origin:'https://store.playstation.com',referer:'https://store.playstation.com/','user-agent':UA}});
       if(r.status===429||r.status>=500){last=new Error(`${op} HTTP ${r.status}`);await sleep(900*(attempt+1));continue;}
-      if(!r.ok)throw new Error(`${op} HTTP ${r.status}`);
+      if(!r.ok){const err=new Error(`${op} HTTP ${r.status}`);err.permanent=true;throw err;}
       const j=await r.json();
-      if(j.errors?.length)throw new Error(`${op}: ${j.errors[0]?.message||'GraphQL error'}`);
+      if(j.errors?.length){const err=new Error(`${op}: ${j.errors[0]?.message||'GraphQL error'}`);err.permanent=true;throw err;}
       return j;
-    }catch(err){last=err;if(attempt<4)await sleep(650*(attempt+1));}
+    }catch(err){last=err;if(err?.permanent)throw err;if(attempt<maxAttempts-1)await sleep(650*(attempt+1));}
   }
   throw last||new Error(`${op} failed`);
 }
@@ -38,8 +38,6 @@ async function callOfficial(opKey,conceptId){
 function extractLanguages(product){
   const text=[product?.name,...(product?.skus||[]).map(x=>x?.name)].filter(Boolean).join(' · ');
   const langs=[...new Set(text.match(languageRe)||[])];
-  // Product/SKU names can positively confirm Korean when explicitly written,
-  // but absence of the word Korean is NOT proof that Korean is unsupported.
   if(langs.includes('한국어'))return {ko:true,languageStatus:'verified-store-positive',screenLanguages:langs.join(' · '),languageEvidence:'product-or-sku-name'};
   return {ko:null,languageStatus:'unknown',screenLanguages:langs.length?langs.join(' · '):null,languageEvidence:langs.length?'non-authoritative-name-hint':null};
 }
@@ -61,8 +59,8 @@ function plusInfo(product,item){
   const included=ctas.some(c=>/PS_PLUS/.test(String(c?.price?.membershipType||''))||/PS_PLUS/.test(String(c?.type||''))||c?.price?.isTiedToSubscription===true);
   return {plusIncluded:included||item.type==='catalog'||item.type==='classic',plusTier:item.type==='classic'?'Deluxe':'Extra'};
 }
-async function enrich(item){
-  const [ratingPayload,pricePayload]=await Promise.all([callOfficial('rating',item.conceptId),callOfficial('price',item.conceptId)]);
+async function enrich(item,maxAttempts=5){
+  const [ratingPayload,pricePayload]=await Promise.all([callOfficial('rating',item.conceptId,maxAttempts),callOfficial('price',item.conceptId,maxAttempts)]);
   const rp=ratingPayload?.data?.conceptRetrieve?.defaultProduct||null;
   const pp=pricePayload?.data?.conceptRetrieve?.defaultProduct||null;
   if(!rp&&!pp)throw new Error('defaultProduct missing');
@@ -84,7 +82,18 @@ if(!catalog?.health?.safeToMerge||!Array.isArray(catalog.items))throw new Error(
 const previous=await readJson(OUT,{items:[]});
 const prevByConcept=new Map((previous.items||[]).filter(x=>x.conceptId).map(x=>[String(x.conceptId),x]));
 const target=catalog.items.filter(x=>x.conceptId&&x.store).slice(0,BATCH_SIZE);
+if(!target.length)throw new Error('no catalog items eligible for Store enrichment');
 const results=new Array(target.length); let cursor=0;
+
+try{
+  console.log(`PS Store preflight: ${target[0].title} / concept ${target[0].conceptId}`);
+  results[0]={ok:true,item:await enrich(target[0],2)};
+  cursor=1;
+  console.log('PS Store preflight OK',JSON.stringify({title:results[0].item.title,price:results[0].item.currentPrice,rating:results[0].item.rating,languageStatus:results[0].item.languageStatus}));
+}catch(err){
+  console.error('PS Store preflight FAILED',JSON.stringify({title:target[0].title,conceptId:target[0].conceptId,error:String(err?.message||err)}));
+  process.exit(2);
+}
 
 async function worker(workerId){
   await sleep(workerId*140);
@@ -96,7 +105,7 @@ async function worker(workerId){
     await sleep(120);
   }
 }
-await Promise.all(Array.from({length:Math.min(CONCURRENCY,target.length)},(_,i)=>worker(i)));
+await Promise.all(Array.from({length:Math.min(CONCURRENCY,Math.max(0,target.length-cursor))},(_,i)=>worker(i)));
 for(const r of results)if(r?.ok)prevByConcept.set(String(r.item.conceptId),r.item);
 const all=[...prevByConcept.values()].sort((a,b)=>String(a.title).localeCompare(String(b.title),'ko'));
 const failed=results.filter(x=>x&&!x.ok);
