@@ -10,9 +10,11 @@ const FALLBACK_CAMPAIGNS = [
   'https://store.playstation.com/ko-kr/category/eaa6b38b-6a1b-4f27-8440-be113715dddb/1'
 ];
 const MAX_CAMPAIGNS = Number(process.env.PSRADAR_MAX_CAMPAIGNS || 8);
-const MAX_PAGES_PER_CAMPAIGN = Number(process.env.PSRADAR_MAX_PAGES_PER_CAMPAIGN || 120);
-const MAX_TOTAL_PAGES = Number(process.env.PSRADAR_MAX_TOTAL_PAGES || 220);
+const MAX_PAGES_PER_CAMPAIGN = Number(process.env.PSRADAR_MAX_PAGES_PER_CAMPAIGN || 60);
+const MAX_TOTAL_PAGES = Number(process.env.PSRADAR_MAX_TOTAL_PAGES || 160);
 const MIN_SAFE_ITEMS = Number(process.env.PSRADAR_MIN_SAFE_ITEMS || 20);
+const MAX_EMPTY_STREAK = Number(process.env.PSRADAR_MAX_EMPTY_STREAK || 5);
+const MIN_PREVIOUS_RATIO = Number(process.env.PSRADAR_MIN_PREVIOUS_RATIO || 0.25);
 
 const cleanUrl = value => {
   try {
@@ -41,6 +43,17 @@ const normalizeCampaign = href => {
     u.hash = '';
     return u.href.replace(/\/$/, '');
   } catch { return null; }
+};
+const nonGameCampaign = title => /(?:게임별\s*추가\s*콘텐츠|추가\s*콘텐츠|add[- ]?on|dlc|아바타|캐릭터|게임\s*통화)/i.test(String(title || ''));
+const campaignScore = campaign => {
+  const text = `${campaign.title || ''} ${campaign.url || ''}`;
+  let score = 0;
+  if (/(?:세일|할인|프로모션|deal|sale|특가|혜택)/i.test(text)) score += 8;
+  if (/\bPS5\b/i.test(text)) score += 4;
+  if (/\bPS4\b/i.test(text)) score += 4;
+  if (/모든\s*PS[45]\s*게임/i.test(text)) score += 2;
+  if (nonGameCampaign(text)) score -= 50;
+  return score;
 };
 
 async function waitSettled(page, ms = 900) {
@@ -163,6 +176,12 @@ function buildPageUrls(campaign, total) {
   return Array.from({ length: pages }, (_, i) => `${u.origin}${cat[1]}/${i + 1}`);
 }
 
+let previousItemCount = 0;
+try {
+  const previous = JSON.parse(await fs.readFile(OUT, 'utf8'));
+  previousItemCount = Array.isArray(previous?.items) ? previous.items.length : 0;
+} catch {}
+
 const browser = await chromium.launch({ headless: true });
 const context = await browser.newContext({
   locale: 'ko-KR',
@@ -174,44 +193,103 @@ page.setDefaultTimeout(45000);
 
 const campaigns = await discoverCampaigns(page);
 console.log('Campaign candidates:', campaigns.length, campaigns);
-const campaignMeta = [];
+const allCampaignMeta = [];
 for (const url of campaigns) {
   const info = await inspectCampaign(page, url);
-  if (info) campaignMeta.push({ url, ...info });
+  if (info) allCampaignMeta.push({ url, ...info });
 }
-campaignMeta.sort((a, b) => (Number(b.total) || 0) - (Number(a.total) || 0));
+allCampaignMeta.sort((a, b) => campaignScore(b) - campaignScore(a) || (Number(b.total) || 0) - (Number(a.total) || 0));
+console.log('Campaign inspection:', allCampaignMeta.map(x => ({ title: x.title, total: x.total, score: campaignScore(x) })));
+
+const skippedCampaigns = allCampaignMeta.filter(x => nonGameCampaign(x.title));
+const campaignMeta = allCampaignMeta.filter(x => !nonGameCampaign(x.title));
+console.log('Skipped non-game campaigns:', skippedCampaigns.map(x => x.title || x.url));
+console.log('Eligible campaigns:', campaignMeta.map(x => x.title || x.url));
 
 const collected = new Map();
 let totalPages = 0;
 const sourcePages = [];
-for (const campaign of campaignMeta) {
-  if (totalPages >= MAX_TOTAL_PAGES) break;
-  const queue = buildPageUrls(campaign.url, campaign.total);
-  const prefix = campaignPrefix(campaign.url);
-  const seen = new Set();
-  while (queue.length && seen.size < MAX_PAGES_PER_CAMPAIGN && totalPages < MAX_TOTAL_PAGES) {
-    const next = cleanUrl(queue.shift());
-    if (!next || seen.has(next)) continue;
-    seen.add(next);
+const states = campaignMeta.map(campaign => ({
+  campaign,
+  prefix: campaignPrefix(campaign.url),
+  queue: buildPageUrls(campaign.url, campaign.total),
+  seen: new Set(),
+  emptyStreak: 0,
+  pagesScanned: 0,
+  itemsSeen: 0,
+  newUnique: 0,
+  errors: 0,
+  active: true,
+  stoppedBy: null
+}));
+
+while (totalPages < MAX_TOTAL_PAGES && states.some(x => x.active)) {
+  let progressed = false;
+  for (const state of states) {
+    if (totalPages >= MAX_TOTAL_PAGES) break;
+    if (!state.active) continue;
+
+    let next = null;
+    while (state.queue.length && !next) {
+      const candidate = cleanUrl(state.queue.shift());
+      if (candidate && !state.seen.has(candidate)) next = candidate;
+    }
+    if (!next) {
+      state.active = false;
+      state.stoppedBy = state.stoppedBy || 'queue-empty';
+      continue;
+    }
+
+    state.seen.add(next);
+    state.pagesScanned++;
     totalPages++;
+    progressed = true;
+
     try {
       const result = await scrapePage(page, next);
       sourcePages.push(next);
+      const before = collected.size;
       for (const item of result.items) {
         const key = cleanUrl(item.store) || item.title.toLowerCase();
         const prev = collected.get(key);
         if (!prev || item.discountPercent > prev.discountPercent) collected.set(key, item);
       }
+      const gained = collected.size - before;
+      state.itemsSeen += result.items.length;
+      state.newUnique += Math.max(0, gained);
+      state.emptyStreak = result.items.length === 0 ? state.emptyStreak + 1 : 0;
+
       for (const href of result.pageLinks || []) {
         const clean = cleanUrl(href);
-        if (clean.startsWith(prefix) && !seen.has(clean) && !queue.includes(clean)) queue.push(clean);
+        if (clean.startsWith(state.prefix) && !state.seen.has(clean) && !state.queue.includes(clean)) state.queue.push(clean);
       }
-      console.log(`[${totalPages}/${MAX_TOTAL_PAGES}]`, campaign.title || campaign.url, 'page items', result.items.length, 'unique', collected.size);
-      if (buildPageUrls(campaign.url, campaign.total).length === 1 && (result.pageLinks || []).length === 0) break;
+
+      console.log(`[${totalPages}/${MAX_TOTAL_PAGES}]`, state.campaign.title || state.campaign.url, 'page items', result.items.length, 'gained', gained, 'unique', collected.size, 'empty streak', state.emptyStreak);
+
+      if (state.emptyStreak >= MAX_EMPTY_STREAK) {
+        state.active = false;
+        state.stoppedBy = `empty-streak-${MAX_EMPTY_STREAK}`;
+        console.log('Stopping low-yield campaign:', state.campaign.title || state.campaign.url, state.stoppedBy);
+      } else if (state.pagesScanned >= MAX_PAGES_PER_CAMPAIGN) {
+        state.active = false;
+        state.stoppedBy = 'per-campaign-limit';
+      } else if (buildPageUrls(state.campaign.url, state.campaign.total).length === 1 && (result.pageLinks || []).length === 0) {
+        state.active = false;
+        state.stoppedBy = 'single-page';
+      } else if (state.queue.length === 0) {
+        state.active = false;
+        state.stoppedBy = 'queue-empty';
+      }
     } catch (err) {
+      state.errors++;
       console.warn('Page scrape failed:', next, err.message);
+      if (state.errors >= 3) {
+        state.active = false;
+        state.stoppedBy = 'errors';
+      }
     }
   }
+  if (!progressed) break;
 }
 
 await browser.close();
@@ -241,25 +319,50 @@ const items = [...collected.values()].map(raw => ({
 })).filter(x => x.title && x.store && x.originalPrice > x.currentPrice && x.discountPercent > 0)
   .sort((a,b) => b.discountPercent - a.discountPercent || a.title.localeCompare(b.title, 'ko'));
 
+const platformCounts = items.reduce((acc, item) => {
+  if (!item.platform?.length) acc.unknown++;
+  if (item.platform?.includes('PS5')) acc.PS5++;
+  if (item.platform?.includes('PS4')) acc.PS4++;
+  return acc;
+}, { PS5: 0, PS4: 0, unknown: 0 });
+const previousSafetyFloor = previousItemCount > 0 ? Math.floor(previousItemCount * MIN_PREVIOUS_RATIO) : 0;
+const safetyFloor = Math.max(MIN_SAFE_ITEMS, previousSafetyFloor);
+const campaignStats = states.map(state => ({
+  url: state.campaign.url,
+  title: state.campaign.title || null,
+  total: state.campaign.total || null,
+  pagesScanned: state.pagesScanned,
+  itemsSeen: state.itemsSeen,
+  newUnique: state.newUnique,
+  stoppedBy: state.stoppedBy || (state.active ? 'global-limit' : null)
+}));
+
 const payload = {
   generatedAt,
   source: 'playstation-store-ko-deals-auto',
   sourceHub: HUB,
-  campaigns: campaignMeta.map(x => ({ url: x.url, title: x.title || null, total: x.total || null })),
+  campaigns: allCampaignMeta.map(x => ({ url: x.url, title: x.title || null, total: x.total || null, skippedAsNonGame: nonGameCampaign(x.title) })),
+  campaignStats,
   health: {
-    safeToMerge: items.length >= MIN_SAFE_ITEMS,
+    safeToMerge: items.length >= safetyFloor,
     itemCount: items.length,
+    previousItemCount,
+    safetyFloor,
     pagesScanned: totalPages,
+    pageBudget: MAX_TOTAL_PAGES,
     campaignCount: campaignMeta.length,
-    minSafeItems: MIN_SAFE_ITEMS
+    skippedCampaignCount: skippedCampaigns.length,
+    maxEmptyStreak: MAX_EMPTY_STREAK,
+    minSafeItems: MIN_SAFE_ITEMS,
+    platformCounts
   },
   items
 };
 
 if (!payload.health.safeToMerge) {
   console.error(JSON.stringify(payload.health, null, 2));
-  throw new Error(`Deal scrape safety check failed: ${items.length} items < ${MIN_SAFE_ITEMS}`);
+  throw new Error(`Deal scrape safety check failed: ${items.length} items < safety floor ${safetyFloor}`);
 }
 await fs.mkdir('ps-radar/data', { recursive: true });
 await fs.writeFile(OUT, JSON.stringify(payload, null, 2) + '\n');
-console.log(`Wrote ${OUT}: ${items.length} verified discounted items from ${totalPages} pages.`);
+console.log(`Wrote ${OUT}: ${items.length} verified discounted items from ${totalPages} pages.`, platformCounts);
