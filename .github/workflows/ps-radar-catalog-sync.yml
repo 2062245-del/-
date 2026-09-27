@@ -8,6 +8,7 @@ on:
     branches: [main]
     paths:
       - 'ps-radar/scripts/sync-plus-catalog.mjs'
+      - 'ps-radar/scripts/inspect-plus-gameslist.mjs'
       - '.github/workflows/ps-radar-catalog-sync.yml'
 
 permissions:
@@ -41,6 +42,12 @@ jobs:
           npm install --no-save --package-lock=false playwright
           npx playwright install --with-deps chromium
 
+      - name: Inspect official gameslist payloads
+        shell: bash
+        run: |
+          set -euo pipefail
+          node ps-radar/scripts/inspect-plus-gameslist.mjs
+
       - name: Collect official PS Plus catalog
         id: collect
         shell: bash
@@ -53,7 +60,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ps-radar-catalog-debug
-          path: ps-radar/data/catalog-auto-debug.json
+          path: |
+            ps-radar/data/catalog-auto-debug.json
+            ps-radar/data/gameslist-inspect.json
           if-no-files-found: ignore
           retention-days: 7
 
@@ -86,7 +95,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          rm -f ps-radar/data/catalog-auto-debug.json
+          rm -f ps-radar/data/catalog-auto-debug.json ps-radar/data/gameslist-inspect.json
           if [ -z "$(git status --porcelain -- ps-radar/data/catalog-auto.json)" ]; then
             echo 'No catalog snapshot changes.'
           else
