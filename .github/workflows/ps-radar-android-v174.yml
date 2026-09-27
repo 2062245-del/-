@@ -1,4 +1,4 @@
-name: Build PS Radar v17.6 Android APK
+name: Build PS Radar v17.7 Android APK
 
 on:
   push:
@@ -16,10 +16,14 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 30
     env:
       ANDROID_HOME: /usr/local/lib/android/sdk
       ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+      PSRADAR_KEYSTORE_B64: ${{ secrets.PSRADAR_KEYSTORE_B64 }}
+      PSRADAR_KEYSTORE_PASSWORD: ${{ secrets.PSRADAR_KEYSTORE_PASSWORD }}
+      PSRADAR_KEY_ALIAS: ${{ secrets.PSRADAR_KEY_ALIAS }}
+      PSRADAR_KEY_PASSWORD: ${{ secrets.PSRADAR_KEY_PASSWORD }}
 
     steps:
       - name: Checkout main
@@ -44,32 +48,43 @@ jobs:
         with:
           gradle-version: '8.11.1'
 
-      - name: Validate PS Radar v17.6 UX
+      - name: Validate PS Radar v17.7 final code
         shell: bash
         run: |
           set -euxo pipefail
-          for f in ps-radar/app.js ps-radar/ui-v13.js ps-radar/catalog-v14.js ps-radar/deals-v16.js ps-radar/mobile-v174.js ps-radar/mobile-v1741.js ps-radar/foundation-v175.js ps-radar/ux-v176.js; do node --check "$f"; done
+          for f in ps-radar/app.js ps-radar/ui-v13.js ps-radar/catalog-v14.js ps-radar/deals-v16.js ps-radar/mobile-v174.js ps-radar/mobile-v1741.js ps-radar/foundation-v175.js ps-radar/ux-v176.js ps-radar/content-v177.js; do node --check "$f"; done
+          for f in ps-radar/scripts/update-deal-history.mjs ps-radar/scripts/hydrate-missing-art.mjs ps-radar/scripts/validate-upcoming.mjs; do node --check "$f"; done
           test -s ps-radar/foundation-v175.css
           test -s ps-radar/ux-v176.css
+          test -s ps-radar/content-v177.css
           node - <<'NODE'
           const fs=require('fs');
           const index=fs.readFileSync('ps-radar/index.html','utf8');
           const ux=fs.readFileSync('ps-radar/ux-v176.js','utf8');
-          const css=fs.readFileSync('ps-radar/ux-v176.css','utf8');
+          const content=fs.readFileSync('ps-radar/content-v177.js','utf8');
           const foundation=fs.readFileSync('ps-radar/foundation-v175.js','utf8');
           const main=fs.readFileSync('ps-radar/android/MainActivity.java','utf8');
           const worker=fs.readFileSync('ps-radar/android/DealWatchWorker.java','utf8');
           const deals=JSON.parse(fs.readFileSync('ps-radar/data/deals-auto.json','utf8'));
+          const upcoming=JSON.parse(fs.readFileSync('ps-radar/data/upcoming.json','utf8'));
           const nav=(index.match(/class="navbtn/g)||[]).length;
           if(nav!==5) throw new Error(`expected 5 bottom tabs, found ${nav}`);
-          for(const token of ['PS Plus','발매예정','MY','ux-v176.js','ux-v176.css']) if(!index.includes(token)) throw new Error(`v17.6 index missing ${token}`);
-          for(const token of ['오늘의 변화','지금 볼 게임','이번 주 PlayStation','월간 게임','게임 카탈로그','클래식','종료 예정','가격알림','보유게임','최근 본']) if(!ux.includes(token)) throw new Error(`v17.6 UX missing ${token}`);
-          for(const token of ['grid-template-columns:repeat(5,1fr)','v176-legacy-home','home-discovery-active']) if(!css.includes(token)) throw new Error(`v17.6 CSS missing ${token}`);
+          for(const token of ['foundation-v175.js','ux-v176.js','content-v177.js','content-v177.css']) if(!index.includes(token)) throw new Error(`final index missing ${token}`);
+          for(const token of ['오늘의 변화','지금 볼 게임','이번 주 PlayStation','가격알림','보유게임','최근 본']) if(!ux.includes(token)) throw new Error(`v17.6 regression ${token}`);
+          for(const token of ['오늘 새 할인','PS Radar 관측 최저','할인 종료 임박','PS Plus 최근 추가','무료 · 체험 가능','1만원 이하 추천','지금 사기','기다려도 됨','출시 캘린더','출시 알림']) if(!content.includes(token)) throw new Error(`v17.7 content missing ${token}`);
           for(const token of ['raw.githubusercontent.com','__PSRADAR_ANDROID_BACK__','syncNativeWatchlist']) if(!foundation.includes(token)) throw new Error(`v17.5 regression ${token}`);
-          for(const token of ['syncWatchlist','enableNativeNotifications','PeriodicWorkRequest']) if(!main.includes(token)) throw new Error(`native regression ${token}`);
-          if(!worker.includes('notifyChange')) throw new Error('watch worker regression');
+          for(const token of ['syncWatchlist','syncReleaseWatchlist','enableNativeNotifications','PeriodicWorkRequest']) if(!main.includes(token)) throw new Error(`native shell missing ${token}`);
+          for(const token of ['UPCOMING_URL','RELEASE_WATCHLIST_KEY','checkReleaseAlerts','notifyChange']) if(!worker.includes(token)) throw new Error(`native watcher missing ${token}`);
           if(!Array.isArray(deals.items)||deals.items.length<2000) throw new Error('deals dataset unexpectedly small');
-          console.log(`v17.6 static QA passed: nav=${nav}, deals=${deals.items.length}`);
+          if(!Array.isArray(upcoming.items)||upcoming.items.length<5) throw new Error('upcoming dataset unexpectedly small');
+          let bad=0;
+          for(const x of deals.items){
+            if(String(x.priceStatus||'').startsWith('rejected'))continue;
+            const c=Number(x.currentPrice),o=Number(x.originalPrice),d=Number(x.discountPercent);
+            if(c>0&&o>c&&d>0&&Math.abs((1-c/o)*100-d)>2.5)bad++;
+          }
+          if(bad)throw new Error(`price math regressions visible: ${bad}`);
+          console.log(`v17.7 static QA passed: nav=${nav}, deals=${deals.items.length}, upcoming=${upcoming.items.length}`);
           NODE
 
       - name: Generate Android wrapper project
@@ -98,11 +113,25 @@ jobs:
           EOF
           cat > app/build.gradle <<'EOF'
           plugins { id 'com.android.application' }
+          def releaseKeystore = System.getenv('PSRADAR_KEYSTORE_PATH')
           android {
               namespace 'com.seungho.psradar'
               compileSdk 35
-              defaultConfig { applicationId 'com.seungho.psradar'; minSdk 26; targetSdk 35; versionCode 17600; versionName '17.6.0' }
-              buildTypes { debug { applicationIdSuffix ''; versionNameSuffix '' } }
+              defaultConfig { applicationId 'com.seungho.psradar'; minSdk 26; targetSdk 35; versionCode 17700; versionName '17.7.0' }
+              signingConfigs {
+                  if (releaseKeystore) {
+                      release {
+                          storeFile file(releaseKeystore)
+                          storePassword System.getenv('PSRADAR_KEYSTORE_PASSWORD')
+                          keyAlias System.getenv('PSRADAR_KEY_ALIAS')
+                          keyPassword System.getenv('PSRADAR_KEY_PASSWORD')
+                      }
+                  }
+              }
+              buildTypes {
+                  debug { applicationIdSuffix ''; versionNameSuffix '' }
+                  release { minifyEnabled false; if (releaseKeystore) signingConfig signingConfigs.release }
+              }
               compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
           }
           dependencies {
@@ -124,40 +153,55 @@ jobs:
           <manifest xmlns:android="http://schemas.android.com/apk/res/android"><uses-permission android:name="android.permission.INTERNET"/><uses-permission android:name="android.permission.POST_NOTIFICATIONS"/><application android:allowBackup="true" android:label="PS Radar" android:icon="@drawable/ic_launcher" android:roundIcon="@drawable/ic_launcher" android:theme="@style/AppTheme" android:hardwareAccelerated="true" android:networkSecurityConfig="@xml/network_security_config" android:usesCleartextTraffic="false"><activity android:name=".MainActivity" android:exported="true" android:screenOrientation="unspecified"><intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter></activity></application></manifest>
           EOF
 
-      - name: Validate bundled assets
+      - name: Validate bundled final assets
         shell: bash
         run: |
           set -euxo pipefail
-          for f in index.html foundation-v175.js foundation-v175.css ux-v176.js ux-v176.css data/deals-auto.json; do test -f "app/src/main/assets/ps-radar/$f"; done
+          for f in index.html foundation-v175.js foundation-v175.css ux-v176.js ux-v176.css content-v177.js content-v177.css data/deals-auto.json data/upcoming.json; do test -f "app/src/main/assets/ps-radar/$f"; done
           test -f app/src/main/java/com/seungho/psradar/MainActivity.java
           test -f app/src/main/java/com/seungho/psradar/DealWatchWorker.java
           ! test -d app/src/main/assets/ps-radar/android
-          grep -q 'syncWatchlist' app/src/main/java/com/seungho/psradar/MainActivity.java
-          grep -q 'notifyChange' app/src/main/java/com/seungho/psradar/DealWatchWorker.java
+          grep -q 'syncReleaseWatchlist' app/src/main/java/com/seungho/psradar/MainActivity.java
+          grep -q 'checkReleaseAlerts' app/src/main/java/com/seungho/psradar/DealWatchWorker.java
 
       - name: Build APK
-        run: gradle :app:assembleDebug --stacktrace
+        shell: bash
+        run: |
+          set -euxo pipefail
+          if [ -n "${PSRADAR_KEYSTORE_B64:-}" ] && [ -n "${PSRADAR_KEYSTORE_PASSWORD:-}" ] && [ -n "${PSRADAR_KEY_ALIAS:-}" ] && [ -n "${PSRADAR_KEY_PASSWORD:-}" ]; then
+            echo "$PSRADAR_KEYSTORE_B64" | base64 --decode > "$PWD/psradar-release.jks"
+            export PSRADAR_KEYSTORE_PATH="$PWD/psradar-release.jks"
+            gradle :app:assembleRelease --stacktrace
+            cp app/build/outputs/apk/release/app-release.apk final.apk
+            echo release > signing-mode.txt
+          else
+            gradle :app:assembleDebug --stacktrace
+            cp app/build/outputs/apk/debug/app-debug.apk final.apk
+            echo debug > signing-mode.txt
+          fi
 
       - name: Verify APK
         shell: bash
         run: |
           set -euxo pipefail
-          APK=app/build/outputs/apk/debug/app-debug.apk
+          APK=final.apk
           test -s "$APK"
           APKSIGNER="$ANDROID_HOME/build-tools/35.0.0/apksigner"
           AAPT="$ANDROID_HOME/build-tools/35.0.0/aapt"
           "$APKSIGNER" verify --verbose "$APK"
           "$AAPT" dump badging "$APK" | tee apk-badging.txt
-          grep -q "package: name='com.seungho.psradar' versionCode='17600' versionName='17.6.0'" apk-badging.txt
-          cp "$APK" "PS-Radar-v17.6.0-Android.apk"
-          sha256sum "PS-Radar-v17.6.0-Android.apk" | tee PS-Radar-v17.6.0-Android.sha256
+          grep -q "package: name='com.seungho.psradar' versionCode='17700' versionName='17.7.0'" apk-badging.txt
+          cp "$APK" "PS-Radar-v17.7.0-Final.apk"
+          sha256sum "PS-Radar-v17.7.0-Final.apk" | tee PS-Radar-v17.7.0-Final.sha256
+          echo "Signing mode: $(cat signing-mode.txt)"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: PS-Radar-v17.6.0-Android
+          name: PS-Radar-v17.7.0-Final
           path: |
-            PS-Radar-v17.6.0-Android.apk
-            PS-Radar-v17.6.0-Android.sha256
+            PS-Radar-v17.7.0-Final.apk
+            PS-Radar-v17.7.0-Final.sha256
+            signing-mode.txt
           if-no-files-found: error
           retention-days: 30
