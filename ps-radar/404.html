@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#07111f" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="PS Radar" />
+  <link rel="icon" href="./icons/icon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="stylesheet" href="./styles.css" />
+  <title>PS Radar</title>
+</head>
+<body>
+  <div class="ambient ambient-a"></div>
+  <div class="ambient ambient-b"></div>
+
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo" aria-label="PS Radar">◉</div>
+        <div>
+          <h1>PS Radar</h1>
+          <small>PlayStation 게임 · PS Plus · 가격/혜택 레이더</small>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button id="notifyBtn" class="iconbtn" title="관심 게임 알림">🔔</button>
+        <button id="refreshBtn" class="iconbtn" title="데이터 새로고침">↻</button>
+        <button id="filterBtn" class="iconbtn">필터</button>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="eyebrow"><span class="live-dot"></span><span id="sourceStatus">공식 데이터 확인 중</span></div>
+      <h2>살 게임, 받을 게임, <span>놓치면 아까운 것</span>만.</h2>
+      <p>PS Plus 카탈로그와 월간 게임, PS Store 가격·할인, 종료 임박 혜택을 한 화면에서 확인하고 찜 게임의 가격·카탈로그 변화를 자동 추적합니다.</p>
+      <div class="searchbar">
+        <input id="search" type="search" placeholder="게임명, 장르, PS Plus, 할인 검색" autocomplete="off" />
+        <button id="clearBtn" class="softbtn">초기화</button>
+      </div>
+      <div class="chips" id="chips"></div>
+    </section>
+
+    <section class="stats" id="stats"></section>
+
+    <section class="section quick-section">
+      <div class="sectionhead">
+        <div>
+          <p class="kicker">QUICK DISCOVER</p>
+          <h3>빠른 탐색</h3>
+        </div>
+        <span id="profileCoverage">프로필 확인 중</span>
+      </div>
+      <div id="curationGrid" class="curation-grid"></div>
+      <p class="watch-note">신규 · 최고평점 · 할인추천 · 곧 종료를 먼저 훑고, 원하는 묶음을 누르면 아래 전체 목록이 바로 좁혀집니다.</p>
+    </section>
+
+    <section class="section">
+      <div class="sectionhead">
+        <div>
+          <p class="kicker">BUY OR WAIT</p>
+          <h3>지금 결정</h3>
+        </div>
+        <span>구매 · 수령 · 플레이 우선순위</span>
+      </div>
+      <div id="decisionStrip" class="decision-strip"></div>
+      <p class="watch-note">가격 이력, 할인폭, PS Plus 포함 여부와 종료 일정을 함께 계산합니다. 종료일이 공개되지 않은 게임은 임의로 예측하지 않습니다.</p>
+    </section>
+
+    <section class="section">
+      <div class="sectionhead">
+        <div>
+          <p class="kicker">FOR YOU</p>
+          <h3>나에게 맞는 게임</h3>
+        </div>
+        <span>추천점수 100점 기준</span>
+      </div>
+      <div id="personalStrip" class="recommend-strip"></div>
+      <p id="personalNote" class="watch-note"></p>
+    </section>
+
+    <section class="section">
+      <div class="sectionhead">
+        <div>
+          <p class="kicker">TODAY</p>
+          <h3>오늘의 레이더</h3>
+        </div>
+        <div class="section-meta"><span id="storeUpdated"></span><span id="pushStatus" class="syncbadge">로컬 알림</span><span id="storeBadge" class="syncbadge">대기</span></div>
+      </div>
+      <div id="radarStrip" class="radar-strip"></div>
+      <p class="watch-note" id="watchNote"></p>
+    </section>
+
+    <section class="section">
+      <div class="sectionhead">
+        <div>
+          <p class="kicker">OFFICIAL FEED</p>
+          <h3>PlayStation 공식 업데이트</h3>
+        </div>
+        <div class="section-meta"><span id="updated"></span><span id="syncBadge" class="syncbadge">대기</span></div>
+      </div>
+      <div id="feedStrip" class="feed-strip"></div>
+    </section>
+
+    <section class="section">
+      <div class="sectionhead">
+        <div>
+          <p class="kicker">PLUS HISTORY</p>
+          <h3>PS Plus 입·퇴점 이력</h3>
+        </div>
+        <span>변화 기록</span>
+      </div>
+      <div id="catalogTimeline" class="timeline"></div>
+    </section>
+
+    <section class="section">
+      <div class="sectionhead">
+        <div>
+          <p class="kicker">DISCOVER</p>
+          <h3 id="listTitle">추천 / 신규</h3>
+        </div>
+        <span id="countText"></span>
+      </div>
+      <div id="grid" class="grid"></div>
+      <div class="loadmore-wrap"><button id="loadMoreBtn" class="loadmore" hidden>더 보기</button></div>
+    </section>
+
+    <section class="section compact-info">
+      <div class="info-card">
+        <b>V12 멀티호스트 · 실서비스 준비</b>
+        <p>PS Plus A-Z·새소식·PS Store를 교차 확인하고, 출처 신뢰도와 폴백 상태를 구분해 잘못된 0원·카탈로그 오분류를 줄였습니다.</p>
+      </div>
+      <div class="info-card">
+        <b>오탐 억제 · 출처 우선순위</b>
+        <p>게임 체험판과 최신 카탈로그·월간·클래식을 별도 출처로 병합하고 DLC/업그레이드 오탐을 필터링합니다. 기존 가격·혜택·프로필·알림 기능은 유지합니다.</p>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottomnav" aria-label="주 메뉴">
+    <button class="navbtn active" data-view="all"><b>⌂</b><span>홈</span></button>
+    <button class="navbtn" data-view="catalog"><b>＋</b><span>카탈로그</span></button>
+    <button class="navbtn" data-view="monthly"><b>◇</b><span>월간</span></button>
+    <button class="navbtn" data-view="promo"><b>%</b><span>할인</span></button>
+    <button class="navbtn" data-view="wishlist"><b>♥</b><span>찜</span></button>
+  </nav>
+
+  <div id="drawer" class="drawer" aria-hidden="true">
+    <div class="sheet">
+      <div class="handle"></div>
+      <div class="sheet-head"><h3>빠른 필터</h3><button id="closeDrawer" class="iconbtn">✕</button></div>
+      <div class="filtergrid">
+        <label class="field">콘텐츠 종류
+          <select id="contentType"><option value="all">전체</option><option value="catalog">게임 카탈로그</option><option value="monthly">월간 게임</option><option value="classic">클래식</option><option value="trial">게임 체험판</option><option value="latest">신작</option><option value="promo">프로모션</option></select>
+        </label>
+        <label class="field">플랫폼
+          <select id="platform"><option value="all">전체</option><option value="PS5">PS5</option><option value="PS4">PS4</option></select>
+        </label>
+        <label class="field">PS Plus
+          <select id="tier"><option value="all">전체</option><option value="Essential">에센셜</option><option value="Extra">스페셜</option><option value="Deluxe">디럭스</option></select>
+        </label>
+        <label class="field">장르
+          <select id="genre"><option value="all">전체</option><option value="RPG">RPG</option><option value="Action">액션</option><option value="Survival">생존</option><option value="Sports">스포츠</option><option value="Indie">인디</option></select>
+        </label>
+        <label class="field">한국어
+          <select id="korean"><option value="all">전체</option><option value="yes">한국어 지원만</option></select>
+        </label>
+        <label class="field">정렬
+          <select id="sort"><option value="default">기본</option><option value="discount">할인율 높은 순</option><option value="rating">평점 높은 순</option><option value="price">가격 낮은 순</option><option value="new">최근 추가 순</option><option value="score">추천점수 높은 순</option></select>
+        </label>
+      </div>
+      <button id="applyFilter" class="primary">필터 적용</button>
+    </div>
+  </div>
+
+  <div id="detailModal" class="modal" aria-hidden="true">
+    <div class="modal-card">
+      <button id="closeDetail" class="modal-close" aria-label="닫기">✕</button>
+      <div id="detailContent"></div>
+    </div>
+  </div>
+
+  <template id="gameCardTpl">
+    <article class="card">
+      <div class="cover">
+        <img class="cover-image" alt="" loading="lazy" />
+        <button class="heart" aria-label="찜하기">♡</button>
+        <div class="deal-flag"></div>
+        <div class="cover-content"><span class="cover-kicker"></span><strong class="cover-title"></strong></div>
+      </div>
+      <div class="body">
+        <div class="meta"></div>
+        <h4 class="game-title"></h4>
+        <p class="game-desc"></p>
+        <div class="rating-line"></div>
+        <div class="row">
+          <div class="price-wrap"><div class="price"></div><div class="sub"></div></div>
+          <button class="detailbtn">상세</button>
+        </div>
+      </div>
+    </article>
+  </template>
+
+  <script src="./app.js" defer></script>
+</body>
+</html>

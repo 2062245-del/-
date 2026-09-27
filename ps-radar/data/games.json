@@ -1,0 +1,251 @@
+[
+  {
+    "id": "dragonwilds",
+    "title": "RuneScape: Dragonwilds",
+    "type": "catalog",
+    "tier": "Extra",
+    "platform": [
+      "PS5"
+    ],
+    "genre": [
+      "Survival",
+      "RPG"
+    ],
+    "ko": true,
+    "desc": "협동 생존·제작·스킬 성장 RPG",
+    "price": "PS Plus 스페셜",
+    "tag": "9월 카탈로그",
+    "c1": "#1d3768",
+    "c2": "#8f3b28",
+    "store": "https://store.playstation.com/ko-kr/product/EP5300-PPSA34114_00-0779566544583078",
+    "catalogAddedAt": "2026-09-15",
+    "trailer": "https://www.youtube.com/watch?v=a46MLlfMt2Y",
+    "trailerLabel": "공식 출시일 트레일러"
+  },
+  {
+    "id": "wwe2k26",
+    "title": "WWE 2K26",
+    "type": "catalog",
+    "tier": "Extra",
+    "platform": [
+      "PS5"
+    ],
+    "genre": [
+      "Sports"
+    ],
+    "ko": false,
+    "desc": "프로레슬링 스포츠 엔터테인먼트",
+    "price": "PS Plus 스페셜",
+    "tag": "9월 카탈로그",
+    "c1": "#431326",
+    "c2": "#b84e3c",
+    "store": "https://store.playstation.com/ko-kr/product/UP1001-PPSA34299_00-WWE2K26000000000",
+    "catalogAddedAt": "2026-09-15"
+  },
+  {
+    "id": "ballxpit",
+    "title": "BALL x PIT",
+    "type": "catalog",
+    "tier": "Extra",
+    "platform": [
+      "PS5"
+    ],
+    "genre": [
+      "Indie",
+      "Action"
+    ],
+    "ko": true,
+    "desc": "볼 액션과 로그라이트가 결합된 인디 액션",
+    "price": "PS Plus 스페셜",
+    "tag": "9월 카탈로그",
+    "c1": "#2b285c",
+    "c2": "#bd3d7d",
+    "store": "https://store.playstation.com/ko-kr/product/UP3643-PPSA31872_00-0512776704708419",
+    "catalogAddedAt": "2026-09-15"
+  },
+  {
+    "id": "slitterhead",
+    "title": "Slitterhead",
+    "type": "catalog",
+    "tier": "Extra",
+    "platform": [
+      "PS5",
+      "PS4"
+    ],
+    "genre": [
+      "Action"
+    ],
+    "ko": true,
+    "desc": "괴이한 도시를 무대로 한 액션 어드벤처",
+    "price": "PS Plus 스페셜",
+    "tag": "9월 카탈로그",
+    "c1": "#30162b",
+    "c2": "#9d3148",
+    "store": "https://store.playstation.com/ko-kr/concept/10009203",
+    "catalogAddedAt": "2026-09-15"
+  },
+  {
+    "id": "ninjagaiden",
+    "title": "NINJA GAIDEN: Ragebound",
+    "type": "catalog",
+    "tier": "Extra",
+    "platform": [
+      "PS5",
+      "PS4"
+    ],
+    "genre": [
+      "Action"
+    ],
+    "ko": true,
+    "desc": "고속 닌자 액션과 픽셀 아트",
+    "price": "PS Plus 스페셜",
+    "tag": "9월 카탈로그",
+    "c1": "#173041",
+    "c2": "#247b78",
+    "store": "https://store.playstation.com/ko-kr/product/HP6286-PPSA30307_00-NINJAGAIDENJKPS5",
+    "catalogAddedAt": "2026-09-15"
+  },
+  {
+    "id": "hinterberg",
+    "title": "Dungeons of Hinterberg",
+    "type": "catalog",
+    "tier": "Extra",
+    "platform": [
+      "PS5"
+    ],
+    "genre": [
+      "RPG",
+      "Indie"
+    ],
+    "ko": true,
+    "desc": "던전 탐험과 휴양지 생활이 섞인 액션 RPG",
+    "price": "PS Plus 스페셜",
+    "tag": "9월 카탈로그",
+    "c1": "#1c607e",
+    "c2": "#c89734",
+    "store": "https://store.playstation.com/ko-kr/concept/10007196",
+    "catalogAddedAt": "2026-09-15"
+  },
+  {
+    "id": "sniper",
+    "title": "Sniper Elite: Resistance",
+    "type": "monthly",
+    "tier": "Essential",
+    "platform": [
+      "PS5",
+      "PS4"
+    ],
+    "genre": [
+      "Action"
+    ],
+    "ko": true,
+    "desc": "잠입과 장거리 저격 중심의 전술 액션",
+    "price": "월간 게임",
+    "tag": "10월 6일까지",
+    "c1": "#24384f",
+    "c2": "#746747",
+    "store": "https://store.playstation.com/ko-kr/product/UP4363-PPSA17232_00-SNIPERELITERES00",
+    "plusEndsAt": "2026-10-06T09:00:00+09:00"
+  },
+  {
+    "id": "mlb26",
+    "title": "MLB The Show 26",
+    "type": "monthly",
+    "tier": "Essential",
+    "platform": [
+      "PS5"
+    ],
+    "genre": [
+      "Sports"
+    ],
+    "ko": false,
+    "desc": "MLB 공식 야구 시뮬레이션",
+    "price": "월간 게임",
+    "tag": "제공 기간 확인",
+    "c1": "#172947",
+    "c2": "#407fc9",
+    "store": "https://store.playstation.com/ko-kr/product/UP9000-PPSA30630_00-MLBTHESHOW26PLUS"
+  },
+  {
+    "id": "wobbly",
+    "title": "Wobbly Life",
+    "type": "monthly",
+    "tier": "Essential",
+    "platform": [
+      "PS5",
+      "PS4"
+    ],
+    "genre": [
+      "Indie"
+    ],
+    "ko": true,
+    "desc": "가볍게 즐기는 오픈월드 물리 샌드박스",
+    "price": "월간 게임",
+    "tag": "제공 기간 확인",
+    "c1": "#ce8731",
+    "c2": "#54a359",
+    "store": "https://store.playstation.com/ko-kr/search/wobbly%20life"
+  },
+  {
+    "id": "chained",
+    "title": "Chained Echoes",
+    "type": "monthly",
+    "tier": "Essential",
+    "platform": [
+      "PS5",
+      "PS4"
+    ],
+    "genre": [
+      "RPG",
+      "Indie"
+    ],
+    "ko": true,
+    "desc": "클래식 감성의 턴제 픽셀 JRPG",
+    "price": "월간 게임",
+    "tag": "제공 기간 확인",
+    "c1": "#302753",
+    "c2": "#678d73",
+    "store": "https://store.playstation.com/ko-kr/search/chained%20echoes"
+  },
+  {
+    "id": "megamanx",
+    "title": "Mega Man X Command Mission",
+    "type": "classic",
+    "tier": "Deluxe",
+    "platform": [
+      "PS5",
+      "PS4"
+    ],
+    "genre": [
+      "RPG"
+    ],
+    "ko": false,
+    "desc": "디럭스 클래식 카탈로그 추가작",
+    "price": "PS Plus 디럭스",
+    "tag": "클래식 카탈로그",
+    "c1": "#15447e",
+    "c2": "#35a2d2",
+    "store": "https://store.playstation.com/ko-kr/search/mega%20man%20x%20command%20mission",
+    "catalogAddedAt": "2026-09-15"
+  },
+  {
+    "id": "pspluspromo",
+    "title": "PS Plus 프로모션",
+    "type": "promo",
+    "tier": "all",
+    "platform": [
+      "PS5",
+      "PS4"
+    ],
+    "genre": [
+      "Promo"
+    ],
+    "ko": true,
+    "desc": "PlayStation Plus 기간 한정 프로모션 공식 안내",
+    "price": "기간 한정 혜택",
+    "tag": "공식 안내 확인",
+    "c1": "#4a4014",
+    "c2": "#8f7821",
+    "store": "https://www.playstation.com/ko-kr/ps-plus/"
+  }
+]
