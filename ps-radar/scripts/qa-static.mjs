@@ -5,8 +5,9 @@ const root=path.resolve('ps-radar');
 const read=p=>fs.readFileSync(path.join(root,p),'utf8');
 const json=p=>JSON.parse(read(p));
 const assert=(cond,msg)=>{if(!cond)throw new Error(msg);};
+const titleKey=v=>String(v||'').toLowerCase().replace(/\([^)]*\)/g,' ').replace(/\b(?:ps4|ps5)\b/g,' ').replace(/[^a-z0-9가-힣]+/g,'');
 
-for(const file of ['index.html','app.js','ui-v13.js','catalog-v14.js','stability-v15.js','sw.js','manifest.json','data/catalog-auto.json','data/store-auto.json','data/upcoming.json']){
+for(const file of ['index.html','app.js','ui-v13.js','catalog-v14.js','stability-v15.js','sw.js','manifest.json','data/games.json','data/catalog-auto.json','data/store-auto.json','data/upcoming.json']){
   assert(fs.existsSync(path.join(root,file))&&fs.statSync(path.join(root,file)).size>0,`missing ${file}`);
 }
 
@@ -17,6 +18,7 @@ const expected=['home','catalog','monthly','promo','upcoming','wishlist'];
 assert(JSON.stringify(pages)===JSON.stringify(expected),`menu mismatch: ${pages.join(',')}`);
 assert(html.includes('./stability-v15.js'),'stability layer not loaded');
 
+const base=json('data/games.json');
 const catalog=json('data/catalog-auto.json');
 const store=json('data/store-auto.json');
 const upcoming=json('data/upcoming.json');
@@ -47,11 +49,18 @@ const conceptStore=new Set(store.items.map(x=>String(x.conceptId||'')).filter(Bo
 const matched=[...conceptCatalog].filter(x=>conceptStore.has(x)).length;
 assert(matched>=Math.min(450,conceptCatalog.size),`store/catalog concept coverage too low: ${matched}/${conceptCatalog.size}`);
 
+const catalogTitles=new Set(catalog.items.map(x=>titleKey(x.title)).filter(Boolean));
+const manualCatalog=(Array.isArray(base)?base:base.items||[]).filter(x=>x.type==='catalog'||x.type==='classic'||x.categories?.includes('catalog')||x.categories?.includes('classic'));
+const manualExtras=manualCatalog.filter(x=>{
+  const cid=String(x.conceptId||'');
+  return !(cid&&conceptCatalog.has(cid))&&!catalogTitles.has(titleKey(x.title));
+}).map(x=>({id:x.id,title:x.title,type:x.type,categories:x.categories||[]}));
+
 const images=catalog.items.filter(x=>x.image).length;
 const storeLinks=store.items.filter(x=>/^https:\/\/store\.playstation\.com\/ko-kr\//.test(x.store||'')).length;
 const currentSales=store.items.filter(x=>x.priceStatus==='verified'&&Number(x.originalPrice)>Number(x.currentPrice)&&Number(x.discountPercent)>0&&(!x.saleEndsAt||new Date(x.saleEndsAt).getTime()>Date.now())).length;
 const korean=store.items.filter(x=>x.ko===true&&x.languageStatus==='verified-store-positive').length;
-const upcomingDup=dup(upcoming.items||[],x=>String(x.title||'').toLowerCase().replace(/[^a-z0-9가-힣]+/g,''));
+const upcomingDup=dup(upcoming.items||[],x=>titleKey(x.title));
 assert(upcomingDup.length===0,`duplicate upcoming titles: ${upcomingDup.slice(0,3).map(x=>x[0]).join(',')}`);
 assert((upcoming.items||[]).length>0,'upcoming list empty');
 
@@ -74,5 +83,6 @@ console.log('PS Radar QA static PASS',JSON.stringify({
   ratings:store.health?.rating||0,
   korean,
   currentSales,
-  upcoming:(upcoming.items||[]).length
+  upcoming:(upcoming.items||[]).length,
+  manualCatalogExtras:manualExtras
 }));
