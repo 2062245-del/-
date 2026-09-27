@@ -1,0 +1,35 @@
+name: PS Radar Store Inspect
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'ps-radar/scripts/inspect-store-profile.mjs'
+      - '.github/workflows/ps-radar-store-inspect.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+      - name: Install Playwright
+        run: |
+          npm install --no-save --package-lock=false playwright
+          npx playwright install --with-deps chromium
+      - name: Inspect PS Store product profiles
+        run: node ps-radar/scripts/inspect-store-profile.mjs
+      - name: Upload diagnostics
+        uses: actions/upload-artifact@v4
+        with:
+          name: ps-radar-store-profile-inspect
+          path: ps-radar/data/store-profile-inspect.json
+          retention-days: 3
