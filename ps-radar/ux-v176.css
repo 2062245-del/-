@@ -1,0 +1,41 @@
+/* PS Radar v17.6 mobile-first information architecture */
+.v176-legacy-home{display:none!important}
+.v176-dashboard{display:grid;gap:14px;margin:14px 0 24px}
+.v176-panel{border:1px solid rgba(255,255,255,.08);border-radius:22px;background:linear-gradient(145deg,rgba(14,25,43,.96),rgba(7,15,28,.96));padding:16px;box-shadow:0 18px 42px rgba(0,0,0,.18)}
+.v176-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:13px}
+.v176-head small{display:block;color:#7697c8;font-size:10px;font-weight:900;letter-spacing:1.6px}.v176-head h3{margin:4px 0 0;font-size:18px}.v176-head>span{color:#8292a9;font-size:10px}
+.v176-text-btn{border:0;background:transparent;color:#9bb9e7;font-size:11px;font-weight:800;padding:5px}
+.v176-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.v176-metrics button{border:1px solid rgba(255,255,255,.07);border-radius:16px;background:#0c192a;color:#fff;padding:13px 8px;text-align:left}.v176-metrics strong{display:block;font-size:20px}.v176-metrics span{display:block;margin-top:4px;color:#8fa0b8;font-size:10px;font-weight:700}
+.v176-game-list,.v176-week-list{display:grid;gap:8px}
+.v176-game-mini{display:grid;grid-template-columns:48px minmax(0,1fr) 18px;align-items:center;gap:10px;width:100%;border:1px solid rgba(255,255,255,.07);border-radius:15px;background:#0b1727;color:#fff;padding:8px;text-align:left}
+.v176-mini-art{width:48px;height:48px;border-radius:11px;overflow:hidden;background:linear-gradient(145deg,#173a63,#19233a);display:grid;place-items:center}.v176-mini-art img{width:100%;height:100%;object-fit:cover}.v176-mini-placeholder{font-weight:900;color:#b5c8e5;font-size:11px}
+.v176-mini-copy{min-width:0}.v176-mini-copy b{display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.v176-mini-copy small{display:block;margin-top:5px;color:#8ea0ba;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.v176-mini-arrow{color:#7993ba;font-size:20px}
+.v176-week-list button{display:grid;grid-template-columns:92px minmax(0,1fr) 16px;align-items:center;gap:8px;width:100%;border:0;border-top:1px solid rgba(255,255,255,.065);background:transparent;color:#fff;padding:11px 2px;text-align:left}.v176-week-list button:first-child{border-top:0}.v176-week-list span{color:#7f9bc4;font-size:10px;font-weight:800}.v176-week-list b{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.v176-week-list em{color:#7588a4;font-style:normal}
+.v176-empty{margin:0;color:#8392a8;font-size:11px}
+.v176-context-tabs{margin:12px 0 8px}.v176-context-tabs[hidden]{display:none!important}.v176-segments{display:flex;gap:5px;overflow-x:auto;padding:4px;border:1px solid rgba(255,255,255,.08);border-radius:15px;background:#091525;scrollbar-width:none}.v176-segments::-webkit-scrollbar{display:none}.v176-segments button{flex:1 0 auto;border:0;border-radius:11px;background:transparent;color:#8294ad;padding:9px 12px;font-size:10px;font-weight:850;white-space:nowrap}.v176-segments button.active{background:#1a3154;color:#f1f6ff;box-shadow:0 5px 16px rgba(0,0,0,.2)}
+.v176-owned{border:1px solid rgba(255,255,255,.1);border-radius:10px;background:#111f32;color:#8ea2bf;padding:8px 10px;font-size:9px;font-weight:850}.v176-owned.active{background:#173526;color:#8de8b1;border-color:rgba(99,220,145,.2)}
+body[data-page="home"] #resultsSection{display:none}
+body[data-page="home"].home-discovery-active #resultsSection{display:block}
+body[data-page="home"].home-discovery-active #v176Dashboard{display:none}
+
+@media(max-width:700px){
+  .bottomnav{grid-template-columns:repeat(5,1fr)!important}
+  .bottomnav .navbtn span{font-size:9px}
+  #grid .card .game-desc{display:none}
+  #grid .card .meta .badge:nth-child(n+3){display:none}
+  #grid .card .body{padding:11px 12px 12px}
+  #grid .card .body h4,.game-title{font-size:13px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:7px}
+  #grid .card .rating-line{font-size:9px;margin:5px 0 8px}
+  #grid .card .row{gap:6px;align-items:flex-end}
+  #grid .card .price{font-size:13px}
+  #grid .card .sub{font-size:9px;margin-top:3px;line-height:1.25}
+  #grid .card .detailbtn{padding:9px 10px;font-size:9px;border-radius:10px}
+  #grid .card .cover{min-height:160px}
+  .v176-dashboard{gap:10px;margin-top:10px}.v176-panel{border-radius:18px;padding:13px}.v176-head{margin-bottom:10px}.v176-head h3{font-size:16px}
+}
+@media(max-width:430px){
+  #grid{grid-template-columns:1fr!important}
+  #grid .card .cover{min-height:190px}
+  .v176-metrics strong{font-size:18px}.v176-metrics span{font-size:9px}
+}
