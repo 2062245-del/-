@@ -25,23 +25,43 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Checkout PS Radar branch
+      - name: Checkout existing Pages root
+        uses: actions/checkout@v6
+        with:
+          ref: main
+          path: root
+
+      - name: Checkout PS Radar payload
         uses: actions/checkout@v6
         with:
           ref: ps-radar-v13-pages
+          path: payload
 
-      - name: Rebuild static site package
+      - name: Build combined Pages site
         shell: bash
         run: |
           set -euo pipefail
-          cat ps-radar-v13-runtime.part* | tr -d '\r\n\t ' > /tmp/ps-radar-v13.b64
+          rm -rf site
+          mkdir -p site/ps-radar
+
+          # Preserve the existing Pages root (유통기한 조사 + existing subfolders).
+          cp -a root/. site/
+          rm -rf site/.git site/.github
+
+          # Rebuild PS Radar into its own isolated path.
+          cat payload/ps-radar-v13-runtime.part* | tr -d '\r\n\t ' > /tmp/ps-radar-v13.b64
           test "$(wc -c < /tmp/ps-radar-v13.b64)" -eq 41688
           base64 -d /tmp/ps-radar-v13.b64 > /tmp/ps-radar-v13.tar.xz
-          mkdir -p site
-          tar -xJf /tmp/ps-radar-v13.tar.xz -C site
+          tar -xJf /tmp/ps-radar-v13.tar.xz -C site/ps-radar
+
           test -s site/index.html
+          test -s site/ps-radar/index.html
+          grep -q '유통기한 조사' site/index.html
+          grep -q 'PS Radar' site/ps-radar/index.html
           touch site/.nojekyll
-          echo "Recovered $(find site -type f | wc -l) site files"
+          touch site/ps-radar/.nojekyll
+          echo "Root files: $(find site -maxdepth 1 -type f | wc -l)"
+          echo "PS Radar files: $(find site/ps-radar -type f | wc -l)"
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
