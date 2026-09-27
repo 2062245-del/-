@@ -1,5 +1,5 @@
-const CACHE='ps-radar-v15.0.0';
-const STATIC=['./','./index.html','./styles.css','./ui-v13.css','./app.js','./ui-v13.js','./catalog-v14.js','./stability-v15.js','./manifest.json','./data/games.json','./data/feed.json','./data/store.json','./data/discovery.json','./data/catalog-auto.json','./data/store-auto.json','./data/upcoming.json','./icons/icon.svg'];
+const CACHE='ps-radar-v15.1.0';
+const STATIC=['./','./index.html','./styles.css','./ui-v13.css','./app.js','./ui-v13.js','./catalog-v14.js','./catalog-integrity-v15.js','./stability-v15.js','./manifest.json','./data/games.json','./data/feed.json','./data/store.json','./data/discovery.json','./data/catalog-auto.json','./data/store-auto.json','./data/upcoming.json','./icons/icon.svg'];
 
 self.addEventListener('install',e=>e.waitUntil((async()=>{
   const c=await caches.open(CACHE);
