@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const VERSION = '17.5.0';
+  const VERSION = '17.5.1';
   const REMOTE_BASE = 'https://raw.githubusercontent.com/2062245-del/-/main/ps-radar/data/';
   const originalFetch = window.fetch.bind(window);
   const remoteState = { lastSuccessAt: null, lastFile: null, failures: 0 };
@@ -58,9 +58,8 @@
   window.fetch = async function psRadarRemoteFirst(input, init={}) {
     const file = mappedDataFile(input, init);
     if (!file || navigator.onLine === false) return originalFetch(localFallbackFor(file, input), init);
-    const remote = `${REMOTE_BASE}${file}?v=${Date.now()}`;
     try {
-      const response = await fetchWithTimeout(remote, init);
+      const response = await fetchWithTimeout(`${REMOTE_BASE}${file}?v=${Date.now()}`, init);
       if (response.ok) {
         remoteState.lastSuccessAt = new Date().toISOString();
         remoteState.lastFile = file;
@@ -84,12 +83,9 @@
       if (!base) return {id:String(id)};
       const g = typeof mergeGame === 'function' ? mergeGame(base) : base;
       return {
-        id:String(g.id || id),
-        title:String(g.title || ''),
-        store:String(g.store || ''),
+        id:String(g.id || id), title:String(g.title || ''), store:String(g.store || ''),
         currentPrice:Number.isFinite(Number(g.currentPrice)) ? Number(g.currentPrice) : null,
-        discountPercent:Number(g.discountPercent) || 0,
-        plusIncluded:!!g.plusIncluded,
+        discountPercent:Number(g.discountPercent) || 0, plusIncluded:!!g.plusIncluded,
         plusTier:g.plusTier || g.tier || null
       };
     });
@@ -118,13 +114,8 @@
 
   function installNativeHooks() {
     document.addEventListener('click', e => {
-      if (e.target.closest?.('#notifyBtn') && window.AndroidBridge) {
-        if (enableNativeNotifications()) {
-          e.preventDefault();
-          e.stopPropagation();
-          e.stopImmediatePropagation();
-          return;
-        }
+      if (e.target.closest?.('#notifyBtn') && window.AndroidBridge && enableNativeNotifications()) {
+        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); return;
       }
       if (e.target.closest?.('.heart')) setTimeout(syncNativeWatchlist, 40);
     }, true);
@@ -147,8 +138,9 @@
   }
 
   function installRouter() {
-    const initial = document.body.dataset.page || pageFromHash() || 'home';
+    const initial = pageFromHash() || document.body.dataset.page || 'home';
     history.replaceState({psRadar:true,page:initial},'',`#${initial}`);
+    if ((document.body.dataset.page || 'home') !== initial) queueMicrotask(() => clickPage(initial));
     const observer = new MutationObserver(() => {
       if (!routingReady) return;
       const page = document.body.dataset.page || 'home';
@@ -162,10 +154,7 @@
       const page = validPages.has(e.state?.page) ? e.state.page : (pageFromHash() || 'home');
       if ((document.body.dataset.page || 'home') === page) return;
       routingFromPop = true;
-      if (!clickPage(page)) {
-        const home = document.querySelector('.navbtn[data-page="home"]');
-        home?.click();
-      }
+      if (!clickPage(page)) clickPage('home');
       setTimeout(() => { routingFromPop = false; }, 180);
     });
     routingReady = true;
@@ -173,43 +162,35 @@
 
   window.__PSRADAR_ANDROID_BACK__ = () => {
     const modal = document.querySelector('#detailModal');
-    if (modal && modal.getAttribute('aria-hidden') !== 'true') {
-      document.querySelector('#closeDetail')?.click();
-      return true;
-    }
+    if (modal && modal.getAttribute('aria-hidden') !== 'true') { document.querySelector('#closeDetail')?.click(); return true; }
     const drawer = document.querySelector('#drawer');
-    if (drawer && drawer.getAttribute('aria-hidden') !== 'true') {
-      document.querySelector('#closeDrawer')?.click();
-      return true;
-    }
+    if (drawer && drawer.getAttribute('aria-hidden') !== 'true') { document.querySelector('#closeDrawer')?.click(); return true; }
     const page = document.body.dataset.page || 'home';
-    if (page !== 'home') {
-      if (history.length > 1) history.back();
-      else clickPage('home');
-      return true;
-    }
+    if (page !== 'home') { if (history.length > 1) history.back(); else clickPage('home'); return true; }
     return false;
   };
 
   function dynamicMonth() {
-    let d = null;
     try {
       const source = (typeof state !== 'undefined' && (state.catalogGeneratedAt || state.storeGeneratedAt || state.generatedAt)) || null;
-      d = source ? new Date(source) : new Date();
-      if (Number.isNaN(d.getTime())) d = new Date();
-    } catch (_) { d = new Date(); }
-    return d.getMonth() + 1;
+      const d = source ? new Date(source) : new Date();
+      return Number.isNaN(d.getTime()) ? new Date().getMonth()+1 : d.getMonth()+1;
+    } catch (_) { return new Date().getMonth()+1; }
   }
 
   function repairDynamicMonthLabels(root=document) {
     const month = dynamicMonth();
     root.querySelectorAll?.('#pageCoverage strong,#pageCoverage span').forEach(el => {
-      if (!el.dataset.psRadarMonthTemplate) el.dataset.psRadarMonthTemplate = el.textContent;
-      const template = el.dataset.psRadarMonthTemplate || el.textContent;
-      if (/\d{1,2}월/.test(template)) el.textContent = template.replace(/\d{1,2}월/g, `${month}월`);
+      const current = el.textContent || '';
+      if (!el.dataset.psRadarMonthTemplate) el.dataset.psRadarMonthTemplate = current;
+      const template = el.dataset.psRadarMonthTemplate || current;
+      if (!/\d{1,2}월/.test(template)) return;
+      const next = template.replace(/\d{1,2}월/g, `${month}월`);
+      if (current !== next) el.textContent = next;
     });
   }
 
+  let chromeFrame = 0;
   function measureChrome() {
     const bottom = document.querySelector('.bottomnav');
     const top = document.querySelector('.topbar');
@@ -218,29 +199,38 @@
     document.documentElement.style.setProperty('--ps-bottom-nav', `${bh + 18}px`);
     document.documentElement.style.setProperty('--ps-topbar', `${th + 6}px`);
   }
+  function scheduleChromeMeasure() {
+    if (chromeFrame) return;
+    chromeFrame = requestAnimationFrame(() => { chromeFrame = 0; measureChrome(); });
+  }
 
   function installLayoutObserver() {
     measureChrome();
-    const ro = typeof ResizeObserver === 'function' ? new ResizeObserver(measureChrome) : null;
+    const ro = typeof ResizeObserver === 'function' ? new ResizeObserver(scheduleChromeMeasure) : null;
     if (ro) {
       const bottom=document.querySelector('.bottomnav'), top=document.querySelector('.topbar');
-      if (bottom) ro.observe(bottom);
-      if (top) ro.observe(top);
+      if (bottom) ro.observe(bottom); if (top) ro.observe(top);
     }
-    window.addEventListener('resize',measureChrome,{passive:true});
-    const mo = new MutationObserver(() => { repairDynamicMonthLabels(document); measureChrome(); });
+    window.addEventListener('resize',scheduleChromeMeasure,{passive:true});
+    const mo = new MutationObserver(mutations => {
+      let coverageTouched = false;
+      for (const m of mutations) {
+        const t = m.target?.nodeType === 1 ? m.target : m.target?.parentElement;
+        if (t?.id === 'pageCoverage' || t?.closest?.('#pageCoverage') || [...(m.addedNodes||[])].some(n => n.nodeType===1 && (n.id==='pageCoverage' || n.querySelector?.('#pageCoverage')))) {
+          coverageTouched = true; break;
+        }
+      }
+      if (coverageTouched) repairDynamicMonthLabels(document);
+      scheduleChromeMeasure();
+    });
     mo.observe(document.body,{subtree:true,childList:true});
   }
 
   window.addEventListener('DOMContentLoaded', () => {
-    installNativeHooks();
-    installRouter();
-    installLayoutObserver();
-    repairDynamicMonthLabels(document);
+    installNativeHooks(); installRouter(); installLayoutObserver(); repairDynamicMonthLabels(document);
     if (window.AndroidBridge && typeof state !== 'undefined') {
       state.push = {...state.push, enabled:true, storage:'android-workmanager'};
-      const badge=document.querySelector('#pushStatus');
-      if (badge) badge.textContent='네이티브 감시 준비';
+      const badge=document.querySelector('#pushStatus'); if (badge) badge.textContent='네이티브 감시 준비';
     }
   });
 
