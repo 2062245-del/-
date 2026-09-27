@@ -1,0 +1,45 @@
+name: PS Radar v17.8 Quality Gate
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'ps-radar/product-v178.js'
+      - 'ps-radar/product-v178.css'
+      - 'ps-radar/index.html'
+      - 'ps-radar/scripts/validate-v178.mjs'
+      - 'ps-radar/scripts/smoke-v178.mjs'
+      - '.github/workflows/ps-radar-v178-quality.yml'
+  workflow_dispatch:
+
+jobs:
+  quality:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v6
+      - name: Setup Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Static validation
+        run: |
+          node --check ps-radar/product-v178.js
+          node --check ps-radar/scripts/validate-v178.mjs
+          node --check ps-radar/scripts/smoke-v178.mjs
+          node ps-radar/scripts/validate-v178.mjs
+      - name: Install Playwright
+        run: |
+          mkdir -p /tmp/psradar-v178
+          npm --prefix /tmp/psradar-v178 init -y >/dev/null 2>&1
+          npm --prefix /tmp/psradar-v178 install playwright@1.55.0 >/dev/null
+          /tmp/psradar-v178/node_modules/.bin/playwright install chromium >/dev/null
+          ln -s /tmp/psradar-v178/node_modules ps-radar/node_modules
+      - name: Browser regression
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 --directory ps-radar >/tmp/psradar-v178-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID || true' EXIT
+          sleep 2
+          node ps-radar/scripts/smoke-v178.mjs
