@@ -1,0 +1,77 @@
+name: Recover PS Radar v17.4.2 Deals
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ps-radar-recover-v1742.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout latest main
+        uses: actions/checkout@v6
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Download verified v17.4.2 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: PS-Radar-v17.4.2-Latest
+          path: recovered-artifact
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          run-id: 36328569962
+
+      - name: Restore verified deals snapshot
+        shell: bash
+        run: |
+          set -euxo pipefail
+          rm -rf recovered-package
+          mkdir recovered-package
+          unzip -q recovered-artifact/PS-Radar-v17.4.2-Latest.zip -d recovered-package
+          cp recovered-package/ps-radar/data/deals-auto.json ps-radar/data/deals-auto.json
+          node - <<'NODE'
+          const fs=require('fs');
+          const p=JSON.parse(fs.readFileSync('ps-radar/data/deals-auto.json','utf8'));
+          if(p?.health?.priceCrosscheckVersion!=='17.4.2') throw new Error('v17.4.2 crosscheck marker missing');
+          if(!Array.isArray(p.items)||p.items.length!==2491) throw new Error(`unexpected item count ${p.items?.length}`);
+          let valid=0,rejected=0,bad=0;
+          for(const x of p.items){
+            if(String(x.priceStatus||'').startsWith('rejected')){
+              rejected++;
+              if(x.currentPrice!==null) bad++;
+              continue;
+            }
+            const c=Number(x.currentPrice),o=Number(x.originalPrice),d=Number(x.discountPercent);
+            if(!(c>0&&o>c&&d>0)){bad++;continue;}
+            const err=Math.abs((1-c/o)*100-d);
+            if(err>2.5) bad++; else valid++;
+          }
+          if(valid!==2423||rejected!==68||bad!==0) throw new Error(`verification mismatch valid=${valid} rejected=${rejected} bad=${bad}`);
+          console.log({items:p.items.length,valid,rejected,bad,health:p.health});
+          NODE
+
+      - name: Commit recovered snapshot safely
+        shell: bash
+        run: |
+          set -euxo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add ps-radar/data/deals-auto.json
+          if git diff --cached --quiet; then
+            echo 'Verified snapshot already current'
+            exit 0
+          fi
+          git commit -m 'Apply verified PS Store deals v17.4.2'
+          git fetch origin main
+          git rebase origin/main
+          git push origin HEAD:main
