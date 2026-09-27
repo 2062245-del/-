@@ -24,7 +24,7 @@ const deals = json(`${root}/data/deals-auto.json`);
 
 function stage175() {
   tokens(foundation, [
-    '17.5.0', 'raw.githubusercontent.com', 'window.fetch', 'history.pushState', 'popstate',
+    '17.5.', 'raw.githubusercontent.com', 'window.fetch', 'history.pushState', 'popstate',
     'dynamicMonth', 'repairDynamicMonthLabels', '__PSRADAR_ANDROID_BACK__', 'syncNativeWatchlist'
   ], 'v17.5 foundation');
   tokens(main, [
