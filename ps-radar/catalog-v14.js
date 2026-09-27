@@ -2,7 +2,6 @@
   'use strict';
 
   let catalogPayload = null;
-  let catalogMergedAt = 0;
   const sleep = ms => new Promise(r => setTimeout(r, ms));
   const hasKind = (g, kind) => g?.type === kind || (Array.isArray(g?.categories) && g.categories.includes(kind));
   const cleanStore = (u='') => String(u).split('?')[0].replace(/\/$/,'');
@@ -42,7 +41,7 @@
           ...d,
           id:before.id||d.id,
           title:before.title||d.title,
-          type:manualPrimary?(before.type||d.type):(before.type||d.type),
+          type:before.type||d.type,
           tier:manualPrimary?(before.tier||d.tier):(d.tier||before.tier),
           categories,
           platform:[...new Set([...(before.platform||[]),...(d.platform||[])])],
@@ -67,7 +66,6 @@
     state.catalogSource=payload.source||'unknown';
     state.catalogGeneratedAt=payload.generatedAt||null;
     state.catalogHealth=payload.health||null;
-    catalogMergedAt=Date.now();
     return true;
   }
 
@@ -78,20 +76,28 @@
   }
 
   function paintCatalogStatus(){
-    const h=state?.catalogHealth;
+    if(typeof state==='undefined')return;
+    const h=state.catalogHealth;
     if(!h?.safeToMerge)return;
     const catalog=Number(h.counts?.catalog)||0, classic=Number(h.counts?.classic)||0;
+    const sourceText=`PS Plus 공식 전체 목록 · 게임 ${catalog} · 클래식 ${classic}`;
     const s=document.querySelector('#sourceStatus');
-    if(s)s.textContent=`PS Plus 공식 전체 목록 · 게임 ${catalog} · 클래식 ${classic}`;
+    if(s&&s.textContent!==sourceText)s.textContent=sourceText;
+
     if(document.body.dataset.page==='catalog'){
       const box=document.querySelector('#pageCoverage');
       if(box){
-        box.className='page-coverage complete';
-        box.innerHTML=`<div><strong>공식 현재 목록 · 게임 카탈로그 ${catalog}개 · 클래식 ${classic}개</strong><span>PlayStation 공식 gameslist 기준 전체 스냅샷 · ${formatSync(state.catalogGeneratedAt)} 동기화</span></div><a href="https://www.playstation.com/ko-kr/ps-plus/games/" target="_blank" rel="noopener">공식 전체 목록 ↗</a>`;
+        const signature=`${catalog}|${classic}|${state.catalogGeneratedAt||''}`;
+        if(box.dataset.catalogSignature!==signature){
+          box.dataset.catalogSignature=signature;
+          box.className='page-coverage complete';
+          box.innerHTML=`<div><strong>공식 현재 목록 · 게임 카탈로그 ${catalog}개 · 클래식 ${classic}개</strong><span>PlayStation 공식 gameslist 기준 전체 스냅샷 · ${formatSync(state.catalogGeneratedAt)} 동기화</span></div><a href="https://www.playstation.com/ko-kr/ps-plus/games/" target="_blank" rel="noopener">공식 전체 목록 ↗</a>`;
+        }
       }
       const count=document.querySelector('#countText');
       const visible=typeof filteredGames==='function'?filteredGames().length:null;
-      if(count&&Number.isFinite(visible))count.textContent=`${visible.toLocaleString('ko-KR')}개`;
+      const countText=Number.isFinite(visible)?`${visible.toLocaleString('ko-KR')}개`:'';
+      if(count&&countText&&count.textContent!==countText)count.textContent=countText;
     }
   }
 
