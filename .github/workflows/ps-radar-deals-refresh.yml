@@ -30,7 +30,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Install Playwright
         run: |
@@ -60,14 +60,83 @@ jobs:
           console.log(`Validated ${p.items.length} deals from ${p.health.pagesScanned} pages.`);
           NODE
 
+      - name: Build latest runnable package
+        run: |
+          rm -rf dist/PS-Radar-latest
+          mkdir -p dist/PS-Radar-latest
+          cp -R ps-radar dist/PS-Radar-latest/ps-radar
+          cat > dist/PS-Radar-latest/PS-Radar-Start.bat <<'BAT'
+          @echo off
+          cd /d "%~dp0"
+          powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0server.ps1"
+          BAT
+          cat > dist/PS-Radar-latest/server.ps1 <<'POWERSHELL'
+          $ErrorActionPreference = 'Stop'
+          $root = Join-Path $PSScriptRoot 'ps-radar'
+          $prefix = 'http://127.0.0.1:8765/'
+          $listener = New-Object System.Net.HttpListener
+          $listener.Prefixes.Add($prefix)
+          $listener.Start()
+          Start-Process ($prefix + 'ps-radar/')
+          Write-Host 'PS Radar is running at http://127.0.0.1:8765/ps-radar/'
+          Write-Host 'Close this window to stop PS Radar.'
+          $mime = @{ '.html'='text/html; charset=utf-8'; '.js'='text/javascript; charset=utf-8'; '.css'='text/css; charset=utf-8'; '.json'='application/json; charset=utf-8'; '.webmanifest'='application/manifest+json; charset=utf-8'; '.png'='image/png'; '.jpg'='image/jpeg'; '.jpeg'='image/jpeg'; '.svg'='image/svg+xml'; '.ico'='image/x-icon'; '.webp'='image/webp' }
+          while ($listener.IsListening) {
+            $ctx = $listener.GetContext()
+            try {
+              $rel = [Uri]::UnescapeDataString($ctx.Request.Url.AbsolutePath.TrimStart('/'))
+              if ([string]::IsNullOrWhiteSpace($rel)) { $rel = 'ps-radar/index.html' }
+              if ($rel -eq 'ps-radar' -or $rel -eq 'ps-radar/') { $rel = 'ps-radar/index.html' }
+              if ($rel.StartsWith('ps-radar/')) { $rel = $rel.Substring(9) }
+              $target = [IO.Path]::GetFullPath((Join-Path $root $rel))
+              $rootFull = [IO.Path]::GetFullPath($root)
+              if (-not $target.StartsWith($rootFull, [StringComparison]::OrdinalIgnoreCase)) { throw 'Forbidden' }
+              if (Test-Path $target -PathType Container) { $target = Join-Path $target 'index.html' }
+              if (-not (Test-Path $target -PathType Leaf)) {
+                $ctx.Response.StatusCode = 404
+                $bytes = [Text.Encoding]::UTF8.GetBytes('Not Found')
+              } else {
+                $ext = [IO.Path]::GetExtension($target).ToLowerInvariant()
+                if ($mime.ContainsKey($ext)) { $ctx.Response.ContentType = $mime[$ext] }
+                $bytes = [IO.File]::ReadAllBytes($target)
+              }
+              $ctx.Response.ContentLength64 = $bytes.Length
+              $ctx.Response.OutputStream.Write($bytes,0,$bytes.Length)
+            } catch {
+              $ctx.Response.StatusCode = 500
+            } finally {
+              $ctx.Response.OutputStream.Close()
+            }
+          }
+          POWERSHELL
+          cat > dist/PS-Radar-latest/README.txt <<'TXT'
+          PS Radar 최신 실행 패키지
+          1. 압축을 풉니다.
+          2. PS-Radar-Start.bat 를 더블클릭합니다.
+          3. 브라우저에서 PS Radar가 자동으로 열립니다.
+          4. 종료하려면 실행 중인 명령창을 닫습니다.
+          TXT
+          python - <<'PY'
+          import shutil
+          shutil.make_archive('PS-Radar-v17.2-Latest', 'zip', 'dist/PS-Radar-latest')
+          PY
+
+      - name: Upload latest runnable package
+        uses: actions/upload-artifact@v4
+        with:
+          name: PS-Radar-v17.2-Latest
+          path: PS-Radar-v17.2-Latest.zip
+          if-no-files-found: error
+          retention-days: 30
+
       - name: Commit refreshed deals
         run: |
-          if git diff --quiet -- ps-radar/data/deals-auto.json; then
+          git add ps-radar/data/deals-auto.json
+          if git diff --cached --quiet; then
             echo 'No deal changes'
             exit 0
           fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add ps-radar/data/deals-auto.json
           git commit -m 'Refresh PS Store deals'
           git push origin main
