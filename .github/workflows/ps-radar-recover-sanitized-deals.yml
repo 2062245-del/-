@@ -1,0 +1,66 @@
+name: Recover PS Radar Sanitized Deals
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ps-radar-recover-sanitized-deals.yml'
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout latest main
+        uses: actions/checkout@v6
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Download sanitized package from completed refresh
+        uses: actions/download-artifact@v4
+        with:
+          name: PS-Radar-v17.4.1-Latest
+          path: recovered
+          run-id: 36326692074
+          github-token: ${{ github.token }}
+
+      - name: Restore and validate sanitized snapshot
+        shell: bash
+        run: |
+          set -euxo pipefail
+          unzip -q recovered/PS-Radar-v17.4.1-Latest.zip -d recovered/package
+          cp recovered/package/ps-radar/data/deals-auto.json ps-radar/data/deals-auto.json
+          node - <<'NODE'
+          const fs=require('fs');
+          const p=JSON.parse(fs.readFileSync('ps-radar/data/deals-auto.json','utf8'));
+          if(!p?.health?.safeToMerge) throw new Error('snapshot safety failed');
+          if(!Array.isArray(p.items)||p.items.length<2000) throw new Error('snapshot too small');
+          if(!(Number(p.health.titlesCleaned)>0)) throw new Error('title sanitizer metrics missing');
+          if(!(Number(p.health.imageCollisionsRemoved)>0)) throw new Error('image sanitizer metrics missing');
+          for(const x of p.items){
+            if(x.imageStatus==='collision-removed' && x.image) throw new Error(`rejected image remained: ${x.title}`);
+          }
+          console.log(`Recovered ${p.items.length} deals`, {
+            titlesCleaned:p.health.titlesCleaned,
+            imageCollisionGroupsRemoved:p.health.imageCollisionGroupsRemoved,
+            imageCollisionsRemoved:p.health.imageCollisionsRemoved
+          });
+          NODE
+
+      - name: Commit recovered snapshot
+        shell: bash
+        run: |
+          set -euxo pipefail
+          git add ps-radar/data/deals-auto.json
+          if git diff --cached --quiet; then
+            echo 'No snapshot changes to commit'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'Apply sanitized PS Store deals snapshot'
+          git push origin main
