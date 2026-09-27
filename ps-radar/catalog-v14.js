@@ -111,6 +111,9 @@
         patch.languageStatus='unknown';
       }
       Object.assign(match,patch);
+      if(state.store instanceof Map){
+        state.store.set(match.id,{...(state.store.get(match.id)||{}),...patch});
+      }
       mergedCount++;
     }
     state.storeAutoSource=payload.source||'unknown';
