@@ -1,5 +1,5 @@
-/* PS Radar v17.4.1 deal filter polish */
-.deal-filter-shell{margin:14px 0 4px;padding:12px;border:1px solid rgba(255,255,255,.08);border-radius:18px;background:rgba(11,18,32,.92);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+/* PS Radar v17.4.2 deal filter polish */
+.deal-filter-shell{margin:14px 0 4px;padding:12px;border:1px solid rgba(255,255,255,.08);border-radius:18px;background:rgba(11,18,32,.94);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
 .deal-filter-shell[hidden]{display:none!important}
 .deal-filter-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
 .deal-filter-head>div{min-width:0}.deal-filter-head b{display:block;font-size:13px;letter-spacing:-.2px}.deal-filter-head span{display:block;margin-top:3px;color:#8191aa;font-size:10px}
@@ -11,12 +11,18 @@
 .deal-qf:active,.deal-filter-detail:active{transform:scale(.97)}
 
 @media(max-width:700px){
-  .deal-filter-shell{margin-top:10px;padding:10px 10px 9px;border-radius:16px}
-  .deal-filter-head{margin-bottom:8px}.deal-filter-head b{font-size:12px}.deal-filter-head span{font-size:9px}
+  .deal-filter-shell{position:sticky;top:76px;z-index:28;margin-top:8px;padding:9px 9px 8px;border-radius:15px;box-shadow:0 12px 32px rgba(0,0,0,.26)}
+  .deal-filter-head{margin-bottom:7px}.deal-filter-head b{font-size:12px}.deal-filter-head span{font-size:9px}
   .deal-filter-detail{padding:7px 9px;font-size:9px}.deal-qf{padding:7px 10px;font-size:10px}
+  body.promo-filter-visible .section#resultsSection{margin-top:18px}
+  body{padding-bottom:calc(190px + env(safe-area-inset-bottom,0px))!important}
+  .app{padding-bottom:calc(190px + env(safe-area-inset-bottom,0px))!important}
+  #resultsSection{padding-bottom:72px}
+  #grid{padding-bottom:20px}
 }
 
 @media(max-width:540px){
-  .deal-filter-shell{position:relative;margin-left:-1px;margin-right:-1px}
+  .deal-filter-shell{top:72px;margin-left:-1px;margin-right:-1px}
   .deal-filter-scroll{margin-right:-6px;padding-right:8px}
+  #resultsSection{padding-bottom:90px}
 }
