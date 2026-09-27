@@ -1,4 +1,4 @@
-name: Build PS Radar v17.4.1 Android APK
+name: Build PS Radar v17.4.2 Android APK
 
 on:
   push:
@@ -40,7 +40,7 @@ jobs:
         with:
           gradle-version: '8.11.1'
 
-      - name: Validate PS Radar v17.4.1 web layer
+      - name: Validate PS Radar v17.4.2 web layer
         shell: bash
         run: |
           set -euxo pipefail
@@ -48,6 +48,7 @@ jobs:
           node --check ps-radar/mobile-v174.js
           node --check ps-radar/mobile-v1741.js
           node --check ps-radar/scripts/sanitize-deals.mjs
+          node --check ps-radar/scripts/repair-deals-v1742.mjs
           test -s ps-radar/mobile-v174.css
           test -s ps-radar/mobile-v1741.css
           node - <<'NODE'
@@ -57,12 +58,23 @@ jobs:
           if(!Array.isArray(games)||games.length<10) throw new Error('games dataset missing');
           if(!Array.isArray(deals.items)||deals.items.length<2000) throw new Error('verified deals dataset unexpectedly small');
           const patch=fs.readFileSync('ps-radar/mobile-v1741.js','utf8');
-          for(const token of ['50%↑','70%↑','90%↑','1만원↓','2만원↓','세부 필터','cleanDisplayTitle','sanitizeImageCollisions']){
-            if(!patch.includes(token)) throw new Error(`v17.4.1 filter/data patch missing: ${token}`);
+          for(const token of ['17.4.2','50%↑','70%↑','90%↑','1만원↓','2만원↓','세부 필터','validDealPrice','dealPriceError','판매가 재확인 중','__PSRADAR_V1742__']){
+            if(!patch.includes(token)) throw new Error(`v17.4.2 patch missing: ${token}`);
           }
-          const loader=fs.readFileSync('ps-radar/deals-v16.js','utf8');
-          if(!loader.includes('mobile-v1741.js')||!loader.includes('mobile-v1741.css')) throw new Error('v17.4.1 loader missing');
-          console.log(`Web QA: games=${games.length}, verified deals=${deals.items.length}`);
+          const css=fs.readFileSync('ps-radar/mobile-v1741.css','utf8');
+          if(!css.includes('position:sticky')||!css.includes('190px')) throw new Error('v17.4.2 sticky filter/bottom spacing missing');
+          const android=fs.readFileSync('ps-radar/android/MainActivity.java','utf8');
+          for(const token of ['__PSRADAR_IMAGE_FAILED__','image.api.playstation.com','psradar-art-cache-v1742']){
+            if(!android.includes(token)) throw new Error(`v17.4.2 Android art recovery missing: ${token}`);
+          }
+          let badVisible=0,rejected=0;
+          for(const x of deals.items){
+            if(String(x.priceStatus||'').startsWith('rejected')){ rejected++; continue; }
+            const c=Number(x.currentPrice),o=Number(x.originalPrice),d=Number(x.discountPercent);
+            if(c>0&&o>c&&d>0){ const e=Math.abs((1-c/o)*100-d); if(e>2.5) badVisible++; }
+          }
+          if(badVisible) throw new Error(`crosscheck mismatch remains visible: ${badVisible}`);
+          console.log(`Web QA: games=${games.length}, deals=${deals.items.length}, rejectedPrices=${rejected}`);
           NODE
 
       - name: Generate Android wrapper project
@@ -114,8 +126,8 @@ jobs:
                   applicationId 'com.seungho.psradar'
                   minSdk 26
                   targetSdk 35
-                  versionCode 17401
-                  versionName '17.4.1'
+                  versionCode 17402
+                  versionName '17.4.2'
               }
 
               buildTypes {
@@ -203,6 +215,7 @@ jobs:
           test -f app/src/main/java/com/seungho/psradar/MainActivity.java
           ! test -d app/src/main/assets/ps-radar/android
           grep -q 'resolveStoreImage' app/src/main/java/com/seungho/psradar/MainActivity.java
+          grep -q '__PSRADAR_IMAGE_FAILED__' app/src/main/java/com/seungho/psradar/MainActivity.java
 
       - name: Build APK
         run: gradle :app:assembleDebug --stacktrace
@@ -217,16 +230,16 @@ jobs:
           AAPT="$ANDROID_HOME/build-tools/35.0.0/aapt"
           "$APKSIGNER" verify --verbose "$APK"
           "$AAPT" dump badging "$APK" | tee apk-badging.txt
-          grep -q "package: name='com.seungho.psradar' versionCode='17401' versionName='17.4.1'" apk-badging.txt
-          cp "$APK" "PS-Radar-v17.4.1-Android.apk"
-          sha256sum "PS-Radar-v17.4.1-Android.apk" | tee PS-Radar-v17.4.1-Android.sha256
+          grep -q "package: name='com.seungho.psradar' versionCode='17402' versionName='17.4.2'" apk-badging.txt
+          cp "$APK" "PS-Radar-v17.4.2-Android.apk"
+          sha256sum "PS-Radar-v17.4.2-Android.apk" | tee PS-Radar-v17.4.2-Android.sha256
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: PS-Radar-v17.4.1-Android
+          name: PS-Radar-v17.4.2-Android
           path: |
-            PS-Radar-v17.4.1-Android.apk
-            PS-Radar-v17.4.1-Android.sha256
+            PS-Radar-v17.4.2-Android.apk
+            PS-Radar-v17.4.2-Android.sha256
           if-no-files-found: error
           retention-days: 30
