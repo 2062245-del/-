@@ -226,6 +226,17 @@
     mo.observe(document.body,{subtree:true,childList:true});
   }
 
+  function loadV1771Assets() {
+    if (!document.querySelector('link[data-psradar-v1771]')) {
+      const link=document.createElement('link');link.rel='stylesheet';link.href='./stability-v1771.css';link.dataset.psradarV1771='1';document.head.appendChild(link);
+    }
+    if (!document.querySelector('script[data-psradar-v1771]')) {
+      const script=document.createElement('script');script.src='./stability-v1771.js';script.dataset.psradarV1771='1';script.async=false;document.head.appendChild(script);
+    }
+  }
+
+  loadV1771Assets();
+
   window.addEventListener('DOMContentLoaded', () => {
     installNativeHooks(); installRouter(); installLayoutObserver(); repairDynamicMonthLabels(document);
     if (window.AndroidBridge && typeof state !== 'undefined') {
