@@ -8,6 +8,7 @@ on:
     branches: [main]
     paths:
       - 'ps-radar/scripts/fetch-store-deals.mjs'
+      - 'ps-radar/scripts/sanitize-deals.mjs'
       - '.github/workflows/ps-radar-deals-refresh.yml'
 
 permissions:
@@ -47,6 +48,9 @@ jobs:
           PSRADAR_MIN_PREVIOUS_RATIO: '0.25'
         run: node ps-radar/scripts/fetch-store-deals.mjs
 
+      - name: Sanitize titles and artwork matches
+        run: node ps-radar/scripts/sanitize-deals.mjs
+
       - name: Validate deals snapshot
         run: |
           node - <<'NODE'
@@ -58,8 +62,14 @@ jobs:
             if(!(Number(x.originalPrice)>Number(x.currentPrice))) throw new Error(`invalid price: ${x.title}`);
             if(!(Number(x.discountPercent)>0)) throw new Error(`invalid discount: ${x.title}`);
             if(!x.storeVerified||x.priceStatus!=='verified') throw new Error(`unverified deal: ${x.title}`);
+            if(x.imageStatus==='collision-removed' && x.image) throw new Error(`rejected image still present: ${x.title}`);
           }
-          console.log(`Validated ${p.items.length} deals from ${p.health.pagesScanned} pages. Platform counts:`, p.health.platformCounts);
+          console.log(`Validated ${p.items.length} deals from ${p.health.pagesScanned} pages.`, {
+            platformCounts:p.health.platformCounts,
+            titlesCleaned:p.health.titlesCleaned||0,
+            imageCollisionGroupsRemoved:p.health.imageCollisionGroupsRemoved||0,
+            imageCollisionsRemoved:p.health.imageCollisionsRemoved||0
+          });
           NODE
 
       - name: Build latest runnable package
@@ -112,7 +122,7 @@ jobs:
           }
           POWERSHELL
           cat > dist/PS-Radar-latest/README.txt <<'TXT'
-          PS Radar v17.3 최신 실행 패키지
+          PS Radar v17.4.1 최신 실행 패키지
           1. 압축을 풉니다.
           2. PS-Radar-Start.bat 를 더블클릭합니다.
           3. 브라우저에서 PS Radar가 자동으로 열립니다.
@@ -120,14 +130,14 @@ jobs:
           TXT
           python - <<'PY'
           import shutil
-          shutil.make_archive('PS-Radar-v17.3-Latest', 'zip', 'dist/PS-Radar-latest')
+          shutil.make_archive('PS-Radar-v17.4.1-Latest', 'zip', 'dist/PS-Radar-latest')
           PY
 
       - name: Upload latest runnable package
         uses: actions/upload-artifact@v4
         with:
-          name: PS-Radar-v17.3-Latest
-          path: PS-Radar-v17.3-Latest.zip
+          name: PS-Radar-v17.4.1-Latest
+          path: PS-Radar-v17.4.1-Latest.zip
           if-no-files-found: error
           retention-days: 30
 
