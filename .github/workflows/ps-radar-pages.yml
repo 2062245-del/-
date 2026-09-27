@@ -41,8 +41,14 @@ jobs:
           if [ "$rem" -eq 1 ]; then echo 'Invalid base64 length'; exit 1; fi
           base64 -d /tmp/ps-radar-v13.b64 > /tmp/ps-radar-v13.tgz
           mkdir -p site
+          set +e
           tar -xzf /tmp/ps-radar-v13.tgz -C site
+          tar_status=$?
+          set -e
+          echo "tar status: $tar_status"
+          find site -maxdepth 2 -type f -printf '%p %s bytes\n' | sort | head -80
           test -f site/index.html
+          test -s site/index.html
           touch site/.nojekyll
           echo "Recovered $(find site -type f | wc -l) site files"
 
