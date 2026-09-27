@@ -31,37 +31,53 @@ jobs:
           ref: main
           path: root
 
-      - name: Checkout PS Radar payload
+      - name: Checkout complete PS Radar runtime
         uses: actions/checkout@v6
         with:
-          ref: ps-radar-v13-pages
+          ref: ps-radar-v12-render
           path: payload
 
       - name: Build combined Pages site
         shell: bash
         run: |
           set -euo pipefail
-          rm -rf site
-          mkdir -p site/ps-radar
+          rm -rf site /tmp/psradar-runtime
+          mkdir -p site/ps-radar /tmp/psradar-runtime
 
-          # Preserve the existing Pages root (유통기한 조사 + existing subfolders).
+          # Keep the existing Pages root intact.
           cp -a root/. site/
           rm -rf site/.git site/.github
 
-          # Rebuild PS Radar into its own isolated path.
-          cat payload/ps-radar-v13-runtime.part* | tr -d '\r\n\t ' > /tmp/ps-radar-v13.b64
-          test "$(wc -c < /tmp/ps-radar-v13.b64)" -eq 41688
-          base64 -d /tmp/ps-radar-v13.b64 > /tmp/ps-radar-v13.tar.xz
-          tar -xJf /tmp/ps-radar-v13.tar.xz -C site/ps-radar
+          # Restore the complete PS Radar project already stored on GitHub.
+          cat payload/ps-radar-v12-runtime.part* | tr -d '\r\n\t ' > /tmp/psradar-runtime.b64
+          base64 -d /tmp/psradar-runtime.b64 > /tmp/psradar-runtime.tgz
+          tar -xzf /tmp/psradar-runtime.tgz -C /tmp/psradar-runtime
+
+          # Copy only the static files needed by GitHub Pages.
+          cp /tmp/psradar-runtime/index.html site/ps-radar/index.html
+          cp /tmp/psradar-runtime/app.js site/ps-radar/app.js
+          cp /tmp/psradar-runtime/styles.css site/ps-radar/styles.css
+          cp /tmp/psradar-runtime/manifest.json site/ps-radar/manifest.json
+          cp /tmp/psradar-runtime/sw.js site/ps-radar/sw.js
+          mkdir -p site/ps-radar/icons site/ps-radar/data
+          cp -a /tmp/psradar-runtime/icons/. site/ps-radar/icons/
+          cp -a /tmp/psradar-runtime/data/. site/ps-radar/data/
+
+          # A direct fallback for mobile browsers and stale links.
+          cp site/ps-radar/index.html site/ps-radar/404.html
 
           test -s site/index.html
           test -s site/ps-radar/index.html
+          test -s site/ps-radar/app.js
+          test -s site/ps-radar/styles.css
+          test -s site/ps-radar/manifest.json
           grep -q '유통기한 조사' site/index.html
-          grep -q 'PS Radar' site/ps-radar/index.html
-          touch site/.nojekyll
-          touch site/ps-radar/.nojekyll
-          echo "Root files: $(find site -maxdepth 1 -type f | wc -l)"
-          echo "PS Radar files: $(find site/ps-radar -type f | wc -l)"
+          grep -qi 'PS Radar' site/ps-radar/index.html
+          touch site/.nojekyll site/ps-radar/.nojekyll
+
+          echo "Root preserved: $(wc -c < site/index.html) bytes"
+          echo "PS Radar static files: $(find site/ps-radar -type f | wc -l)"
+          find site/ps-radar -maxdepth 2 -type f -printf '%p %s bytes\n' | sort
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
