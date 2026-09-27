@@ -1,0 +1,189 @@
+name: Build PS Radar v17.7.1 Hotfix APK
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'ps-radar/**'
+      - '.github/workflows/ps-radar-v1771-hotfix.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: ps-radar-v1771-hotfix
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      ANDROID_HOME: /usr/local/lib/android/sdk
+      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+      PSRADAR_KEYSTORE_B64: ${{ secrets.PSRADAR_KEYSTORE_B64 }}
+      PSRADAR_KEYSTORE_PASSWORD_SECRET: ${{ secrets.PSRADAR_KEYSTORE_PASSWORD }}
+      PSRADAR_KEY_ALIAS_SECRET: ${{ secrets.PSRADAR_KEY_ALIAS }}
+      PSRADAR_KEY_PASSWORD_SECRET: ${{ secrets.PSRADAR_KEY_PASSWORD }}
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v6
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install Android SDK packages
+        shell: bash
+        run: |
+          set -euxo pipefail
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$SDKMANAGER" --licenses >/dev/null 2>&1 || true
+          "$SDKMANAGER" "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+
+      - name: Static regression validation
+        shell: bash
+        run: |
+          set -euxo pipefail
+          node --check ps-radar/foundation-v175.js
+          node --check ps-radar/stability-v1771.js
+          node --check ps-radar/scripts/smoke-nav-v1771.mjs
+          test -s ps-radar/stability-v1771.css
+          grep -Fq "if (current !== next) el.textContent = next;" ps-radar/foundation-v175.js
+          grep -Fq "coverageTouched" ps-radar/foundation-v175.js
+          grep -Fq "stability-v1771.js" ps-radar/foundation-v175.js
+          grep -Fq "stability-v1771.css" ps-radar/foundation-v175.js
+          node ps-radar/scripts/validate-final-v177.mjs
+          node - <<'NODE'
+          const fs=require('fs');
+          const f=fs.readFileSync('ps-radar/foundation-v175.js','utf8');
+          const s=fs.readFileSync('ps-radar/stability-v1771.js','utf8');
+          if(/if \(\/\\d\{1,2\}월\/\.test\(template\)\) el\.textContent/.test(f)) throw new Error('old unconditional month mutation remains');
+          for(const token of ['normalizeNavigation','v1771-upcoming-compact','aria-current']) if(!s.includes(token)) throw new Error(`v17.7.1 stability token missing ${token}`);
+          console.log('STATIC_V1771_PASS');
+          NODE
+
+      - name: Browser navigation freeze regression
+        shell: bash
+        run: |
+          set -euxo pipefail
+          npm --prefix /tmp/psradar-smoke init -y >/dev/null 2>&1
+          npm --prefix /tmp/psradar-smoke install playwright@1.55.0 >/dev/null
+          /tmp/psradar-smoke/node_modules/.bin/playwright install chromium >/dev/null
+          ln -s /tmp/psradar-smoke/node_modules ps-radar/node_modules
+          python3 -m http.server 8765 --directory ps-radar >/tmp/psradar-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID || true' EXIT
+          sleep 2
+          node ps-radar/scripts/smoke-nav-v1771.mjs
+
+      - name: Generate Android wrapper
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p app/src/main/java/com/seungho/psradar app/src/main/assets/ps-radar app/src/main/res/drawable app/src/main/res/values app/src/main/res/xml
+          cp -R ps-radar/. app/src/main/assets/ps-radar/
+          rm -rf app/src/main/assets/ps-radar/scripts app/src/main/assets/ps-radar/android app/src/main/assets/ps-radar/node_modules
+          cp ps-radar/android/MainActivity.java app/src/main/java/com/seungho/psradar/MainActivity.java
+          cp ps-radar/android/DealWatchWorker.java app/src/main/java/com/seungho/psradar/DealWatchWorker.java
+          cat > settings.gradle <<'EOF'
+          pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }
+          dependencyResolutionManagement { repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS); repositories { google(); mavenCentral() } }
+          rootProject.name='PSRadar'
+          include ':app'
+          EOF
+          cat > build.gradle <<'EOF'
+          plugins { id 'com.android.application' version '8.7.3' apply false }
+          EOF
+          cat > gradle.properties <<'EOF'
+          org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
+          android.useAndroidX=true
+          android.nonTransitiveRClass=true
+          EOF
+          cat > app/build.gradle <<'EOF'
+          plugins { id 'com.android.application' }
+          def releaseKeystore = System.getenv('PSRADAR_KEYSTORE_PATH')
+          android {
+            namespace 'com.seungho.psradar'
+            compileSdk 35
+            defaultConfig { applicationId 'com.seungho.psradar'; minSdk 26; targetSdk 35; versionCode 17701; versionName '17.7.1' }
+            signingConfigs { release { storeFile file(releaseKeystore); storePassword System.getenv('PSRADAR_KEYSTORE_PASSWORD'); keyAlias System.getenv('PSRADAR_KEY_ALIAS'); keyPassword System.getenv('PSRADAR_KEY_PASSWORD') } }
+            buildTypes { release { minifyEnabled false; signingConfig signingConfigs.release } }
+            compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
+          }
+          dependencies {
+            implementation 'androidx.webkit:webkit:1.12.1'
+            implementation 'androidx.core:core:1.15.0'
+            implementation 'androidx.work:work-runtime:2.10.0'
+          }
+          EOF
+          cat > app/src/main/res/values/styles.xml <<'EOF'
+          <resources><style name="AppTheme" parent="android:style/Theme.Material.NoActionBar"><item name="android:fontFamily">sans</item><item name="android:windowLightStatusBar">false</item><item name="android:statusBarColor">#0B1020</item><item name="android:navigationBarColor">#0B1020</item><item name="android:windowActionModeOverlay">true</item><item name="android:windowNoTitle">true</item></style></resources>
+          EOF
+          cat > app/src/main/res/drawable/ic_launcher.xml <<'EOF'
+          <vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108"><path android:fillColor="#0B1020" android:pathData="M0,0h108v108h-108z"/><path android:fillColor="#1264E6" android:pathData="M54,10a44,44 0,1 0,0 88a44,44 0,1 0,0 -88"/><path android:fillColor="#FFFFFF" android:pathData="M33,31h26c11.6,0 20,7.2 20,18.4c0,11.5 -8.4,18.6 -20,18.6H49v12H33V31zm16,13v11h9c3.6,0 5.8,-2.1 5.8,-5.5S61.6,44 58,44h-9z"/><path android:fillColor="#7ED7FF" android:pathData="M66,69l10,0l0,10l-10,0z"/></vector>
+          EOF
+          cat > app/src/main/res/xml/network_security_config.xml <<'EOF'
+          <network-security-config><base-config cleartextTrafficPermitted="false" /></network-security-config>
+          EOF
+          cat > app/src/main/AndroidManifest.xml <<'EOF'
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android"><uses-permission android:name="android.permission.INTERNET"/><uses-permission android:name="android.permission.POST_NOTIFICATIONS"/><application android:allowBackup="true" android:label="PS Radar" android:icon="@drawable/ic_launcher" android:roundIcon="@drawable/ic_launcher" android:theme="@style/AppTheme" android:hardwareAccelerated="true" android:networkSecurityConfig="@xml/network_security_config" android:usesCleartextTraffic="false"><activity android:name=".MainActivity" android:exported="true"><intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter></activity></application></manifest>
+          EOF
+          test -f app/src/main/assets/ps-radar/stability-v1771.js
+          test -f app/src/main/assets/ps-radar/stability-v1771.css
+
+      - name: Restore persistent signing key
+        uses: actions/cache@v4
+        with:
+          path: .ci-signing/psradar-dev.jks
+          key: psradar-dev-release-keystore-v1
+
+      - name: Prepare release signing
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .ci-signing
+          if [ -n "${PSRADAR_KEYSTORE_B64:-}" ] && [ -n "${PSRADAR_KEYSTORE_PASSWORD_SECRET:-}" ] && [ -n "${PSRADAR_KEY_ALIAS_SECRET:-}" ] && [ -n "${PSRADAR_KEY_PASSWORD_SECRET:-}" ]; then
+            echo "$PSRADAR_KEYSTORE_B64" | base64 --decode > "$PWD/.ci-signing/psradar-release.jks"
+            echo "PSRADAR_KEYSTORE_PATH=$PWD/.ci-signing/psradar-release.jks" >> "$GITHUB_ENV"
+            echo "PSRADAR_KEYSTORE_PASSWORD=$PSRADAR_KEYSTORE_PASSWORD_SECRET" >> "$GITHUB_ENV"
+            echo "PSRADAR_KEY_ALIAS=$PSRADAR_KEY_ALIAS_SECRET" >> "$GITHUB_ENV"
+            echo "PSRADAR_KEY_PASSWORD=$PSRADAR_KEY_PASSWORD_SECRET" >> "$GITHUB_ENV"
+          else
+            DEV_KEY="$PWD/.ci-signing/psradar-dev.jks"
+            if [ ! -s "$DEV_KEY" ]; then keytool -genkeypair -keystore "$DEV_KEY" -storepass psradar-dev-local -keypass psradar-dev-local -alias psradar -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=PS Radar Development, OU=PS Radar, O=Local, L=Seoul, C=KR"; fi
+            echo "PSRADAR_KEYSTORE_PATH=$DEV_KEY" >> "$GITHUB_ENV"
+            echo "PSRADAR_KEYSTORE_PASSWORD=psradar-dev-local" >> "$GITHUB_ENV"
+            echo "PSRADAR_KEY_ALIAS=psradar" >> "$GITHUB_ENV"
+            echo "PSRADAR_KEY_PASSWORD=psradar-dev-local" >> "$GITHUB_ENV"
+          fi
+
+      - name: Build release APK
+        run: gradle :app:assembleRelease --stacktrace
+
+      - name: Verify APK
+        shell: bash
+        run: |
+          set -euxo pipefail
+          APK=app/build/outputs/apk/release/app-release.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$APK" | tee apk-signature.txt
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | tee apk-badging.txt
+          grep -q "package: name='com.seungho.psradar' versionCode='17701' versionName='17.7.1'" apk-badging.txt
+          cp "$APK" PS-Radar-v17.7.1.apk
+          sha256sum PS-Radar-v17.7.1.apk | tee PS-Radar-v17.7.1.sha256
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: PS-Radar-v17.7.1
+          path: |
+            PS-Radar-v17.7.1.apk
+            PS-Radar-v17.7.1.sha256
+            apk-signature.txt
+          retention-days: 30
