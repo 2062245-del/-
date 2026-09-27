@@ -28,6 +28,7 @@ import org.json.JSONObject;
 public class MainActivity extends Activity {
     private static final String HOME = "https://appassets.androidplatform.net/assets/ps-radar/index.html";
     private static final String PREFS = "psradar-art-cache-v1742";
+    private static final String IMAGE_API_HOST = "image.api.playstation.com";
     private WebView webView;
     private final ExecutorService imageExecutor = Executors.newFixedThreadPool(4);
     private SharedPreferences prefs;
@@ -155,7 +156,7 @@ public class MainActivity extends Activity {
             if (!"https".equalsIgnoreCase(uri.getScheme())) return false;
             String host = uri.getHost();
             if (host == null) return false;
-            return host.endsWith("playstation.com") || host.endsWith("playstation.net");
+            return host.equalsIgnoreCase(IMAGE_API_HOST) || host.endsWith("playstation.com") || host.endsWith("playstation.net");
         } catch (Exception ignored) {
             return false;
         }
