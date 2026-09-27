@@ -1,0 +1,86 @@
+/* PS Radar v17.4 mobile polish */
+:root{
+  --android-safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+body{
+  padding-bottom:calc(var(--nav-h,78px) + 34px + var(--android-safe-bottom));
+}
+
+.bottomnav{
+  bottom:calc(8px + var(--android-safe-bottom));
+}
+
+.curation-thumb.image-missing{
+  position:relative;
+  overflow:hidden;
+}
+
+.curation-thumb.image-missing::after{
+  content:'PS';
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-items:center;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.08em;
+  color:rgba(255,255,255,.72);
+  background:linear-gradient(135deg,var(--c1,#18395f),var(--c2,#15243b));
+}
+
+.curation-item img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+@media(max-width:700px){
+  body{
+    padding-bottom:calc(150px + var(--android-safe-bottom));
+  }
+  .app{
+    padding-bottom:calc(150px + var(--android-safe-bottom));
+  }
+  .bottomnav{
+    bottom:calc(8px + var(--android-safe-bottom));
+    padding-bottom:8px;
+  }
+  .section:last-of-type,
+  .compact-info:last-of-type{
+    margin-bottom:42px;
+  }
+  .decision-strip,
+  .recommend-strip,
+  .radar-strip,
+  .feed-strip{
+    scroll-padding-right:18px;
+  }
+}
+
+@media(max-width:540px){
+  .curation-grid{
+    grid-template-columns:1fr!important;
+    gap:12px;
+  }
+  .curation-panel{
+    min-width:0;
+  }
+  .curation-item{
+    min-height:70px;
+  }
+  .curation-copy strong{
+    font-size:13px;
+  }
+  .curation-copy small{
+    font-size:11px;
+  }
+  .bottomnav{
+    width:calc(100% - 10px);
+    border-radius:18px;
+  }
+  .navbtn{
+    padding-left:1px;
+    padding-right:1px;
+  }
+}
