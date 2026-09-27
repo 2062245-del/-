@@ -1,6 +1,12 @@
-const CACHE='ps-radar-v14.0.0';
+const CACHE='ps-radar-v14.1.0';
 const STATIC=['./','./index.html','./styles.css','./ui-v13.css','./app.js','./ui-v13.js','./catalog-v14.js','./manifest.json','./data/games.json','./data/feed.json','./data/store.json','./data/discovery.json','./data/catalog-auto.json','./data/upcoming.json','./icons/icon.svg'];
-self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(STATIC)).then(()=>self.skipWaiting())));
+const OPTIONAL=['./data/store-auto.json'];
+self.addEventListener('install',e=>e.waitUntil((async()=>{
+  const c=await caches.open(CACHE);
+  await c.addAll(STATIC);
+  await Promise.all(OPTIONAL.map(async url=>{try{const r=await fetch(url,{cache:'no-store'});if(r.ok)await c.put(url,r);}catch{}}));
+  await self.skipWaiting();
+})()));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener('fetch',e=>{
   const u=new URL(e.request.url);
