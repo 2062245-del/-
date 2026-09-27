@@ -40,9 +40,11 @@ jobs:
       - name: Collect PS Store deals
         env:
           PSRADAR_MAX_CAMPAIGNS: '8'
-          PSRADAR_MAX_PAGES_PER_CAMPAIGN: '120'
-          PSRADAR_MAX_TOTAL_PAGES: '220'
+          PSRADAR_MAX_PAGES_PER_CAMPAIGN: '60'
+          PSRADAR_MAX_TOTAL_PAGES: '160'
+          PSRADAR_MAX_EMPTY_STREAK: '5'
           PSRADAR_MIN_SAFE_ITEMS: '20'
+          PSRADAR_MIN_PREVIOUS_RATIO: '0.25'
         run: node ps-radar/scripts/fetch-store-deals.mjs
 
       - name: Validate deals snapshot
@@ -57,7 +59,7 @@ jobs:
             if(!(Number(x.discountPercent)>0)) throw new Error(`invalid discount: ${x.title}`);
             if(!x.storeVerified||x.priceStatus!=='verified') throw new Error(`unverified deal: ${x.title}`);
           }
-          console.log(`Validated ${p.items.length} deals from ${p.health.pagesScanned} pages.`);
+          console.log(`Validated ${p.items.length} deals from ${p.health.pagesScanned} pages. Platform counts:`, p.health.platformCounts);
           NODE
 
       - name: Build latest runnable package
@@ -73,12 +75,12 @@ jobs:
           cat > dist/PS-Radar-latest/server.ps1 <<'POWERSHELL'
           $ErrorActionPreference = 'Stop'
           $root = Join-Path $PSScriptRoot 'ps-radar'
-          $prefix = 'http://127.0.0.1:8765/'
+          $prefix = 'http://localhost:8765/'
           $listener = New-Object System.Net.HttpListener
           $listener.Prefixes.Add($prefix)
           $listener.Start()
           Start-Process ($prefix + 'ps-radar/')
-          Write-Host 'PS Radar is running at http://127.0.0.1:8765/ps-radar/'
+          Write-Host 'PS Radar is running at http://localhost:8765/ps-radar/'
           Write-Host 'Close this window to stop PS Radar.'
           $mime = @{ '.html'='text/html; charset=utf-8'; '.js'='text/javascript; charset=utf-8'; '.css'='text/css; charset=utf-8'; '.json'='application/json; charset=utf-8'; '.webmanifest'='application/manifest+json; charset=utf-8'; '.png'='image/png'; '.jpg'='image/jpeg'; '.jpeg'='image/jpeg'; '.svg'='image/svg+xml'; '.ico'='image/x-icon'; '.webp'='image/webp' }
           while ($listener.IsListening) {
@@ -110,7 +112,7 @@ jobs:
           }
           POWERSHELL
           cat > dist/PS-Radar-latest/README.txt <<'TXT'
-          PS Radar 최신 실행 패키지
+          PS Radar v17.3 최신 실행 패키지
           1. 압축을 풉니다.
           2. PS-Radar-Start.bat 를 더블클릭합니다.
           3. 브라우저에서 PS Radar가 자동으로 열립니다.
@@ -118,14 +120,14 @@ jobs:
           TXT
           python - <<'PY'
           import shutil
-          shutil.make_archive('PS-Radar-v17.2-Latest', 'zip', 'dist/PS-Radar-latest')
+          shutil.make_archive('PS-Radar-v17.3-Latest', 'zip', 'dist/PS-Radar-latest')
           PY
 
       - name: Upload latest runnable package
         uses: actions/upload-artifact@v4
         with:
-          name: PS-Radar-v17.2-Latest
-          path: PS-Radar-v17.2-Latest.zip
+          name: PS-Radar-v17.3-Latest
+          path: PS-Radar-v17.3-Latest.zip
           if-no-files-found: error
           retention-days: 30
 
