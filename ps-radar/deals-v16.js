@@ -139,25 +139,40 @@
     };
   }
 
-  function loadMobileV174(){
-    if(!document.querySelector('link[data-mobile-v174]')){
-      const css=document.createElement('link');
-      css.rel='stylesheet';
-      css.href='./mobile-v174.css';
-      css.dataset.mobileV174='1';
-      document.head.appendChild(css);
+  function appendCss(href, marker){
+    if(document.querySelector(`link[${marker}]`))return;
+    const css=document.createElement('link');
+    css.rel='stylesheet'; css.href=href; css.setAttribute(marker,'1');
+    document.head.appendChild(css);
+  }
+
+  function appendScript(src, marker){
+    if(document.querySelector(`script[${marker}]`))return null;
+    const js=document.createElement('script');
+    js.src=src; js.async=false; js.setAttribute(marker,'1');
+    document.head.appendChild(js);
+    return js;
+  }
+
+  function loadMobilePatches(){
+    appendCss('./mobile-v174.css','data-mobile-v174');
+    appendCss('./mobile-v1741.css','data-mobile-v1741');
+    const existing=document.querySelector('script[data-mobile-v174]');
+    if(existing){
+      if(!document.querySelector('script[data-mobile-v1741]')){
+        const load=()=>appendScript('./mobile-v1741.js','data-mobile-v1741');
+        existing.addEventListener('load',load,{once:true});
+        setTimeout(()=>{if(!window.__PSRADAR_V1741__)load();},300);
+      }
+      return;
     }
-    if(!document.querySelector('script[data-mobile-v174]')){
-      const js=document.createElement('script');
-      js.src='./mobile-v174.js';
-      js.dataset.mobileV174='1';
-      document.head.appendChild(js);
-    }
+    const base=appendScript('./mobile-v174.js','data-mobile-v174');
+    if(base) base.addEventListener('load',()=>appendScript('./mobile-v1741.js','data-mobile-v1741'),{once:true});
   }
 
   patchBrokenImages();
   installNavBehavior();
-  loadMobileV174();
+  loadMobilePatches();
 
   window.addEventListener('DOMContentLoaded',()=>{
     document.addEventListener('click',e=>{
