@@ -1,0 +1,63 @@
+name: PS Radar Store Enrichment
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '41 2 * * *'
+  push:
+    branches: [main]
+    paths:
+      - 'ps-radar/scripts/enrich-store-catalog.mjs'
+      - '.github/workflows/ps-radar-store-enrich.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ps-radar-store-enrichment
+  cancel-in-progress: true
+
+jobs:
+  enrich:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+      - name: Validate enrichment script
+        run: node --check ps-radar/scripts/enrich-store-catalog.mjs
+      - name: Enrich catalog from official PS Store
+        env:
+          BATCH_SIZE: '474'
+          CONCURRENCY: '4'
+        run: node ps-radar/scripts/enrich-store-catalog.mjs
+      - name: Validate generated Store snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const fs=require('fs');
+          const p='ps-radar/data/store-auto.json';
+          const j=JSON.parse(fs.readFileSync(p,'utf8'));
+          if(!j.health?.safeToMerge) throw new Error('store snapshot is not safe');
+          if(!Array.isArray(j.items)||j.items.length<100) throw new Error('store enrichment unexpectedly small');
+          if((j.health.rating||0)<50) throw new Error('rating coverage unexpectedly low');
+          if((j.health.languageVerified||0)<50) throw new Error('language coverage unexpectedly low');
+          console.log('Store snapshot validated',j.health);
+          NODE
+      - name: Commit refreshed Store snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "$(git status --porcelain -- ps-radar/data/store-auto.json)" ]; then
+            echo 'No Store snapshot changes.'
+          else
+            git config user.name 'ps-radar-bot'
+            git config user.email 'actions@users.noreply.github.com'
+            git add ps-radar/data/store-auto.json
+            git commit -m 'Refresh PS Radar Store enrichment snapshot'
+            git push
+          fi
