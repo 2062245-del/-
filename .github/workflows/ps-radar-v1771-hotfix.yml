@@ -73,6 +73,7 @@ jobs:
         shell: bash
         run: |
           set -euxo pipefail
+          mkdir -p /tmp/psradar-smoke
           npm --prefix /tmp/psradar-smoke init -y >/dev/null 2>&1
           npm --prefix /tmp/psradar-smoke install playwright@1.55.0 >/dev/null
           /tmp/psradar-smoke/node_modules/.bin/playwright install chromium >/dev/null
