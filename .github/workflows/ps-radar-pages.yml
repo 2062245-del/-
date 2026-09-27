@@ -34,7 +34,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          cat ps-radar-v13-runtime.part* > /tmp/ps-radar-v13.b64
+          cat ps-radar-v13-runtime.part* | tr -d '\r\n\t ' > /tmp/ps-radar-v13.b64
+          rem=$(( $(wc -c < /tmp/ps-radar-v13.b64) % 4 ))
+          if [ "$rem" -eq 2 ]; then printf '==' >> /tmp/ps-radar-v13.b64; fi
+          if [ "$rem" -eq 3 ]; then printf '=' >> /tmp/ps-radar-v13.b64; fi
+          if [ "$rem" -eq 1 ]; then echo 'Invalid base64 length'; exit 1; fi
           base64 -d /tmp/ps-radar-v13.b64 > /tmp/ps-radar-v13.tgz
           mkdir -p site
           tar -xzf /tmp/ps-radar-v13.tgz -C site
