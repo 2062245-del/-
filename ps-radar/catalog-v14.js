@@ -103,9 +103,9 @@
       for(const key of ['productId','storeProductName','currentPrice','originalPrice','discountPercent','saleEndsAt','rating','ratingCount','plusIncluded','plusTier']){
         if(raw[key]!==null && raw[key]!==undefined) patch[key]=raw[key];
       }
-      if(raw.languageStatus==='verified-store' && typeof raw.ko==='boolean'){
+      if(['verified-store','verified-store-positive'].includes(raw.languageStatus) && typeof raw.ko==='boolean'){
         patch.ko=raw.ko;
-        patch.languageStatus='verified-store';
+        patch.languageStatus=raw.languageStatus;
         if(raw.screenLanguages)patch.screenLanguages=raw.screenLanguages;
       } else if(!match.languageStatus){
         patch.languageStatus='unknown';
