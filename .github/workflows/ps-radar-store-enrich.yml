@@ -44,8 +44,9 @@ jobs:
           const j=JSON.parse(fs.readFileSync(p,'utf8'));
           if(!j.health?.safeToMerge) throw new Error('store snapshot is not safe');
           if(!Array.isArray(j.items)||j.items.length<100) throw new Error('store enrichment unexpectedly small');
-          if((j.health.rating||0)<50) throw new Error('rating coverage unexpectedly low');
-          if((j.health.languageVerified||0)<50) throw new Error('language coverage unexpectedly low');
+          if((j.health.rating||0)<100) throw new Error('rating coverage unexpectedly low');
+          if((j.health.price||0)<100) throw new Error('price coverage unexpectedly low');
+          if((j.health.falseZeroPrices||0)!==0) throw new Error('false zero price detected');
           console.log('Store snapshot validated',j.health);
           NODE
       - name: Commit refreshed Store snapshot
