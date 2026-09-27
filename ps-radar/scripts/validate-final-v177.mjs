@@ -15,6 +15,7 @@ const index = read(`${root}/index.html`);
 const main = read(`${root}/android/MainActivity.java`);
 const worker = read(`${root}/android/DealWatchWorker.java`);
 const css = [
+  fs.existsSync(`${root}/foundation-v175.css`) ? read(`${root}/foundation-v175.css`) : '',
   fs.existsSync(`${root}/ux-v176.css`) ? read(`${root}/ux-v176.css`) : '',
   fs.existsSync(`${root}/mobile-v1741.css`) ? read(`${root}/mobile-v1741.css`) : ''
 ].join('\n');
@@ -22,15 +23,15 @@ const deals = json(`${root}/data/deals-auto.json`);
 
 function stage175() {
   tokens(foundation, [
-    "17.5.0", 'REMOTE_BASE', 'history.pushState', 'popstate', 'currentMonthLabel',
-    'getRemoteBaseUrl', 'syncRemoteData'
+    '17.5.0', 'raw.githubusercontent.com', 'window.fetch', 'history.pushState', 'popstate',
+    'dynamicMonth', 'repairDynamicMonthLabels', '__PSRADAR_ANDROID_BACK__', 'syncNativeWatchlist'
   ], 'v17.5 foundation');
   tokens(main, [
-    'PUBLIC_DATA_BASE', 'REMOTE_BASE', 'WorkManager', 'PeriodicWorkRequest',
-    'POST_NOTIFICATIONS', 'syncRemoteData', 'showWatchNotification'
+    'WorkManager', 'PeriodicWorkRequest', 'POST_NOTIFICATIONS', 'syncWatchlist',
+    'syncReleaseWatchlist', 'enableNativeNotifications'
   ], 'v17.5 MainActivity');
   tokens(worker, ['Worker', 'OkHttpClient', 'NotificationCompat', 'deals-auto.json'], 'v17.5 DealWatchWorker');
-  console.log('[v17.5 Foundation] PASS - remote refresh, routing/back, dynamic month, native watch/notification foundations');
+  console.log('[v17.5 Foundation] PASS - remote-first data, routing/back, dynamic month, native WorkManager notifications');
 }
 
 function stage176() {
@@ -39,21 +40,22 @@ function stage176() {
   const navCount = (navBlock.match(/class="navbtn/g) || []).length;
   must(navCount === 5, `v17.6 bottom navigation must have exactly 5 tabs, got ${navCount}`);
   for (const label of ['홈','PS Plus','할인','발매예정','MY']) must(navBlock.includes(label), `v17.6 nav missing label: ${label}`);
-  must(/safe-area-inset-bottom|--bottom-nav/i.test(css + index + ux), 'v17.6 safe-area/bottom navigation sizing missing');
+  must(/safe-area-inset-bottom|--ps-bottom-nav/i.test(css + index + ux + foundation), 'v17.6 safe-area/bottom navigation sizing missing');
   console.log('[v17.6 UX] PASS - 5-tab navigation, PS Plus hub, MY, compact cards, home summary, safe-area handling');
 }
 
 function stage177() {
   tokens(content, [
-    '17.7.0', '오늘 새 할인', '역대 최저', '만원 이하', '무료·체험',
-    '출시 캘린더', '살까 말까', 'valueDecision'
+    '17.7.0', '오늘 새 할인', 'PS Radar 관측 최저', '1만원 이하 추천', '무료 · 체험 가능',
+    '출시 캘린더', '지금 사기', '기다려도 됨', 'purchaseAdvice'
   ], 'v17.7 content');
   must(deals?.health?.safeToMerge === true, 'v17.7 deals safety flag is false');
   must(Array.isArray(deals.items) && deals.items.length >= 2000, `v17.7 deal count too small: ${deals?.items?.length || 0}`);
 
-  let valid = 0, rejected = 0, badVisible = 0, withImage = 0;
+  let valid = 0, rejected = 0, badVisible = 0, withImage = 0, historySignals = 0;
   for (const x of deals.items) {
     if (x.image) withImage++;
+    if (Number(x.radarObservations) > 0 || Number(x.radarLowPrice) > 0) historySignals++;
     if (String(x.priceStatus || '').startsWith('rejected')) { rejected++; continue; }
     const c = Number(x.currentPrice), o = Number(x.originalPrice), d = Number(x.discountPercent);
     if (c > 0 && o > c && d > 0 && d < 100) {
@@ -66,8 +68,8 @@ function stage177() {
   const priced = valid + rejected;
   const confidence = priced ? valid / priced : 0;
   must(confidence >= 0.94, `v17.7 valid-price confidence too low: ${(confidence*100).toFixed(1)}%`);
-  must(deals.health.contentSignals || content.includes('contentSignals'), 'v17.7 contentSignals missing');
-  console.log(`[v17.7 Content] PASS - deals=${deals.items.length}, validPrices=${valid}, rejected=${rejected}, visibleMismatches=${badVisible}, priceConfidence=${(confidence*100).toFixed(1)}%, images=${withImage}`);
+  must(historySignals > 0 || Number(deals.health?.observedHistoryCount) > 0, 'v17.7 observed price-history signals missing');
+  console.log(`[v17.7 Content] PASS - deals=${deals.items.length}, validPrices=${valid}, rejected=${rejected}, visibleMismatches=${badVisible}, priceConfidence=${(confidence*100).toFixed(1)}%, images=${withImage}, historySignals=${historySignals}`);
 }
 
 stage175();
