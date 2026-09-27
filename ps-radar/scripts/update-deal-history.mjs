@@ -35,9 +35,13 @@ const deals = JSON.parse(await fs.readFile(DEALS_FILE, 'utf8'));
 if (!Array.isArray(deals?.items)) throw new Error('deals-auto.json items missing');
 
 let history = {version:1, generatedAt:null, source:'PS Radar observed history', items:{}};
+let hadHistory = false;
 try {
   const prior = JSON.parse(await fs.readFile(HISTORY_FILE, 'utf8'));
-  if (prior && typeof prior.items === 'object') history = {...history, ...prior, items:{...prior.items}};
+  if (prior && typeof prior.items === 'object' && Object.keys(prior.items).length) {
+    history = {...history, ...prior, items:{...prior.items}};
+    hadHistory = true;
+  }
 } catch (_) {}
 
 const observedAt = deals.generatedAt || new Date().toISOString();
@@ -49,7 +53,7 @@ for (const item of deals.items) {
   if (!key) continue;
   liveKeys.add(key);
   const prev = history.items[key] || null;
-  const isNew = !prev;
+  const isNew = hadHistory && !prev;
   const entry = {
     ...(prev || {}),
     key,
@@ -103,6 +107,7 @@ for (const [key, entry] of Object.entries(history.items)) {
 
 history.version = 1;
 history.generatedAt = observedAt;
+history.initializedBaseline = history.initializedBaseline || !hadHistory;
 history.itemCount = Object.keys(history.items).length;
 history.activeCount = liveKeys.size;
 history.validPriceCount = tracked;
@@ -122,5 +127,5 @@ deals.health = {
 await fs.writeFile(HISTORY_FILE, JSON.stringify(history, null, 2) + '\n');
 await fs.writeFile(DEALS_FILE, JSON.stringify(deals, null, 2) + '\n');
 console.log('PS Radar observed history updated', {
-  history:history.itemCount, active:history.activeCount, validPrices:tracked, newDeals, lows
+  history:history.itemCount, active:history.activeCount, validPrices:tracked, newDeals, lows, baseline:!hadHistory
 });
