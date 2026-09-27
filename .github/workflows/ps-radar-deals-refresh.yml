@@ -9,6 +9,7 @@ on:
     paths:
       - 'ps-radar/scripts/fetch-store-deals.mjs'
       - 'ps-radar/scripts/sanitize-deals.mjs'
+      - 'ps-radar/scripts/repair-deals-v1742.mjs'
       - '.github/workflows/ps-radar-deals-refresh.yml'
 
 permissions:
@@ -21,7 +22,7 @@ concurrency:
 jobs:
   refresh:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - name: Checkout main
         uses: actions/checkout@v6
@@ -48,6 +49,13 @@ jobs:
           PSRADAR_MIN_PREVIOUS_RATIO: '0.25'
         run: node ps-radar/scripts/fetch-store-deals.mjs
 
+      - name: Crosscheck listing-card prices and artwork
+        env:
+          PSRADAR_REPAIR_MAX_PAGES: '160'
+          PSRADAR_REPAIR_MAX_CAMPAIGN_PAGES: '60'
+          PSRADAR_PRICE_TOLERANCE: '2.5'
+        run: node ps-radar/scripts/repair-deals-v1742.mjs
+
       - name: Sanitize titles and artwork matches
         run: node ps-radar/scripts/sanitize-deals.mjs
 
@@ -58,14 +66,29 @@ jobs:
           const p=JSON.parse(fs.readFileSync('ps-radar/data/deals-auto.json','utf8'));
           if(!p?.health?.safeToMerge) throw new Error('deals snapshot safety flag is false');
           if(!Array.isArray(p.items)||p.items.length<20) throw new Error('too few deal items');
+          let validPrices=0,rejectedPrices=0;
           for(const x of p.items){
-            if(!(Number(x.originalPrice)>Number(x.currentPrice))) throw new Error(`invalid price: ${x.title}`);
             if(!(Number(x.discountPercent)>0)) throw new Error(`invalid discount: ${x.title}`);
-            if(!x.storeVerified||x.priceStatus!=='verified') throw new Error(`unverified deal: ${x.title}`);
+            if(!x.storeVerified) throw new Error(`unverified store item: ${x.title}`);
             if(x.imageStatus==='collision-removed' && x.image) throw new Error(`rejected image still present: ${x.title}`);
+            if(String(x.priceStatus||'').startsWith('rejected')){
+              if(x.currentPrice!==null) throw new Error(`rejected price must be hidden: ${x.title}`);
+              rejectedPrices++;
+              continue;
+            }
+            if(!(Number(x.originalPrice)>Number(x.currentPrice)) || !(Number(x.currentPrice)>0)) throw new Error(`invalid price: ${x.title}`);
+            const implied=(1-Number(x.currentPrice)/Number(x.originalPrice))*100;
+            if(Math.abs(implied-Number(x.discountPercent))>2.5) throw new Error(`price/discount mismatch: ${x.title}`);
+            validPrices++;
           }
+          if(validPrices<20) throw new Error(`too few crosschecked prices: ${validPrices}`);
           console.log(`Validated ${p.items.length} deals from ${p.health.pagesScanned} pages.`, {
+            validPrices,rejectedPrices,
             platformCounts:p.health.platformCounts,
+            priceCrosscheckRows:p.health.priceCrosscheckRows||0,
+            priceCrosscheckRepaired:p.health.priceCrosscheckRepaired||0,
+            priceCrosscheckRejected:p.health.priceCrosscheckRejected||0,
+            artworkRefilledV1742:p.health.artworkRefilledV1742||0,
             titlesCleaned:p.health.titlesCleaned||0,
             imageCollisionGroupsRemoved:p.health.imageCollisionGroupsRemoved||0,
             imageCollisionsRemoved:p.health.imageCollisionsRemoved||0
@@ -122,7 +145,7 @@ jobs:
           }
           POWERSHELL
           cat > dist/PS-Radar-latest/README.txt <<'TXT'
-          PS Radar v17.4.1 최신 실행 패키지
+          PS Radar v17.4.2 최신 실행 패키지
           1. 압축을 풉니다.
           2. PS-Radar-Start.bat 를 더블클릭합니다.
           3. 브라우저에서 PS Radar가 자동으로 열립니다.
@@ -130,14 +153,14 @@ jobs:
           TXT
           python - <<'PY'
           import shutil
-          shutil.make_archive('PS-Radar-v17.4.1-Latest', 'zip', 'dist/PS-Radar-latest')
+          shutil.make_archive('PS-Radar-v17.4.2-Latest', 'zip', 'dist/PS-Radar-latest')
           PY
 
       - name: Upload latest runnable package
         uses: actions/upload-artifact@v4
         with:
-          name: PS-Radar-v17.4.1-Latest
-          path: PS-Radar-v17.4.1-Latest.zip
+          name: PS-Radar-v17.4.2-Latest
+          path: PS-Radar-v17.4.2-Latest.zip
           if-no-files-found: error
           retention-days: 30
 
@@ -150,5 +173,5 @@ jobs:
           fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git commit -m 'Refresh PS Store deals'
+          git commit -m 'Refresh PS Store deals v17.4.2 crosscheck'
           git push origin main
