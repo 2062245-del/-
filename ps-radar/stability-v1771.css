@@ -1,0 +1,36 @@
+/* PS Radar v17.7.1 navigation + release calendar polish */
+.bottomnav .navbtn{transition:background .16s ease,color .16s ease,transform .16s ease}
+.bottomnav .navbtn[aria-current="page"]{background:#182a47;color:#fff}
+.bottomnav .navbtn:not([aria-current="page"]){background:transparent!important;color:#8394b0}
+body.v1771-upcoming-compact #pageCoverage{display:none!important}
+body.v1771-upcoming-compact #pageHeader{padding-bottom:6px}
+body.v1771-upcoming-compact #pageHeader [data-page-desc]{max-width:760px;margin-bottom:0}
+body.v1771-upcoming-compact .v177-release-calendar{gap:10px;margin-top:4px}
+body.v1771-upcoming-compact .v177-calendar-head{padding:12px 14px;border-radius:16px}
+body.v1771-upcoming-compact .v177-calendar-head h2{font-size:18px;margin:3px 0 0}
+body.v1771-upcoming-compact .v177-calendar-head p{display:none}
+body.v1771-upcoming-compact .v177-release-group{padding:8px;border-radius:15px}
+body.v1771-upcoming-compact .v177-release-group-head{padding:2px 3px 7px}
+body.v1771-upcoming-compact .v177-release-row{grid-template-columns:42px 46px minmax(0,1fr) auto;gap:8px;padding:8px 3px}
+.v1771-release-art{width:46px;height:46px;border-radius:10px;overflow:hidden;display:grid;place-items:center;background:linear-gradient(145deg,#18345a,#0f1f36);color:#a9c4ec;font-size:10px;font-weight:900;flex:none}
+.v1771-release-art img{width:100%;height:100%;object-fit:cover;display:block}
+.v1771-release-art.missing{border:1px solid rgba(255,255,255,.06)}
+body.v1771-upcoming-compact .v177-dday{min-height:36px;border-radius:9px;font-size:9px}
+body.v1771-upcoming-compact .v177-release-copy b{font-size:11px}
+body.v1771-upcoming-compact .v177-release-copy span,
+body.v1771-upcoming-compact .v177-release-copy small{margin-top:2px;font-size:8px}
+body.v1771-upcoming-compact .v177-release-watch{padding:7px 8px;border-radius:9px}
+@media(max-width:700px){
+  .bottomnav{bottom:max(6px,env(safe-area-inset-bottom));padding:4px;border-radius:18px;width:calc(100% - 20px)}
+  .bottomnav .navbtn{padding:6px 3px;border-radius:12px;min-height:50px}
+  .bottomnav .navbtn b{font-size:15px;margin-bottom:0}
+  .bottomnav .navbtn span{font-size:8px}
+  body.v1771-upcoming-compact .v177-release-calendar{margin-bottom:calc(var(--ps-bottom-nav,72px) + 6px)}
+  body.v1771-upcoming-compact .v177-release-row{grid-template-columns:40px 44px minmax(0,1fr) auto}
+  .v1771-release-art{width:44px;height:44px}
+}
+@media(max-width:390px){
+  body.v1771-upcoming-compact .v177-release-row{grid-template-columns:38px 42px minmax(0,1fr)}
+  .v1771-release-art{width:42px;height:42px}
+  body.v1771-upcoming-compact .v177-release-watch{grid-column:3;justify-self:start}
+}
