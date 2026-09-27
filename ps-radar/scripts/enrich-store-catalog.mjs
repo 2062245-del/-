@@ -7,6 +7,19 @@ const BATCH_SIZE=Math.max(1,Number(process.env.BATCH_SIZE||474));
 const CONCURRENCY=Math.max(1,Math.min(8,Number(process.env.CONCURRENCY||4)));
 const UA='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/140 Safari/537.36';
 const API='https://web.np.playstation.com/api/graphql/v1/op';
+const STORE_HEADERS={
+  accept:'application/json',
+  'accept-language':'ko-KR',
+  'content-type':'application/json',
+  'apollographql-client-name':'@sie-private/web-commerce-anywhere',
+  'apollographql-client-version':'3.46.0-6.0',
+  'disable_query_whitelist':'false',
+  origin:'https://store.playstation.com',
+  referer:'https://store.playstation.com/',
+  'user-agent':UA,
+  'x-psn-app-ver':'@sie-private/web-commerce-anywhere/3.46.0-6.0-42971bfe01742f917b5db86972381a503b22f11e',
+  'x-psn-store-locale-override':'ko-KR'
+};
 const OPS={
   rating:['wcaConceptStarRatingRetrive','6c476325b232d51aca55ce143d6f946860e22174a263967fbb9e1da4f78489fa'],
   price:['conceptRetrieveForCtasWithPrice','c47dab9bb8162ee451bc6f0d8c2e8738ab48c8dd7c50dbe2b30f441c1b8ca119']
@@ -24,9 +37,12 @@ async function callOfficial(opKey,conceptId,maxAttempts=5){
   const [op,hash]=OPS[opKey]; let last;
   for(let attempt=0;attempt<maxAttempts;attempt++){
     try{
-      const r=await fetch(endpoint(op,hash,conceptId),{headers:{accept:'application/json','accept-language':'ko-KR,ko;q=0.9,en;q=0.7',origin:'https://store.playstation.com',referer:'https://store.playstation.com/','user-agent':UA}});
+      const r=await fetch(endpoint(op,hash,conceptId),{headers:STORE_HEADERS});
       if(r.status===429||r.status>=500){last=new Error(`${op} HTTP ${r.status}`);await sleep(900*(attempt+1));continue;}
-      if(!r.ok){const err=new Error(`${op} HTTP ${r.status}`);err.permanent=true;throw err;}
+      if(!r.ok){
+        const snippet=(await r.text().catch(()=>'' )).slice(0,500).replace(/\s+/g,' ');
+        const err=new Error(`${op} HTTP ${r.status}${snippet?` · ${snippet}`:''}`);err.permanent=true;throw err;
+      }
       const j=await r.json();
       if(j.errors?.length){const err=new Error(`${op}: ${j.errors[0]?.message||'GraphQL error'}`);err.permanent=true;throw err;}
       return j;
