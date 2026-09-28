@@ -6,12 +6,18 @@ on:
     paths:
       - 'ps-radar/*-v180.js'
       - 'ps-radar/*-v180.css'
+      - 'ps-radar/v180.css'
+      - 'ps-radar/data/deal-release-v180.json'
       - 'ps-radar/scripts/build-game-meta-v180.mjs'
       - 'ps-radar/scripts/validate-v180.mjs'
       - 'ps-radar/scripts/smoke-v180.mjs'
       - 'ps-radar/index.html'
       - '.github/workflows/ps-radar-v180-quality.yml'
   workflow_dispatch:
+
+concurrency:
+  group: ps-radar-v180-quality
+  cancel-in-progress: true
 
 jobs:
   quality:
@@ -31,11 +37,12 @@ jobs:
         run: |
           set -euxo pipefail
           for f in ps-radar/*-v180.js ps-radar/scripts/build-game-meta-v180.mjs ps-radar/scripts/validate-v180.mjs; do node --check "$f"; done
+          test -s ps-radar/v180.css
           node ps-radar/scripts/validate-v180.mjs
-      - name: Browser regression when available
-        if: ${{ hashFiles('ps-radar/scripts/smoke-v180.mjs') != '' }}
+      - name: Browser regression
         shell: bash
         run: |
+          set -euxo pipefail
           mkdir -p /tmp/psradar-v180
           npm --prefix /tmp/psradar-v180 init -y >/dev/null 2>&1
           npm --prefix /tmp/psradar-v180 install playwright@1.55.0 >/dev/null
