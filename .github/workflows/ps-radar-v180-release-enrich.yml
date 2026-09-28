@@ -1,0 +1,53 @@
+name: PS Radar v18 Release Date Enrichment
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'ps-radar/scripts/enrich-deal-release-v180.mjs'
+      - '.github/workflows/ps-radar-v180-release-enrich.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ps-radar-v180-release-enrich
+  cancel-in-progress: false
+
+jobs:
+  enrich:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Enrich deal release dates from official PS Store product pages
+        env:
+          RELEASE_CONCURRENCY: '14'
+          RELEASE_ATTEMPTS: '2'
+        run: node ps-radar/scripts/enrich-deal-release-v180.mjs
+      - name: Validate release cache
+        run: |
+          node - <<'NODE'
+          const fs=require('fs');const j=JSON.parse(fs.readFileSync('ps-radar/data/deal-release-v180.json','utf8'));
+          if(!j.health?.safeToMerge)throw new Error('release cache unsafe');
+          if(Number(j.health.coveragePercent)<70)throw new Error(`coverage too low ${j.health.coveragePercent}%`);
+          if(!Array.isArray(j.items)||j.items.length<1000)throw new Error('release cache unexpectedly small');
+          console.log('RELEASE_CACHE_PASS',j.health);
+          NODE
+      - name: Commit verified release cache
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add ps-radar/data/deal-release-v180.json
+          if git diff --cached --quiet; then echo 'No release cache changes'; exit 0; fi
+          git commit -m 'Refresh verified PS Store release dates'
+          git pull --rebase origin main
+          git push origin HEAD:main
