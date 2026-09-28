@@ -6,7 +6,9 @@ try{
   await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
   await page.goto('http://127.0.0.1:8765/',{waitUntil:'domcontentloaded',timeout:30000});
   await page.waitForFunction(()=>window.__PSRADAR_V180_BRIEFING__?.STAGE===6&&window.__PSRADAR_V180_DATA__?.STAGE===1,{timeout:15000});
-  await page.waitForTimeout(1800);
+  await page.waitForFunction(()=>typeof state!=='undefined'&&Array.isArray(state.games)&&state.games.length>400,{timeout:20000});
+  await page.evaluate(()=>window.__PSRADAR_V180_DATA__.applyMeta());
+  await page.waitForFunction(()=>{const c=window.__PSRADAR_V180_DATA__?.coverage?.();return c&&c.total>400&&c.identified>0&&c.dated>0;},{timeout:10000});
   const boot=await page.evaluate(()=>({url:location.href,page:document.body?.dataset?.page||null,nav:[...document.querySelectorAll('.navbtn[data-page]')].map(x=>({page:x.dataset.page,text:x.textContent.trim(),parent:x.parentElement?.className||''})),bottomnav:document.querySelectorAll('.bottomnav').length,bodyChildren:document.body?.children?.length||0}));
   console.log('V180_BOOT',boot);
   if(boot.nav.length!==5||boot.bottomnav!==1)throw new Error(`navigation DOM invalid at boot ${JSON.stringify(boot)}`);
@@ -19,7 +21,7 @@ try{
     const count=await page.locator(selector).count();if(count!==1)throw new Error(`nav selector count ${count} for ${target}`);
     try{await page.locator(selector).click({timeout:5000});}
     catch(err){
-      const diag=await page.evaluate(t=>({target:t,page:document.body?.dataset?.page||null,active:[...document.querySelectorAll('.bottomnav .navbtn.active')].map(x=>x.dataset.page),drawer:document.getElementById('drawer')?.getAttribute('aria-hidden'),modal:document.getElementById('detailModal')?.getAttribute('aria-hidden')}),target);
+      const diag=await page.evaluate(t=>({target:t,page:document.body?.dataset?.page||null,active:[...document.querySelectorAll('.bottomnav .navbtn.active')].map(x=>x.dataset.page),drawer:document.getElementById('drawer')?.getAttribute('aria-hidden'),modal:document.getElementById('detailModal')?.getAttribute('aria-hidden'),blocker:(()=>{const b=document.querySelector(`.bottomnav .navbtn[data-page="${t}"]`);if(!b)return null;const r=b.getBoundingClientRect();const e=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);return e?`${e.tagName}.${e.className||''}`:null;})()}),target);
       throw new Error(`nav click failed ${target}: ${err.message} / ${JSON.stringify(diag)}`);
     }
     await page.waitForFunction(p=>document.body.dataset.page===p,target,{timeout:5000});await page.waitForTimeout(180);
