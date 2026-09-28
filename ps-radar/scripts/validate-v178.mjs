@@ -40,7 +40,7 @@ if(stage>=4){
 }
 if(stage>=5){
   has(html,'value-v178.js','value module not loaded');
-  for(const t of ['valueScore','firstDiscount','v178-curation-panel','v178-value-badge'])has(value,t,`stage 5 missing ${t}`);
-  console.log('[v17.8 stage 5] PASS - value and curated discovery');
+  for(const t of ['valueScore','firstDiscount','v178-curation-panel','v178-value-badge','latestReleaseSort','최신 발매 순'])has(value,t,`stage 5 missing ${t}`);
+  console.log('[v17.8 stage 5] PASS - value, curated discovery, latest release sort');
 }
 console.log(`V178_STATIC_PASS stage=${stage}`);
