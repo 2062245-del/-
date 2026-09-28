@@ -63,6 +63,24 @@ if(stage>=3){
   }
 }
 
+if(stage>=4){
+  await go('home');await page.waitForTimeout(350);
+  const personal=await page.locator('#v178PersonalPanel.v178-personal-panel').count();
+  if(personal!==1)throw new Error('personal taste radar panel missing');
+  const profile=await page.evaluate(()=>window.__PSRADAR_V1784__?.tasteProfile?.());
+  if(!profile||typeof profile.interactions!=='number')throw new Error(`taste profile invalid: ${JSON.stringify(profile)}`);
+  await go('wishlist');await page.waitForTimeout(250);
+  const alerts=await page.locator('#v178AlertCenter:not([hidden]).v178-alert-center').count();
+  if(alerts!==1)throw new Error('unified alert center missing');
+  if(await page.locator('#v178AlertCenter .v178-alert-grid>div').count()!==3)throw new Error('alert center metrics incomplete');
+}
+
+if(stage>=5){
+  await go('home');await page.waitForTimeout(350);
+  const curation=await page.locator('#v178CurationPanel.v178-curation-panel').count();
+  if(curation!==1)throw new Error('value curation panel missing');
+}
+
 if(pageErrors.length)throw new Error(`page errors: ${pageErrors.join(' | ')}`);
 console.log('V178_BROWSER_PASS',{...cardCheck,stage});
 await browser.close();
