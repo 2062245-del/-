@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const VERSION='18.0.0';
+  const VERSION='18.0.1';
   const STAGE=3;
   let currentId=null;
   let activeTab='summary';
@@ -13,6 +13,17 @@
   const history=g=>window.__PSRADAR_V178__?.collectPriceHistory?.(g)||[];
   const score=g=>window.__PSRADAR_V180_SCORE__?.psRadarScore?.(g)||{total:50,dims:{price:50,taste:50,rating:50,plus:50,freshness:50},reasons:[],verdict:'정보 확인'};
   const family=g=>window.__PSRADAR_V1783__?.editionFamily?.(g?.title)||g?.editionFamily||window.__PSRADAR_V180_DATA__?.norm?.(g?.title)||'';
+
+  function forceCloseDetail(){
+    currentId=null;
+    activeTab='summary';
+    const modal=document.getElementById('detailModal');
+    if(!modal)return;
+    modal.classList.remove('show','open','active');
+    modal.setAttribute('aria-hidden','true');
+    modal.style.pointerEvents='none';
+    document.body.classList.remove('modal-open','no-scroll');
+  }
 
   function relatedEditions(g){
     const key=family(g);if(!key||key.length<4)return [];
@@ -55,6 +66,7 @@
   }
 
   document.addEventListener('click',e=>{
+    if(e.target.closest?.('#closeDetail')){forceCloseDetail();return;}
     const src=e.target.closest?.('[data-v176-open],[data-id],.detailbtn');
     const id=src?.dataset?.v176Open||src?.dataset?.id||src?.closest?.('[data-id]')?.dataset?.id;
     if(id){currentId=String(id);activeTab='summary';setTimeout(renderShell,120);setTimeout(renderShell,420);}
@@ -63,5 +75,5 @@
   },true);
   const start=()=>{const h=document.getElementById('detailContent');if(h)new MutationObserver(()=>setTimeout(renderShell,0)).observe(h,{childList:true,subtree:false});};
   if(document.readyState==='loading')window.addEventListener('DOMContentLoaded',start,{once:true});else start();
-  window.__PSRADAR_V180_DETAIL__={VERSION,STAGE,renderShell,relatedEditions,get currentId(){return currentId;}};
+  window.__PSRADAR_V180_DETAIL__={VERSION,STAGE,renderShell,relatedEditions,forceCloseDetail,get currentId(){return currentId;}};
 })();
