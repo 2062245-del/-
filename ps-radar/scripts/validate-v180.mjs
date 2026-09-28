@@ -8,11 +8,17 @@ const filters=read('ps-radar/filters-v180.js');
 const library=read('ps-radar/library-v180.js');
 const briefing=read('ps-radar/briefing-v180.js');
 const meta=JSON.parse(read('ps-radar/data/game-meta-v180.json')||'{"health":{},"items":[]}');
+const release=JSON.parse(read('ps-radar/data/deal-release-v180.json')||'{"health":{},"items":[]}');
 need(data.includes("STAGE=1"),'stage1 runtime missing');
 for(const t of ['canonicalGameId','releaseDateSource','identityConfidence','canonicalKey','coverage'])need(data.includes(t),`stage1 missing ${t}`);
 need(meta.health?.safeToMerge===true,'stage1 game metadata not safe');
 need(Number(meta.health?.itemCount)>=400,'stage1 metadata unexpectedly small');
+need(release.health?.safeToMerge===true,'verified PS Store release cache not safe');
+need(Number(release.health?.coveragePercent)>=95,`verified deal release coverage too low: ${release.health?.coveragePercent}`);
+need(Number(meta.health?.dealReleaseDateCount)>=1500,`deal release dates unexpectedly low: ${meta.health?.dealReleaseDateCount}`);
+need(Number(meta.health?.officialHtmlDates)>=1500,`official PS Store release dates unexpectedly low: ${meta.health?.officialHtmlDates}`);
 console.log('[v18 stage 1] PASS - canonical IDs and authoritative release-date crosswalk',meta.health);
+console.log('[v18 release cache] PASS',release.health);
 let stage=1;
 if(score){stage=2;for(const t of ['psRadarScore','priceScore','tasteScore','ratingScore','plusScore','scoreReasons'])need(score.includes(t),`stage2 missing ${t}`);console.log('[v18 stage 2] PASS - unified PS Radar Score');}
 if(detail){stage=3;for(const t of ['data-v180-detail-tab','요약','가격이력','PS Plus','에디션'])need(detail.includes(t),`stage3 missing ${t}`);console.log('[v18 stage 3] PASS - tabbed detail UX');}
