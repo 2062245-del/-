@@ -6,11 +6,26 @@ await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
 await page.goto('http://127.0.0.1:8765/',{waitUntil:'domcontentloaded',timeout:30000});
 await page.waitForFunction(()=>window.__PSRADAR_V180_BRIEFING__?.STAGE===6&&window.__PSRADAR_V180_DATA__?.STAGE===1,{timeout:15000});
 await page.waitForTimeout(1800);
+const boot=await page.evaluate(()=>({url:location.href,page:document.body?.dataset?.page||null,nav:[...document.querySelectorAll('.navbtn[data-page]')].map(x=>({page:x.dataset.page,text:x.textContent.trim(),parent:x.parentElement?.className||''})),bottomnav:document.querySelectorAll('.bottomnav').length,bodyChildren:document.body?.children?.length||0}));
+console.log('V180_BOOT',boot);
+if(boot.nav.length!==5||boot.bottomnav!==1)throw new Error(`navigation DOM invalid at boot ${JSON.stringify(boot)}`);
 const meta=await page.evaluate(()=>window.__PSRADAR_V180_DATA__.coverage());
 if(!(meta.total>400&&meta.dated>0&&meta.identified>0))throw new Error(`metadata coverage invalid ${JSON.stringify(meta)}`);
 
-async function go(target){await page.locator(`.bottomnav .navbtn[data-page="${target}"]`).click();await page.waitForFunction(p=>document.body.dataset.page===p,target,{timeout:5000});await page.waitForTimeout(180);const active=await page.locator('.bottomnav .navbtn.active').count();if(active!==1)throw new Error(`active tabs ${active} on ${target}`);}
-for(const t of ['catalog','promo','wishlist','upcoming','home'])await go(t);
+async function go(target){
+  const selector=`.bottomnav .navbtn[data-page="${target}"]`;
+  await page.waitForSelector(selector,{state:'attached',timeout:8000});
+  const count=await page.locator(selector).count();if(count!==1)throw new Error(`nav selector count ${count} for ${target}`);
+  try{await page.locator(selector).click({timeout:5000});}
+  catch(err){
+    const diag=await page.evaluate(t=>({target:t,page:document.body?.dataset?.page||null,active:[...document.querySelectorAll('.bottomnav .navbtn.active')].map(x=>x.dataset.page),drawer:document.getElementById('drawer')?.getAttribute('aria-hidden'),modal:document.getElementById('detailModal')?.getAttribute('aria-hidden')}),target);
+    throw new Error(`nav click failed ${target}: ${err.message} / ${JSON.stringify(diag)}`);
+  }
+  await page.waitForFunction(p=>document.body.dataset.page===p,target,{timeout:5000});await page.waitForTimeout(180);
+  const health=await page.evaluate(()=>window.__PSRADAR_NAV_HEALTH__?.());
+  if(!health||health.activeTabs.length!==1||health.activeTabs[0]!==target)throw new Error(`nav health failed ${target}: ${JSON.stringify(health)}`);
+}
+for(let round=0;round<2;round++)for(const t of ['catalog','promo','wishlist','upcoming','home'])await go(t);
 
 await go('promo');await page.waitForTimeout(600);
 const cards=page.locator('#grid .card[data-id]');if(await cards.count()===0)throw new Error('no promo cards');
