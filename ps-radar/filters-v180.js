@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const VERSION='18.0.0';
+  const VERSION='18.0.1';
   const STAGE=4;
   const KEY='psradar-filter-presets';
   const fields=['content','platform','tier','genre','korean','sort'];
@@ -13,6 +13,11 @@
   function applyPreset(id){const p=presets().find(x=>x.id===id);if(!p||typeof state==='undefined')return false;fields.forEach(k=>state[k]=p.filter[k]);state.quick='none';syncControls(p.filter);if(typeof resetVisible==='function')resetVisible();if(typeof renderGames==='function')renderGames();renderPresets();return true;}
   function savePreset(){const filter=currentFilter();if(!filter)return;let rows=presets();const sig=JSON.stringify(filter);const duplicate=rows.find(x=>JSON.stringify(x.filter)===sig);if(duplicate){rows=[duplicate,...rows.filter(x=>x.id!==duplicate.id)];}else{rows=[{id:`f-${Date.now()}`,name:presetLabel(filter),filter,createdAt:new Date().toISOString()},...rows];}saveAll(rows);renderPresets();}
   function removePreset(id){saveAll(presets().filter(x=>x.id!==id));renderPresets();}
+  function openDrawerStable(){
+    const drawer=document.getElementById('drawer');if(!drawer)return;
+    drawer.classList.add('show');drawer.setAttribute('aria-hidden','false');
+    drawer.style.pointerEvents='';
+  }
   function ensureUI(){
     const grid=document.querySelector('#drawer .filtergrid');if(!grid)return;
     let host=document.getElementById('v180FilterPresetWrap');
@@ -23,7 +28,12 @@
     renderPresets();
   }
   function renderPresets(){const host=document.getElementById('v180FilterPresets');if(!host)return;const rows=presets();host.innerHTML=rows.length?rows.map(x=>`<span><button data-v180-preset="${x.id}">${x.name}</button><button aria-label="필터 삭제" data-v180-remove-preset="${x.id}">×</button></span>`).join(''):'<small>저장된 필터가 없습니다.</small>';}
-  document.addEventListener('click',e=>{const p=e.target.closest?.('[data-v180-preset]');if(p){applyPreset(p.dataset.v180Preset);return;}const r=e.target.closest?.('[data-v180-remove-preset]');if(r){removePreset(r.dataset.v180RemovePreset);return;}if(e.target.closest?.('#v180SaveFilter'))savePreset();if(e.target.closest?.('#filterBtn'))setTimeout(ensureUI,0);},true);
+  document.addEventListener('click',e=>{
+    const p=e.target.closest?.('[data-v180-preset]');if(p){applyPreset(p.dataset.v180Preset);return;}
+    const r=e.target.closest?.('[data-v180-remove-preset]');if(r){removePreset(r.dataset.v180RemovePreset);return;}
+    if(e.target.closest?.('#v180SaveFilter'))savePreset();
+    if(e.target.closest?.('#filterBtn'))setTimeout(()=>{ensureUI();openDrawerStable();},0);
+  },true);
   const start=()=>{ensureUI();};if(document.readyState==='loading')window.addEventListener('DOMContentLoaded',start,{once:true});else start();
-  window.__PSRADAR_V180_FILTERS__={VERSION,STAGE,KEY,savePreset,applyPreset,removePreset,presets,currentFilter};
+  window.__PSRADAR_V180_FILTERS__={VERSION,STAGE,KEY,savePreset,applyPreset,removePreset,presets,currentFilter,openDrawerStable};
 })();
