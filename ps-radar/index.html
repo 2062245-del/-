@@ -3,80 +3,46 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <meta name="theme-color" content="#07111f" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="PS Radar" />
-  <link rel="icon" href="./icons/icon.svg" type="image/svg+xml" />
-  <link rel="manifest" href="./manifest.json" />
+  <meta name="theme-color" content="#050914" />
+  <title>PS Radar</title>
+  <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="stylesheet" href="./styles.css" />
   <link rel="stylesheet" href="./ui-v13.css" />
-  <link rel="stylesheet" href="./mobile-v174.css" data-mobile-v174="1" />
-  <link rel="stylesheet" href="./mobile-v1741.css" data-mobile-v1741="1" />
   <link rel="stylesheet" href="./foundation-v175.css" />
   <link rel="stylesheet" href="./ux-v176.css" />
   <link rel="stylesheet" href="./content-v177.css" />
   <link rel="stylesheet" href="./product-v178.css" />
-  <link rel="stylesheet" href="./ownership-v178.css" />
-  <link rel="stylesheet" href="./personal-v178.css" />
-  <link rel="stylesheet" href="./value-v178.css" />
-  <link rel="stylesheet" href="./v180.css" />
-  <title>PS Radar</title>
+  <link rel="stylesheet" href="./product-v180.css" />
 </head>
-<body data-page="home">
-  <div class="ambient ambient-a"></div>
-  <div class="ambient ambient-b"></div>
-
+<body>
+  <div class="ambient ambient-a"></div><div class="ambient ambient-b"></div>
   <main class="app">
     <header class="topbar">
-      <div class="brand">
-        <div class="logo" aria-label="PS Radar">◉</div>
-        <div>
-          <h1>PS Radar</h1>
-          <small>PlayStation 게임 · PS Plus · 가격/혜택 레이더</small>
-        </div>
-      </div>
-      <div class="top-actions">
-        <button id="notifyBtn" class="iconbtn" title="관심 게임 알림">🔔</button>
-        <button id="refreshBtn" class="iconbtn" title="데이터 새로고침">↻</button>
-        <button id="filterBtn" class="iconbtn">필터</button>
-      </div>
+      <div class="brand"><div class="logo">PS</div><div><h1>PS Radar</h1><small>PlayStation 혜택 레이더</small></div></div>
+      <div class="top-actions"><button id="notifyBtn" class="iconbtn" aria-label="알림">♢</button><button id="refreshBtn" class="iconbtn" aria-label="새로고침">↻</button><button id="filterBtn" class="iconbtn" aria-label="필터">☰</button></div>
     </header>
 
     <section class="hero home-block">
-      <div class="eyebrow"><span class="live-dot"></span><span id="sourceStatus">공식 데이터 확인 중</span></div>
-      <h2>PlayStation 혜택을 한눈에</h2>
+      <div class="eyebrow"><span class="live-dot"></span>PLAYSTATION BENEFITS RADAR</div>
+      <h2>PlayStation 혜택을 <span>한눈에</span></h2>
       <p>카탈로그, 월간 게임, 할인 정보를 빠르게 확인하세요.</p>
-      <div class="searchbar">
-        <input id="search" type="search" placeholder="게임명, 장르, PS Plus, 할인 검색" autocomplete="off" />
-        <button id="clearBtn" class="softbtn">초기화</button>
-      </div>
-      <div class="chips" id="chips"></div>
+      <div class="searchbar"><input id="searchInput" type="search" placeholder="게임 이름으로 검색" autocomplete="off" /><button id="searchBtn" class="softbtn">검색</button></div>
+      <div id="chips" class="chips"></div>
     </section>
 
-    <section class="stats home-block" id="stats"></section>
+    <section id="briefingMount" class="home-block"></section>
 
-    <section class="section quick-section home-block">
-      <div class="sectionhead"><div><p class="kicker">QUICK DISCOVER</p><h3>빠른 탐색</h3></div><span id="profileCoverage">프로필 확인 중</span></div>
-      <div id="curationGrid" class="curation-grid"></div>
-      <p class="watch-note">신규 · 최고평점 · 할인추천 · 곧 종료를 먼저 확인할 수 있습니다.</p>
+    <section class="stats home-block">
+      <div class="stat"><strong id="statAll">-</strong><span>전체 게임</span><em>현재 데이터</em></div>
+      <div class="stat"><strong id="statPlus">-</strong><span>PS Plus</span><em>카탈로그</em></div>
+      <div class="stat"><strong id="statMonthly">-</strong><span>월간 게임</span><em>이번 달</em></div>
+      <div class="stat"><strong id="statSale">-</strong><span>할인 게임</span><em>현재 확인</em></div>
     </section>
 
-    <section class="section home-block">
-      <div class="sectionhead"><div><p class="kicker">BUY OR WAIT</p><h3>지금 결정</h3></div><span>구매 · 수령 · 플레이 우선순위</span></div>
-      <div id="decisionStrip" class="decision-strip"></div>
-      <p class="watch-note">가격 이력, 할인폭, PS Plus 포함 여부와 종료 일정을 함께 확인합니다.</p>
-    </section>
-
-    <section class="section home-block">
-      <div class="sectionhead"><div><p class="kicker">FOR YOU</p><h3>나에게 맞는 게임</h3></div><span>추천점수 100점 기준</span></div>
-      <div id="personalStrip" class="recommend-strip"></div><p id="personalNote" class="watch-note"></p>
-    </section>
-
-    <section class="section home-block">
-      <div class="sectionhead"><div><p class="kicker">TODAY</p><h3>오늘의 레이더</h3></div><div class="section-meta"><span id="storeUpdated"></span><span id="pushStatus" class="syncbadge">로컬 알림</span><span id="storeBadge" class="syncbadge">대기</span></div></div>
-      <div id="radarStrip" class="radar-strip"></div><p class="watch-note" id="watchNote"></p>
-    </section>
+    <section id="quickDiscover" class="section home-block"><div class="sectionhead"><div><p class="kicker">QUICK DISCOVER</p><h3>빠른 탐색</h3></div><span>한 번에 보기</span></div><div id="radarStrip" class="radar-strip"></div></section>
+    <section id="buyWait" class="section home-block"><div class="sectionhead"><div><p class="kicker">BUY OR WAIT</p><h3>지금 결정</h3></div><span>가격·Plus·할인 판단</span></div><div id="buyWaitGrid" class="grid"></div></section>
+    <section id="forYou" class="section home-block"><div class="sectionhead"><div><p class="kicker">FOR YOU</p><h3>나에게 맞는 게임</h3></div><span>찜·최근 본 기반</span></div><div id="forYouGrid" class="grid"></div></section>
+    <section id="todayRadar" class="section home-block"><div class="sectionhead"><div><p class="kicker">TODAY</p><h3>오늘의 레이더</h3></div><span>변화 우선</span></div><div id="todayGrid" class="grid"></div></section>
 
     <section class="section home-block">
       <div class="sectionhead"><div><p class="kicker">OFFICIAL FEED</p><h3>PlayStation 공식 업데이트</h3></div><div class="section-meta"><span id="updated"></span><span id="syncBadge" class="syncbadge">대기</span></div></div>
@@ -154,5 +120,6 @@
   <script src="./filters-v180.js" defer></script>
   <script src="./library-v180.js" defer></script>
   <script src="./briefing-v180.js" defer></script>
+  <script src="./nav-guard-v180.js" defer></script>
 </body>
 </html>
