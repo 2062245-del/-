@@ -28,7 +28,32 @@ try{
     const health=await page.evaluate(()=>window.__PSRADAR_NAV_HEALTH__?.());
     if(!health||health.activeTabs.length!==1||health.activeTabs[0]!==target)throw new Error(`nav health failed ${target}: ${JSON.stringify(health)}`);
   }
+
+  async function setReleaseSort(){
+    await page.locator('#filterBtn').click();
+    await page.waitForSelector('#sort');
+    await page.selectOption('#sort','release');
+    await page.locator('#applyFilter').click();
+    await page.waitForFunction(()=>document.getElementById('drawer')?.getAttribute('aria-hidden')==='true');
+    await page.waitForTimeout(250);
+  }
+
+  async function assertReleaseSort(target){
+    await go(target);await setReleaseSort();
+    const check=await page.evaluate(()=>{
+      const ids=[...document.querySelectorAll('#grid .card[data-id]')].slice(0,24).map(x=>x.dataset.id);
+      const vals=ids.map(id=>{const base=state.games.find(g=>String(g.id)===String(id));const g=base&&(typeof mergeGame==='function'?mergeGame(base):base);const t=g?.releaseDate?new Date(g.releaseDate).getTime():0;return {id,date:g?.releaseDate||null,t:Number.isFinite(t)?t:0};});
+      const dated=vals.filter(x=>x.t>0);
+      let sorted=true;for(let i=1;i<dated.length;i++)if(dated[i-1].t<dated[i].t){sorted=false;break;}
+      return {count:vals.length,dated:dated.length,sorted,first:dated.slice(0,4)};
+    });
+    if(check.count===0||check.dated<2||!check.sorted)throw new Error(`latest release sort failed ${target}: ${JSON.stringify(check)}`);
+    console.log('V180_RELEASE_SORT_PASS',target,check);
+  }
+
   for(let round=0;round<2;round++)for(const t of ['catalog','promo','wishlist','upcoming','home'])await go(t);
+  await assertReleaseSort('catalog');
+  await assertReleaseSort('promo');
 
   await go('promo');await page.waitForTimeout(600);
   const cards=page.locator('#grid .card[data-id]');if(await cards.count()===0)throw new Error('no promo cards');
@@ -42,6 +67,7 @@ try{
   const backlog=await page.evaluate(()=>JSON.parse(localStorage.getItem('psradar-backlog-v180')||'{}'));
   if(!Object.values(backlog).includes('planned'))throw new Error('backlog save failed');
   await page.locator('#closeDetail').click();
+  await page.waitForFunction(()=>{const m=document.getElementById('detailModal');return m&&m.getAttribute('aria-hidden')==='true'&&!m.classList.contains('show')&&getComputedStyle(m).pointerEvents==='none';},{timeout:3000});
 
   await page.locator('#filterBtn').click();await page.waitForSelector('#v180SaveFilter');
   await page.selectOption('#platform','PS5');await page.selectOption('#sort','release');
