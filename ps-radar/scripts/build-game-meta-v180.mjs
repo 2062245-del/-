@@ -15,9 +15,11 @@ const productFromStore=url=>String(url||'').match(/\/product\/([^/?#]+)/i)?.[1]|
 const conceptFromStore=url=>String(url||'').match(/\/concept\/(\d+)/i)?.[1]||null;
 const hash=v=>crypto.createHash('sha1').update(String(v)).digest('hex').slice(0,16);
 
-const [catalog,store,upcoming,deals]=await Promise.all([
-  read('catalog-auto.json',{items:[]}),read('store-auto.json',{items:[]}),read('upcoming.json',{items:[]}),read('deals-auto.json',{items:[]})
+const [catalog,store,upcoming,deals,dealRelease]=await Promise.all([
+  read('catalog-auto.json',{items:[]}),read('store-auto.json',{items:[]}),read('upcoming.json',{items:[]}),read('deals-auto.json',{items:[]}),read('deal-release-v180.json',{items:[],health:null})
 ]);
+const releaseById=new Map((dealRelease.items||[]).filter(x=>x?.id&&x?.releaseDate).map(x=>[String(x.id),x]));
+const releaseByProduct=new Map((dealRelease.items||[]).filter(x=>x?.productId&&x?.releaseDate).map(x=>[String(x.productId),x]));
 const authoritative=[...(catalog.items||[]),...(store.items||[]),...(upcoming.items||[])];
 const byProduct=new Map(),byConcept=new Map(),byFamily=new Map();
 for(const x of authoritative){
@@ -36,14 +38,16 @@ function resolve(raw){
   if(product&&byProduct.has(product)){match=byProduct.get(product);method='product-id';confidence=100;}
   else if(concept&&byConcept.has(concept)){match=byConcept.get(concept);method='concept-id';confidence=98;}
   else if(family&&byFamily.get(family)?.length===1){match=byFamily.get(family)[0];method='title-family';confidence=88;}
-  const releaseDate=raw.releaseDate||match?.releaseDate||null;
+  const officialRelease=releaseById.get(String(raw.id||''))||releaseByProduct.get(product)||null;
+  const releaseDate=raw.releaseDate||officialRelease?.releaseDate||match?.releaseDate||null;
+  const releaseDateSource=raw.releaseDate?'source-item':officialRelease?.releaseDate?'playstation-store-product-html':match?.releaseDate?method:null;
   const canonicalProduct=product||match?.productId||productFromStore(match?.store)||null;
   const canonicalConcept=concept||match?.conceptId||conceptFromStore(match?.store)||null;
   const canonicalSeed=canonicalConcept?`concept:${canonicalConcept}`:canonicalProduct?`product:${canonicalProduct}`:`title:${family}`;
   return {
     id:String(raw.id||''),title:raw.title||match?.title||'',canonicalGameId:`game-${hash(canonicalSeed)}`,
     editionFamily:family,productId:canonicalProduct,conceptId:canonicalConcept,
-    releaseDate,releaseDateSource:raw.releaseDate?'source-item':releaseDate?method:null,
+    releaseDate,releaseDateSource,
     identityMethod:method,identityConfidence:confidence
   };
 }
@@ -57,11 +61,15 @@ for(const raw of sources){
 const items=[...seen.values()];
 const dealIds=new Set((deals.items||[]).map(x=>String(x.id)));
 const dealMeta=items.filter(x=>dealIds.has(x.id));
+const officialHtmlDates=items.filter(x=>x.releaseDateSource==='playstation-store-product-html').length;
 const health={
   safeToMerge:items.length>400,itemCount:items.length,
   releaseDateCount:items.filter(x=>x.releaseDate).length,
-  identifiedCount:items.filter(x=>x.identityMethod!=='none').length,
+  identifiedCount:items.filter(x=>x.identityMethod!=='none'||x.productId||x.conceptId).length,
   dealCount:dealMeta.length,dealReleaseDateCount:dealMeta.filter(x=>x.releaseDate).length,
+  officialHtmlDates,
+  dealReleaseCacheSafe:dealRelease.health?.safeToMerge===true,
+  dealReleaseCoveragePercent:Number(dealRelease.health?.coveragePercent)||0,
   productMatches:items.filter(x=>x.identityMethod==='product-id').length,
   conceptMatches:items.filter(x=>x.identityMethod==='concept-id').length,
   titleMatches:items.filter(x=>x.identityMethod==='title-family').length
