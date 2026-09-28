@@ -6,6 +6,12 @@ on:
     paths:
       - 'ps-radar/product-v178.js'
       - 'ps-radar/product-v178.css'
+      - 'ps-radar/ownership-v178.js'
+      - 'ps-radar/ownership-v178.css'
+      - 'ps-radar/personal-v178.js'
+      - 'ps-radar/personal-v178.css'
+      - 'ps-radar/value-v178.js'
+      - 'ps-radar/value-v178.css'
       - 'ps-radar/index.html'
       - 'ps-radar/scripts/validate-v178.mjs'
       - 'ps-radar/scripts/smoke-v178.mjs'
@@ -26,6 +32,9 @@ jobs:
       - name: Static validation
         run: |
           node --check ps-radar/product-v178.js
+          for f in ps-radar/ownership-v178.js ps-radar/personal-v178.js ps-radar/value-v178.js; do
+            if [ -f "$f" ]; then node --check "$f"; fi
+          done
           node --check ps-radar/scripts/validate-v178.mjs
           node --check ps-radar/scripts/smoke-v178.mjs
           node ps-radar/scripts/validate-v178.mjs
