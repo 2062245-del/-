@@ -1,0 +1,48 @@
+name: PS Radar v18 Quality Gate
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'ps-radar/*-v180.js'
+      - 'ps-radar/*-v180.css'
+      - 'ps-radar/scripts/build-game-meta-v180.mjs'
+      - 'ps-radar/scripts/validate-v180.mjs'
+      - 'ps-radar/scripts/smoke-v180.mjs'
+      - 'ps-radar/index.html'
+      - '.github/workflows/ps-radar-v180-quality.yml'
+  workflow_dispatch:
+
+jobs:
+  quality:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v6
+      - name: Setup Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Build authoritative metadata
+        run: node ps-radar/scripts/build-game-meta-v180.mjs
+      - name: Static validation
+        shell: bash
+        run: |
+          set -euxo pipefail
+          for f in ps-radar/*-v180.js ps-radar/scripts/build-game-meta-v180.mjs ps-radar/scripts/validate-v180.mjs; do node --check "$f"; done
+          node ps-radar/scripts/validate-v180.mjs
+      - name: Browser regression when available
+        if: ${{ hashFiles('ps-radar/scripts/smoke-v180.mjs') != '' }}
+        shell: bash
+        run: |
+          mkdir -p /tmp/psradar-v180
+          npm --prefix /tmp/psradar-v180 init -y >/dev/null 2>&1
+          npm --prefix /tmp/psradar-v180 install playwright@1.55.0 >/dev/null
+          /tmp/psradar-v180/node_modules/.bin/playwright install chromium >/dev/null
+          ln -s /tmp/psradar-v180/node_modules ps-radar/node_modules
+          python3 -m http.server 8765 --bind 127.0.0.1 --directory ps-radar >/tmp/psradar-v180-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID || true' EXIT
+          sleep 2
+          node ps-radar/scripts/smoke-v180.mjs
