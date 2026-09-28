@@ -16,29 +16,63 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  enrich:
+  shard:
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4]
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Enrich shard ${{ matrix.shard }}
+        env:
+          RELEASE_CONCURRENCY: '7'
+          RELEASE_ATTEMPTS: '2'
+          RELEASE_SHARD_COUNT: '5'
+          RELEASE_SHARD_INDEX: '${{ matrix.shard }}'
+          RELEASE_MIN_COVERAGE: '70'
+          RELEASE_OUT: '/tmp/release-shard-${{ matrix.shard }}.json'
+        run: node ps-radar/scripts/enrich-deal-release-v180.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-shard-${{ matrix.shard }}
+          path: /tmp/release-shard-${{ matrix.shard }}.json
+          if-no-files-found: error
+          retention-days: 3
+
+  merge:
+    needs: shard
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 1
-      - uses: actions/setup-node@v4
+      - uses: actions/download-artifact@v5
         with:
-          node-version: '24'
-      - name: Enrich deal release dates from official PS Store product pages
-        env:
-          RELEASE_CONCURRENCY: '14'
-          RELEASE_ATTEMPTS: '2'
-        run: node ps-radar/scripts/enrich-deal-release-v180.mjs
-      - name: Validate release cache
+          pattern: release-shard-*
+          path: /tmp/release-shards
+          merge-multiple: true
+      - name: Merge and validate verified release cache
         run: |
           node - <<'NODE'
-          const fs=require('fs');const j=JSON.parse(fs.readFileSync('ps-radar/data/deal-release-v180.json','utf8'));
-          if(!j.health?.safeToMerge)throw new Error('release cache unsafe');
-          if(Number(j.health.coveragePercent)<70)throw new Error(`coverage too low ${j.health.coveragePercent}%`);
-          if(!Array.isArray(j.items)||j.items.length<1000)throw new Error('release cache unexpectedly small');
-          console.log('RELEASE_CACHE_PASS',j.health);
+          const fs=require('fs'),path=require('path');
+          const deals=JSON.parse(fs.readFileSync('ps-radar/data/deals-auto.json','utf8'));
+          const files=fs.readdirSync('/tmp/release-shards').filter(x=>x.endsWith('.json'));
+          if(files.length!==5)throw new Error(`expected 5 shards, got ${files.length}`);
+          const all=[];let shardCandidates=0;const failures=[];
+          for(const f of files){const j=JSON.parse(fs.readFileSync(path.join('/tmp/release-shards',f),'utf8'));if(!j.health?.safeToMerge)throw new Error(`unsafe shard ${f}`);all.push(...(j.items||[]));shardCandidates+=Number(j.health.candidateCount)||0;failures.push(...(j.failures||[]));}
+          const byId=new Map(all.map(x=>[String(x.id),x]));const items=[...byId.values()].sort((a,b)=>String(a.title).localeCompare(String(b.title),'ko'));
+          const coverage=shardCandidates?Math.round(items.length/shardCandidates*1000)/10:0;
+          const health={safeToMerge:items.length>=1000&&coverage>=70,dealCount:deals.items.length,candidateCount:shardCandidates,itemCount:items.length,coveragePercent:coverage,shardCount:5};
+          if(!health.safeToMerge)throw new Error(`merged release cache unsafe ${JSON.stringify(health)}`);
+          const out={generatedAt:new Date().toISOString(),source:'playstation-store-product-html',health,failures:failures.slice(0,100),items};
+          fs.writeFileSync('ps-radar/data/deal-release-v180.json',JSON.stringify(out,null,2)+'\n');
+          console.log('RELEASE_CACHE_PASS',health);
           NODE
       - name: Commit verified release cache
         shell: bash
