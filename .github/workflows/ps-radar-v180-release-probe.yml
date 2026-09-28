@@ -1,0 +1,18 @@
+name: PS Radar v18 Release Metadata Probe
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'ps-radar/scripts/probe-release-v180.mjs'
+      - '.github/workflows/ps-radar-v180-release-probe.yml'
+  workflow_dispatch:
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node ps-radar/scripts/probe-release-v180.mjs
