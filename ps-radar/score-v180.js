@@ -1,10 +1,17 @@
 (() => {
   'use strict';
-  const VERSION='18.0.0';
+  const VERSION='18.0.1';
   const STAGE=2;
   const clamp=(v,min=0,max=100)=>Math.max(min,Math.min(max,Number(v)||0));
   const plus=g=>typeof hasPlusBenefit==='function'?hasPlusBenefit(g):!!g?.plusIncluded||['catalog','monthly','classic'].includes(g?.type);
-  const tasteProfile=()=>window.__PSRADAR_V1784__?.tasteProfile?.()||{top:[],interactions:0};
+  let tasteCache=null,tasteCacheAt=0;
+  const rawTasteProfile=()=>window.__PSRADAR_V1784__?.tasteProfile?.()||{top:[],interactions:0};
+  const tasteProfile=()=>{
+    const now=Date.now();
+    if(tasteCache&&now-tasteCacheAt<1000)return tasteCache;
+    tasteCache=rawTasteProfile();tasteCacheAt=now;return tasteCache;
+  };
+  const invalidateTaste=()=>{tasteCache=null;tasteCacheAt=0;};
   const genres=g=>[g?.genre,g?.genres,g?.tags].flatMap(x=>Array.isArray(x)?x:[x]).filter(Boolean).map(x=>String(x).toLowerCase());
   const history=g=>window.__PSRADAR_V178__?.collectPriceHistory?.(g)||[];
 
@@ -19,8 +26,8 @@
     return clamp(score);
   }
 
-  function tasteScore(g){
-    const p=tasteProfile();if(!p.interactions)return 55;
+  function tasteScore(g,profile=tasteProfile()){
+    const p=profile||{top:[],interactions:0};if(!p.interactions)return 55;
     const gs=genres(g);let raw=42;
     p.top.forEach((x,i)=>{if(gs.includes(String(x.name).toLowerCase()))raw+=Math.max(6,18-i*3);});
     if(g?.ko)raw+=6;
@@ -68,8 +75,8 @@
     return rows.slice(0,4);
   }
 
-  function psRadarScore(g){
-    const dims={price:priceScore(g),taste:tasteScore(g),rating:ratingScore(g),plus:plusScore(g),freshness:freshnessScore(g)};
+  function psRadarScore(g,profile=tasteProfile()){
+    const dims={price:priceScore(g),taste:tasteScore(g,profile),rating:ratingScore(g),plus:plusScore(g),freshness:freshnessScore(g)};
     const weights={price:.31,taste:.24,rating:.20,plus:.15,freshness:.10};
     const total=Math.round(Object.keys(weights).reduce((s,k)=>s+dims[k]*weights[k],0));
     const reasons=scoreReasons(g,dims);
@@ -79,17 +86,22 @@
 
   function decorateScoreCards(){
     if(typeof state==='undefined'||!Array.isArray(state.games))return;
+    const profile=tasteProfile();
     const map=new Map(state.games.map(g=>[String(g.id),typeof mergeGame==='function'?mergeGame(g):g]));
     document.querySelectorAll('#grid .card[data-id]').forEach(card=>{
       const g=map.get(String(card.dataset.id));if(!g)return;
-      const s=psRadarScore(g);
+      const s=psRadarScore(g,profile);
       let el=card.querySelector('.v180-score');
       if(!el){el=document.createElement('div');el.className='v180-score';card.querySelector('.meta')?.appendChild(el);}
       el.innerHTML=`<b>${s.total}</b><span>PS Radar</span>`;el.title=s.reasons.join(' · ');
     });
   }
 
+  document.addEventListener('click',e=>{
+    if(e.target.closest?.('.heart,.v176-owned,[data-v178-owned-toggle],[data-v180-set-backlog],.detailbtn'))invalidateTaste();
+  },true);
+  window.addEventListener('storage',invalidateTaste);
   const start=()=>{decorateScoreCards();const grid=document.getElementById('grid');if(grid)new MutationObserver(decorateScoreCards).observe(grid,{childList:true});[700,1800,3600].forEach(ms=>setTimeout(decorateScoreCards,ms));};
   if(document.readyState==='loading')window.addEventListener('DOMContentLoaded',start,{once:true});else start();
-  window.__PSRADAR_V180_SCORE__={VERSION,STAGE,psRadarScore,priceScore,tasteScore,ratingScore,plusScore,freshnessScore,scoreReasons,decorateScoreCards};
+  window.__PSRADAR_V180_SCORE__={VERSION,STAGE,psRadarScore,priceScore,tasteScore,ratingScore,plusScore,freshnessScore,scoreReasons,decorateScoreCards,tasteProfile,invalidateTaste};
 })();
