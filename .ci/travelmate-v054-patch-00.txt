@@ -1,0 +1,105 @@
+diff -ruN a/app/build.gradle b/app/build.gradle
+--- a/app/build.gradle	2026-09-29 15:28:42.753350805 +0000
++++ b/app/build.gradle	2026-09-29 15:57:47.719905732 +0000
+@@ -12,8 +12,8 @@
+         applicationId 'com.seungho.barointerpreter'
+         minSdk 23
+         targetSdk 35
+-        versionCode 9
+-        versionName '0.5.3'
++        versionCode 10
++        versionName '0.5.4'
+         ndk {
+             abiFilters 'arm64-v8a'
+         }
+diff -ruN a/app/src/main/AndroidManifest.xml b/app/src/main/AndroidManifest.xml
+--- a/app/src/main/AndroidManifest.xml	2026-09-29 14:26:24.586453909 +0000
++++ b/app/src/main/AndroidManifest.xml	2026-09-29 15:57:47.720521892 +0000
+@@ -20,6 +20,11 @@
+         android:roundIcon="@drawable/ic_launcher"
+         android:theme="@style/AppTheme"
+         android:usesCleartextTraffic="false">
++        <service
++            android:name=".NeuralTtsService"
++            android:exported="false"
++            android:process=":neural_tts"
++            android:stopWithTask="true" />
+         <activity
+             android:name=".MainActivity"
+             android:exported="true"
+diff -ruN a/app/src/main/java/com/seungho/barointerpreter/CrashDiagnostics.java b/app/src/main/java/com/seungho/barointerpreter/CrashDiagnostics.java
+--- a/app/src/main/java/com/seungho/barointerpreter/CrashDiagnostics.java	2026-09-29 15:29:26.185802851 +0000
++++ b/app/src/main/java/com/seungho/barointerpreter/CrashDiagnostics.java	2026-09-29 15:57:47.720590316 +0000
+@@ -77,6 +77,10 @@
+                     for (ApplicationExitInfo info : infos) {
+                         sb.append(new SimpleDateFormat("MM-dd HH:mm:ss", Locale.KOREA).format(new Date(info.getTimestamp())))
+                                 .append(" · ").append(reasonName(info.getReason()));
++                        String process = info.getProcessName();
++                        if (process != null && !process.trim().isEmpty()) sb.append(" · 프로세스 ").append(process.trim());
++                        if (info.getPss() > 0) sb.append(" · PSS ").append(info.getPss() / 1024).append("MB");
++                        if (info.getRss() > 0) sb.append(" · RSS ").append(info.getRss() / 1024).append("MB");
+                         String d = info.getDescription();
+                         if (d != null && !d.trim().isEmpty()) sb.append(" · ").append(d.trim());
+                         sb.append("\n");
+diff -ruN a/app/src/main/java/com/seungho/barointerpreter/MainActivity.java b/app/src/main/java/com/seungho/barointerpreter/MainActivity.java
+--- a/app/src/main/java/com/seungho/barointerpreter/MainActivity.java	2026-09-29 15:31:54.239726144 +0000
++++ b/app/src/main/java/com/seungho/barointerpreter/MainActivity.java	2026-09-29 15:59:19.140137028 +0000
+@@ -105,7 +105,7 @@
+     private TextToSpeech systemTts;
+     private SpeechRecognizer recognizer;
+     private Translator translator;
+-    private NeuralTtsEngine neuralTts;
++    private NeuralTtsClient neuralTts;
+     private boolean systemTtsReady = false;
+     private boolean speakingFromLeft = true;
+     private String lastTranslation = "";
+@@ -132,7 +132,7 @@
+         initPhrasebook();
+         setContentView(buildUi());
+         systemTts = new TextToSpeech(this, this);
+-        neuralTts = new NeuralTtsEngine(this);
++        neuralTts = new NeuralTtsClient(this);
+         setupLanguagePickers();
+         setupActions();
+         refreshAllPackStatus();
+@@ -363,10 +363,15 @@
+             }
+             return;
+         }
+-        neuralStatusView.setText(neuralTts.isReady()
+-                ? "● AI 음성 준비됨 · 여성 A / 남성"
+-                : "● AI 음성팩 설치됨 · 사용할 때 자동 준비");
+-        neuralStatusView.setTextColor(neuralTts.isReady() ? GREEN : CYAN);
++        if (neuralTts.isSafeMode()) {
++            neuralStatusView.setText("△ AI 음성 안전모드 · 기본 음성 사용 중");
++            neuralStatusView.setTextColor(AMBER);
++        } else {
++            neuralStatusView.setText(neuralTts.isReady()
++                    ? "● AI 음성 준비됨 · 여성 A / 남성"
++                    : "● AI 음성팩 설치됨 · 사용할 때 자동 준비");
++            neuralStatusView.setTextColor(neuralTts.isReady() ? GREEN : CYAN);
++        }
+         if (neuralDownloadButton != null) neuralDownloadButton.setVisibility(View.GONE);
+     }
+ 
+@@ -407,7 +412,7 @@
+                     neuralDownloadButton.setText("다운로드 준비 중…");
+                     neuralStatusView.setText("● AI 음성팩 다운로드 준비 중…");
+                     neuralStatusView.setTextColor(CYAN);
+-                    neuralTts.downloadModel(new NeuralTtsEngine.ModelDownloadCallback() {
++                    neuralTts.downloadModel(new NeuralTtsClient.ModelDownloadCallback() {
+                         @Override public void progress(int percent, String message) {
+                             postUi(() -> {
+                                 neuralDownloadButton.setText("⬇ 다운로드 " + percent + "%");
+@@ -592,7 +597,7 @@
+         float speed=language.id.equals("vi")?0.95f:language.id.equals("ko")?0.98f:1.0f;
+         if(neuralTts!=null && neuralTts.isModelInstalled()){
+             neuralTts.speak(text,language.neuralLang,female,speed,(message,ok)->postUi(()->{
+-                if(message.contains("실패")) systemSpeak(text,language);
++                if(message.contains("실패") || message.contains("안전모드")) systemSpeak(text,language);
+                 else if(message.contains("재생")) setActivityStatus("AI 음성 재생",CYAN);
+             }));
+         } else {
+diff -ruN a/app/src/main/java/com/seungho/barointerpreter/NeuralTtsClient.java b/app/src/main/java/com/seungho/barointerpreter/NeuralTtsClient.java
+--- a/app/src/main/java/com/seungho/barointerpreter/NeuralTtsClient.java	1970-01-01 00:00:00.000000000 +0000
++++ b/app/src/main/java/com/seungho/barointerpreter/NeuralTtsClient.java	2026-09-29 15:59:18.646177067 +0000
