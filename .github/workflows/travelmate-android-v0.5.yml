@@ -57,6 +57,24 @@ jobs:
           echo 'bb52915a9f47366d0d59fe26cb9549ac7c6d4bd03c45bd06ce81f7b44790318a  /tmp/travelmate-v05.zip' | sha256sum -c -
           unzip -q /tmp/travelmate-v05.zip -d build-src
 
+      - name: Fix sherpa Android dependency graph
+        shell: bash
+        run: |
+          set -euxo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('build-src/app/build.gradle')
+          s = p.read_text()
+          old = "    implementation 'com.github.k2-fsa:sherpa-onnx:v1.13.8'"
+          new = "    implementation('com.github.k2-fsa:sherpa-onnx:v1.13.8') {\n        exclude group: 'com.github.k2-fsa.sherpa-onnx', module: 'sherpa-onnx-jvm'\n    }"
+          if old not in s and "module: 'sherpa-onnx-jvm'" not in s:
+              raise SystemExit('sherpa dependency line not found')
+          if old in s:
+              s = s.replace(old, new)
+          p.write_text(s)
+          PY
+          grep -q "module: 'sherpa-onnx-jvm'" build-src/app/build.gradle
+
       - name: Download bundled Neural TTS model
         shell: bash
         run: |
@@ -96,6 +114,7 @@ jobs:
           test -s "$SRC"
           grep -q "versionName '0.5.0'" build-src/app/build.gradle
           grep -q "versionCode 6" build-src/app/build.gradle
+          grep -q "module: 'sherpa-onnx-jvm'" build-src/app/build.gradle
           grep -q '여행메이트' build-src/app/src/main/res/values/strings.xml
           grep -q 'showWallet' "$SRC"
           grep -q 'showCurrencyConverter' "$SRC"
