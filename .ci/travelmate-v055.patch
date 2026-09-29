@@ -1,0 +1,361 @@
+diff -ruN diffa/BUILD_STATUS.txt diffb/BUILD_STATUS.txt
+--- diffa/BUILD_STATUS.txt	2026-09-29 14:30:16.000000000 +0000
++++ diffb/BUILD_STATUS.txt	2026-09-29 23:45:19.848192866 +0000
+@@ -1 +1,10 @@
+-v0.5.1 source prepared. Neural TTS model-on-demand + arm64-v8a optimization. Pending CI build verification.
++TravelMate v0.5.5
++- Neural TTS remains isolated in :neural_tts process.
++- Removed stale historical-crash lockout. Only crashes after the current Neural request trigger safe mode.
++- Safe mode cooldown reduced to 60 seconds and can be manually overridden.
++- Added explicit UI state: AI Neural high-quality voice vs system default voice.
++- Added AI high-quality voice ON / retry button when the model is installed but not active.
++- Existing wallet, FX, phrasebook, offline packs, and translation functions retained.
++- package: com.seungho.barointerpreter
++- versionCode: 11
++- versionName: 0.5.5
+diff -ruN diffa/README.md diffb/README.md
+--- diffa/README.md	2026-09-29 15:59:17.000000000 +0000
++++ diffb/README.md	2026-09-29 23:45:33.509923403 +0000
+@@ -1,25 +1,15 @@
+-# 여행메이트 Android v0.5.4
++# 여행메이트 v0.5.5
+ 
+-안정성 집중 개선 버전입니다.
++Android 오프라인 여행 통역/여행도구 앱입니다.
+ 
+-## v0.5.4 핵심 변경
+-- 음성인식 세션을 1개로 제한하고, 이전 세션 콜백을 세대 번호로 무효화
+-- 음성인식 종료/오류 시 Recognizer 즉시 정리
+-- 녹음 중 언어 변경/메뉴 이동 시 인식 세션 안전 취소
+-- 번역 비동기 작업 세대 번호 적용, 오래된 번역 결과 무시
+-- Neural TTS와 음성인식 동시 실행 차단
+-- AudioTrack을 재생 스레드에서만 stop/release하여 네이티브 경합 완화
+-- 메뉴 이동 시 음성/녹음/대기 번역 정리
+-- 빠른 메뉴 연타 380ms 디바운스
+-- 메뉴 제목 19sp, 설명 15sp, 일반 버튼 16sp 이상으로 확대
+-- 앱 내 `문제 진단` 추가: 다음 비정상 종료 후 최근 Java 예외/Android 종료 사유 확인 가능
+-- AI 음성팩은 기존처럼 최초 1회 다운로드 후 오프라인 사용
++## v0.5.5 핵심 변경
++- Neural TTS는 계속 `:neural_tts` 별도 프로세스에서 실행되어 네이티브 크래시가 메인 앱을 같이 종료시키지 않도록 유지합니다.
++- 이전 버전의 과거 크래시 기록 때문에 AI 음성이 장시간 막히던 로직을 제거했습니다.
++- 이제 **현재 AI 음성 요청 이후 실제 `:neural_tts` 크래시만** 안전모드 판단에 사용합니다.
++- 화면에 `AI Neural 고품질 음성` / `기본 음성` 상태를 명확히 표시합니다.
++- 음성팩이 설치되어 있으면 `AI 고품질 음성 켜기 / 다시 켜기` 버튼으로 즉시 재시도할 수 있습니다.
++- 여성 A / 남성 음성 선택 유지.
++- 통역, 여행회화, VND→KRW 환산, 내 지갑, 크게 보기, 언어팩 관리 기능 유지.
+ 
+-기존 패키지와 서명키를 유지하는 업데이트 설치용 버전입니다.
+-
+-
+-## v0.5.4 native-crash containment
+-- Neural TTS inference moved to dedicated `:neural_tts` process.
+-- A native TTS crash no longer takes down the main TravelMate process.
+-- Main process falls back to system offline TTS when neural service is in safe mode.
+-- Diagnostics now include process name and memory footprint for Android exit records.
++## 패키지
++`com.seungho.barointerpreter`
+diff -ruN diffa/app/build.gradle diffb/app/build.gradle
+--- diffa/app/build.gradle	2026-09-29 15:57:47.000000000 +0000
++++ diffb/app/build.gradle	2026-09-29 23:43:43.819772598 +0000
+@@ -12,8 +12,8 @@
+         applicationId 'com.seungho.barointerpreter'
+         minSdk 23
+         targetSdk 35
+-        versionCode 10
+-        versionName '0.5.4'
++        versionCode 11
++        versionName '0.5.5'
+         ndk {
+             abiFilters 'arm64-v8a'
+         }
+diff -ruN diffa/app/src/main/java/com/seungho/barointerpreter/MainActivity.java diffb/app/src/main/java/com/seungho/barointerpreter/MainActivity.java
+--- diffa/app/src/main/java/com/seungho/barointerpreter/MainActivity.java	2026-09-29 15:59:19.000000000 +0000
++++ diffb/app/src/main/java/com/seungho/barointerpreter/MainActivity.java	2026-09-29 23:44:58.317717017 +0000
+@@ -167,7 +167,7 @@
+         country.setBackground(rounded(Color.WHITE, dp(999)));
+         heroTop.addView(country);
+         hero.addView(heroTop);
+-        neuralStatusView = text("AI 음성 준비 확인 중", 13, true, CYAN);
++        neuralStatusView = text("AI 음성 준비 확인 중", 15, true, CYAN);
+         hero.addView(neuralStatusView, topMargin(dp(10)));
+         root.addView(hero);
+ 
+@@ -188,7 +188,7 @@
+         LinearLayout voiceTop = row(Gravity.CENTER_VERTICAL);
+         LinearLayout voiceText = col();
+         voiceText.addView(text("고품질 AI 음성", 17, true, INK));
+-        voiceText.addView(text("최초 1회 음성팩을 받으면 이후 완전 오프라인", 14, false, MUTED), topMargin(dp(3)));
++        voiceText.addView(text("여성 A / 남성 · 오프라인 Neural 음성", 15, false, MUTED), topMargin(dp(3)));
+         voiceTop.addView(voiceText, new LinearLayout.LayoutParams(0, -2, 1f));
+         voice.addView(voiceTop);
+         LinearLayout voiceChoice = row(Gravity.CENTER);
+@@ -330,7 +330,10 @@
+         replayButton.setOnClickListener(v -> { if (!lastTranslation.isEmpty()) speak(lastTranslation, lastOutputLanguage); });
+         femaleVoiceButton.setOnClickListener(v -> { prefs.edit().putBoolean("female_voice", true).apply(); updateVoiceButtons(); previewVoice(); });
+         maleVoiceButton.setOnClickListener(v -> { prefs.edit().putBoolean("female_voice", false).apply(); updateVoiceButtons(); previewVoice(); });
+-        neuralDownloadButton.setOnClickListener(v -> downloadNeuralVoice());
++        neuralDownloadButton.setOnClickListener(v -> {
++            if (neuralTts != null && neuralTts.isModelInstalled()) retryNeuralVoice();
++            else downloadNeuralVoice();
++        });
+     }
+ 
+     private void updateVoiceButtons() {
+@@ -354,7 +357,7 @@
+     private void refreshNeuralVoiceStatus() {
+         if (neuralTts == null || neuralStatusView == null) return;
+         if (!neuralTts.isModelInstalled()) {
+-            neuralStatusView.setText("△ AI 음성팩 필요 · 약 145MB · 최초 1회");
++            neuralStatusView.setText("○ 현재: 기본 음성 · AI 음성팩 필요");
+             neuralStatusView.setTextColor(AMBER);
+             if (neuralDownloadButton != null) {
+                 neuralDownloadButton.setVisibility(View.VISIBLE);
+@@ -364,35 +367,58 @@
+             return;
+         }
+         if (neuralTts.isSafeMode()) {
+-            neuralStatusView.setText("△ AI 음성 안전모드 · 기본 음성 사용 중");
++            neuralStatusView.setText("○ 현재: 기본 음성 · AI Neural 일시 중지 (" + neuralTts.safeModeRemainingSeconds() + "초)");
+             neuralStatusView.setTextColor(AMBER);
++            neuralDownloadButton.setVisibility(View.VISIBLE);
++            neuralDownloadButton.setEnabled(true);
++            neuralDownloadButton.setText("✨ AI 고품질 음성 다시 켜기");
++        } else if (neuralTts.isReady()) {
++            neuralStatusView.setText("✨ 현재: AI Neural 고품질 음성 · 여성 A / 남성");
++            neuralStatusView.setTextColor(GREEN);
++            neuralDownloadButton.setVisibility(View.GONE);
+         } else {
+-            neuralStatusView.setText(neuralTts.isReady()
+-                    ? "● AI 음성 준비됨 · 여성 A / 남성"
+-                    : "● AI 음성팩 설치됨 · 사용할 때 자동 준비");
+-            neuralStatusView.setTextColor(neuralTts.isReady() ? GREEN : CYAN);
++            neuralStatusView.setText("◌ AI Neural 음성팩 설치됨 · 아직 준비 전");
++            neuralStatusView.setTextColor(CYAN);
++            neuralDownloadButton.setVisibility(View.VISIBLE);
++            neuralDownloadButton.setEnabled(true);
++            neuralDownloadButton.setText("✨ AI 고품질 음성 켜기");
+         }
+-        if (neuralDownloadButton != null) neuralDownloadButton.setVisibility(View.GONE);
+     }
+ 
+     private void prepareNeuralVoice() {
+         if (neuralTts == null) return;
+         if (!neuralTts.isModelInstalled()) {
+-            neuralStatusView.setText("△ AI 음성팩 필요 · 약 145MB · 최초 1회");
+-            neuralStatusView.setTextColor(AMBER);
+-            neuralDownloadButton.setVisibility(View.VISIBLE);
+-            neuralDownloadButton.setEnabled(true);
+-            neuralDownloadButton.setText("⬇ AI 음성팩 받기 · 약 145MB");
++            refreshNeuralVoiceStatus();
+             return;
+         }
+-        neuralDownloadButton.setVisibility(View.GONE);
+-        neuralStatusView.setText("● AI 음성 준비 중…");
++        neuralStatusView.setText("◌ AI Neural 고품질 음성 준비 중…");
++        neuralStatusView.setTextColor(CYAN);
++        neuralDownloadButton.setVisibility(View.VISIBLE);
++        neuralDownloadButton.setEnabled(false);
++        neuralDownloadButton.setText("AI 음성 준비 중…");
+         neuralTts.prepare((message, ok) -> postUi(() -> {
+-            neuralStatusView.setText((ok ? "● " : "△ ") + message + (ok ? " · 여성/남성 동일 품질" : " · 기본 음성으로 대체"));
+-            neuralStatusView.setTextColor(ok ? GREEN : AMBER);
++            if (ok) {
++                neuralStatusView.setText("✨ 현재: AI Neural 고품질 음성 · 여성 A / 남성");
++                neuralStatusView.setTextColor(GREEN);
++                neuralDownloadButton.setVisibility(View.GONE);
++                toast("AI 고품질 음성이 켜졌습니다.");
++            } else {
++                neuralStatusView.setText("○ 현재: 기본 음성 · " + message);
++                neuralStatusView.setTextColor(AMBER);
++                neuralDownloadButton.setVisibility(View.VISIBLE);
++                neuralDownloadButton.setEnabled(true);
++                neuralDownloadButton.setText("✨ AI 고품질 음성 다시 켜기");
++            }
+         }));
+     }
+ 
++    private void retryNeuralVoice() {
++        if (neuralTts == null) return;
++        neuralTts.forceRetry();
++        stopPlayback();
++        prepareNeuralVoice();
++    }
++
+     private void downloadNeuralVoice() {
+         if (neuralTts == null) return;
+         if (neuralTts.isModelInstalled()) {
+@@ -597,8 +623,25 @@
+         float speed=language.id.equals("vi")?0.95f:language.id.equals("ko")?0.98f:1.0f;
+         if(neuralTts!=null && neuralTts.isModelInstalled()){
+             neuralTts.speak(text,language.neuralLang,female,speed,(message,ok)->postUi(()->{
+-                if(message.contains("실패") || message.contains("안전모드")) systemSpeak(text,language);
+-                else if(message.contains("재생")) setActivityStatus("AI 음성 재생",CYAN);
++                if (!ok && (message.contains("실패") || message.contains("중지") || message.contains("크래시") || message.contains("기본 음성"))) {
++                    systemSpeak(text,language);
++                    if (neuralStatusView != null) {
++                        neuralStatusView.setText("○ 현재: 기본 음성 · " + message);
++                        neuralStatusView.setTextColor(AMBER);
++                    }
++                    if (neuralDownloadButton != null) {
++                        neuralDownloadButton.setVisibility(View.VISIBLE);
++                        neuralDownloadButton.setEnabled(true);
++                        neuralDownloadButton.setText("✨ AI 고품질 음성 다시 켜기");
++                    }
++                } else if(message.contains("재생")) {
++                    setActivityStatus("AI Neural 고품질 음성 재생",CYAN);
++                    if (neuralStatusView != null) {
++                        neuralStatusView.setText("✨ 현재: AI Neural 고품질 음성 · 여성 A / 남성");
++                        neuralStatusView.setTextColor(GREEN);
++                    }
++                    if (neuralDownloadButton != null) neuralDownloadButton.setVisibility(View.GONE);
++                }
+             }));
+         } else {
+             systemSpeak(text,language);
+diff -ruN diffa/app/src/main/java/com/seungho/barointerpreter/NeuralTtsClient.java diffb/app/src/main/java/com/seungho/barointerpreter/NeuralTtsClient.java
+--- diffa/app/src/main/java/com/seungho/barointerpreter/NeuralTtsClient.java	2026-09-29 15:59:18.000000000 +0000
++++ diffb/app/src/main/java/com/seungho/barointerpreter/NeuralTtsClient.java	2026-09-29 23:44:29.805416001 +0000
+@@ -64,22 +64,25 @@
+     private volatile boolean downloading = false;
+     private volatile boolean serviceReady = false;
+     private volatile long safeModeUntil = 0L;
++    private volatile long lastCrashAt = 0L;
+ 
+     public NeuralTtsClient(Context context) {
+         this.context = context.getApplicationContext();
+-        if (recentNeuralProcessCrash()) safeModeUntil = System.currentTimeMillis() + 10 * 60_000L;
++        // v0.5.5: 과거 버전의 종료 기록으로 AI 음성을 막지 않는다.
++        // 오직 이번 요청 이후 :neural_tts 프로세스가 실제로 죽었을 때만 안전모드로 전환한다.
+     }
+ 
+     private File modelDir() { return new File(context.getFilesDir(), MODEL_DIR); }
+     public boolean isReady() { return serviceReady && !isSafeMode(); }
+     public boolean isDownloading() { return downloading; }
+-    public boolean isSafeMode() {
+-        if (System.currentTimeMillis() < safeModeUntil) return true;
+-        if (recentNeuralProcessCrash()) {
+-            safeModeUntil = System.currentTimeMillis() + 10 * 60_000L;
+-            return true;
+-        }
+-        return false;
++    public boolean isSafeMode() { return System.currentTimeMillis() < safeModeUntil; }
++    public long safeModeRemainingSeconds() {
++        return Math.max(0L, (safeModeUntil - System.currentTimeMillis() + 999L) / 1000L);
++    }
++    public void forceRetry() {
++        safeModeUntil = 0L;
++        lastCrashAt = 0L;
++        serviceReady = false;
+     }
+ 
+     public boolean isModelInstalled() {
+@@ -93,7 +96,7 @@
+ 
+     public void prepare(Callback callback) {
+         if (isSafeMode()) {
+-            callback.state("AI 음성 안전모드 · 기본 음성 사용", false);
++            callback.state("AI 음성 일시 중지 · 다시 켜기 버튼으로 즉시 재시도 가능", false);
+             return;
+         }
+         sendService(NeuralTtsService.ACTION_PREPARE, null, null, true, 1.0f, callback);
+@@ -101,7 +104,7 @@
+ 
+     public void speak(String text, String lang, boolean female, float speed, Callback callback) {
+         if (isSafeMode()) {
+-            callback.state("AI 음성 안전모드 · 기본 음성으로 전환", false);
++            callback.state("AI 음성 일시 중지 · 현재 기본 음성 사용", false);
+             return;
+         }
+         sendService(NeuralTtsService.ACTION_SPEAK, text, lang, female, speed, callback);
+@@ -125,6 +128,7 @@
+     }
+ 
+     private void sendService(String action, String text, String lang, boolean female, float speed, Callback callback) {
++        final long requestAt = System.currentTimeMillis();
+         try {
+             ResultReceiver receiver = new ResultReceiver(main) {
+                 @Override protected void onReceiveResult(int resultCode, Bundle resultData) {
+@@ -143,39 +147,43 @@
+             i.putExtra("receiver", receiver);
+             context.startService(i);
+ 
+-            // If the native worker process dies, Android records the exit independently.
+-            // Re-check shortly and switch the main app to safe mode instead of relaunching a crash loop.
++            // v0.5.5: 과거 10분의 종료 기록 전체가 아니라 '이번 요청 이후' 죽은 경우만 감지한다.
+             main.postDelayed(() -> {
+-                if (recentNeuralProcessCrash()) {
+-                    safeModeUntil = System.currentTimeMillis() + 10 * 60_000L;
++                long crashAt = neuralProcessCrashSince(requestAt);
++                if (crashAt > 0L && crashAt != lastCrashAt) {
++                    lastCrashAt = crashAt;
++                    safeModeUntil = System.currentTimeMillis() + 60_000L;
+                     serviceReady = false;
+-                    callback.state("AI 음성 안전모드 · 기본 음성으로 전환", false);
++                    callback.state("AI Neural 프로세스 크래시 · 기본 음성 사용 · 다시 켜기 가능", false);
+                 }
+-            }, 3500L);
++            }, 4500L);
+         } catch (Throwable t) {
+             serviceReady = false;
+-            callback.state("AI 음성 실패 · 기본 음성으로 전환", false);
++            callback.state("AI 음성 시작 실패 · 기본 음성 사용", false);
+         }
+     }
+ 
+-    private boolean recentNeuralProcessCrash() {
+-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return false;
++    private long neuralProcessCrashSince(long since) {
++        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return 0L;
+         try {
+             ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+-            if (am == null) return false;
+-            List<ApplicationExitInfo> infos = am.getHistoricalProcessExitReasons(context.getPackageName(), 0, 12);
+-            if (infos == null) return false;
+-            long now = System.currentTimeMillis();
+-            String suffix = context.getPackageName() + ":neural_tts";
++            if (am == null) return 0L;
++            List<ApplicationExitInfo> infos = am.getHistoricalProcessExitReasons(context.getPackageName(), 0, 20);
++            if (infos == null) return 0L;
++            String exactProcess = context.getPackageName() + ":neural_tts";
++            long newest = 0L;
+             for (ApplicationExitInfo info : infos) {
+-                if (now - info.getTimestamp() > 10 * 60_000L) continue;
+-                String process = info.getProcessName();
+-                if (!suffix.equals(process)) continue;
++                long ts = info.getTimestamp();
++                if (ts + 750L < since) continue;
++                if (!exactProcess.equals(info.getProcessName())) continue;
+                 int r = info.getReason();
+-                if (r == ApplicationExitInfo.REASON_CRASH_NATIVE || r == ApplicationExitInfo.REASON_CRASH) return true;
++                if (r == ApplicationExitInfo.REASON_CRASH_NATIVE || r == ApplicationExitInfo.REASON_CRASH) {
++                    newest = Math.max(newest, ts);
++                }
+             }
++            return newest;
+         } catch (Throwable ignored) {}
+-        return false;
++        return 0L;
+     }
+ 
+     public void downloadModel(ModelDownloadCallback callback) {
+@@ -199,7 +207,7 @@
+                     callback.progress(percent(finishedBytes + existing), "AI 음성팩 받는 중 · " + (i + 1) + "/" + FILES.length);
+                     HttpURLConnection conn = (HttpURLConnection) new URL(HF_BASE + FILES[i] + "?download=true").openConnection();
+                     conn.setConnectTimeout(20000); conn.setReadTimeout(45000); conn.setInstanceFollowRedirects(true);
+-                    conn.setRequestProperty("User-Agent", "TravelMate-Android/0.5.4");
++                    conn.setRequestProperty("User-Agent", "TravelMate-Android/0.5.5");
+                     if (existing > 0L) conn.setRequestProperty("Range", "bytes=" + existing + "-");
+                     conn.connect();
+                     int code = conn.getResponseCode();
+diff -ruN diffa/app/src/main/java/com/seungho/barointerpreter/NeuralTtsEngine.java diffb/app/src/main/java/com/seungho/barointerpreter/NeuralTtsEngine.java
+--- diffa/app/src/main/java/com/seungho/barointerpreter/NeuralTtsEngine.java	2026-09-29 15:32:09.000000000 +0000
++++ diffb/app/src/main/java/com/seungho/barointerpreter/NeuralTtsEngine.java	2026-09-29 23:45:19.847193065 +0000
+@@ -138,7 +138,7 @@
+                     conn.setConnectTimeout(20000);
+                     conn.setReadTimeout(45000);
+                     conn.setInstanceFollowRedirects(true);
+-                    conn.setRequestProperty("User-Agent", "TravelMate-Android/0.5.3");
++                    conn.setRequestProperty("User-Agent", "TravelMate-Android/0.5.5");
+                     if (existing > 0L) conn.setRequestProperty("Range", "bytes=" + existing + "-");
+                     conn.connect();
+ 
