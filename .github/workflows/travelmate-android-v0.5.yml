@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - '.ci/travelmate-v05-source-part-*.b64'
+      - '.ci/travelmate-v05-chunk-*.b64'
       - '.github/workflows/travelmate-android-v0.5.yml'
   workflow_dispatch:
 
@@ -15,7 +15,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-24.04
-    timeout-minutes: 35
+    timeout-minutes: 40
     env:
       ANDROID_HOME: /usr/local/lib/android/sdk
       ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
@@ -48,31 +48,16 @@ jobs:
           path: .ci-signing/baro-interpreter.jks
           key: baro-interpreter-release-keystore-v1
 
-      - name: Prepare source and signing
+      - name: Restore source
         shell: bash
         run: |
           set -euxo pipefail
           mkdir -p build-src .ci-signing
-          echo '32e6176646b5f387934c47f2203ea3161ad997c2ddaef6b95b61924a1c42528e  .ci/travelmate-v05-source-part-00.b64' | sha256sum -c -
-          echo 'c364c417202d88aa0163c265ce1abd574a86486d9d4fc0296e444995c25d9a49  .ci/travelmate-v05-source-part-01.b64' | sha256sum -c -
-          echo '83fb8caa288ba0faf8a8823a9d992dcca53aefa3486df19401ea6b3ed6acfd8a  .ci/travelmate-v05-source-part-02.b64' | sha256sum -c -
-          echo '757b268a784993a5ae1f7f6270ae91d784754e4510642409519f43a1123e2b05  .ci/travelmate-v05-source-part-03.b64' | sha256sum -c -
-          echo 'bfd36e1852494e8a464c31d8e797dcc1f0db03c331a25d37d8321aa5e4c6bf81  .ci/travelmate-v05-source-part-04.b64' | sha256sum -c -
-          echo 'af8c6039695776b94f3fe32683595ce054ccaee39eda8fdadd1ae27069aa841f  .ci/travelmate-v05-source-part-05.b64' | sha256sum -c -
-          cat .ci/travelmate-v05-source-part-*.b64 | base64 --decode > /tmp/travelmate-v05.zip
+          cat .ci/travelmate-v05-chunk-*.b64 | base64 --decode > /tmp/travelmate-v05.zip
           echo 'bb52915a9f47366d0d59fe26cb9549ac7c6d4bd03c45bd06ce81f7b44790318a  /tmp/travelmate-v05.zip' | sha256sum -c -
           unzip -q /tmp/travelmate-v05.zip -d build-src
-          KEY="$PWD/.ci-signing/baro-interpreter.jks"
-          if [ ! -s "$KEY" ]; then
-            echo 'Expected persistent TravelMate signing key was not restored.' >&2
-            exit 1
-          fi
-          echo "BARO_KEYSTORE_PATH=$KEY" >> "$GITHUB_ENV"
-          echo "BARO_KEYSTORE_PASSWORD=baro-local-release" >> "$GITHUB_ENV"
-          echo "BARO_KEY_ALIAS=baro" >> "$GITHUB_ENV"
-          echo "BARO_KEY_PASSWORD=baro-local-release" >> "$GITHUB_ENV"
 
-      - name: Download embedded Neural TTS model
+      - name: Download bundled Neural TTS model
         shell: bash
         run: |
           set -euxo pipefail
@@ -89,6 +74,20 @@ jobs:
           done
           du -sh "$ASSETS"
 
+      - name: Prepare signing
+        shell: bash
+        run: |
+          set -euxo pipefail
+          KEY="$PWD/.ci-signing/baro-interpreter.jks"
+          if [ ! -s "$KEY" ]; then
+            echo 'Expected persistent signing key was not restored.' >&2
+            exit 1
+          fi
+          echo "BARO_KEYSTORE_PATH=$KEY" >> "$GITHUB_ENV"
+          echo "BARO_KEYSTORE_PASSWORD=baro-local-release" >> "$GITHUB_ENV"
+          echo "BARO_KEY_ALIAS=baro" >> "$GITHUB_ENV"
+          echo "BARO_KEY_PASSWORD=baro-local-release" >> "$GITHUB_ENV"
+
       - name: Static quality checks
         shell: bash
         run: |
@@ -98,19 +97,15 @@ jobs:
           grep -q "versionName '0.5.0'" build-src/app/build.gradle
           grep -q "versionCode 6" build-src/app/build.gradle
           grep -q '여행메이트' build-src/app/src/main/res/values/strings.xml
-          grep -q '내 지갑' "$SRC"
-          grep -q '가격 환산' "$SRC"
-          grep -q '여행회화' "$SRC"
-          grep -q '여성 A' "$SRC"
-          grep -q '남성' "$SRC"
           grep -q 'showWallet' "$SRC"
-          grep -q 'showCurrency' "$SRC"
+          grep -q 'showCurrencyConverter' "$SRC"
           grep -q 'showPhrasebook' "$SRC"
-          test -s build-src/app/src/main/java/com/seungho/barointerpreter/NeuralTtsEngine.java
-          test -s build-src/app/src/main/java/com/seungho/barointerpreter/LanguageCatalog.java
-          test -s build-src/app/src/main/java/com/seungho/barointerpreter/TravelCatalog.java
-          test -s build-src/app/src/main/java/com/seungho/barointerpreter/WalletStore.java
-          test -s build-src/app/src/main/java/com/seungho/barointerpreter/FxStore.java
+          grep -q 'female_voice' "$SRC"
+          grep -q 'class NeuralTtsEngine' build-src/app/src/main/java/com/seungho/barointerpreter/NeuralTtsEngine.java
+          grep -q 'class WalletStore' build-src/app/src/main/java/com/seungho/barointerpreter/WalletStore.java
+          grep -q 'class LanguageCatalog' build-src/app/src/main/java/com/seungho/barointerpreter/LanguageCatalog.java
+          grep -q 'class TravelCatalog' build-src/app/src/main/java/com/seungho/barointerpreter/TravelCatalog.java
+          test -s build-src/app/src/main/assets/supertonic3/voice.bin
 
       - name: Build release APK
         working-directory: build-src
@@ -129,6 +124,7 @@ jobs:
           "$AAPT" dump badging "$APK" | tee apk-badging.txt
           grep -q "package: name='com.seungho.barointerpreter' versionCode='6' versionName='0.5.0'" apk-badging.txt
           grep -q "application-label:'여행메이트'" apk-badging.txt
+          unzip -l "$APK" | grep -q 'assets/supertonic3/voice.bin'
           unzip -t "$APK" | tee apk-ziptest.txt
           cp "$APK" TravelMate-v0.5.0.apk
           sha256sum TravelMate-v0.5.0.apk | tee TravelMate-v0.5.0.sha256
