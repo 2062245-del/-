@@ -1,0 +1,171 @@
+name: Build TravelMate v0.5.2 Stability APK
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/travelmate-android-v0.5.2.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: travelmate-v052
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      ANDROID_HOME: /usr/local/lib/android/sdk
+      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install Android SDK
+        shell: bash
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$SDKMANAGER" --licenses >/dev/null 2>&1 || true
+          "$SDKMANAGER" "platforms;android-35" "build-tools;35.0.0"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+      - name: Restore signing key
+        uses: actions/cache@v4
+        with:
+          path: .ci-signing/baro-interpreter.jks
+          key: baro-interpreter-release-keystore-v1
+      - name: Restore v0.5.1 source
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p build-src .ci-signing
+          cat .ci/travelmate-v051-chunk-*.b64 | base64 --decode > /tmp/travelmate-v051.zip
+          echo '1dbb75ea8cec550dc62af77d2f7eab21bbf5f2538351ef1023eacffd4449ed15  /tmp/travelmate-v051.zip' | sha256sum -c -
+          unzip -q /tmp/travelmate-v051.zip -d build-src
+      - name: Apply v0.5.2 stability and readability patch
+        shell: bash
+        run: |
+          set -euxo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          g=Path('build-src/app/build.gradle')
+          s=g.read_text()
+          s=s.replace('versionCode 7','versionCode 8').replace("versionName '0.5.1'","versionName '0.5.2'")
+          g.write_text(s)
+
+          p=Path('build-src/app/src/main/java/com/seungho/barointerpreter/MainActivity.java')
+          s=p.read_text()
+          s=s.replace('import android.text.Editable;\n', 'import android.text.Editable;\nimport android.text.SpannableString;\nimport android.text.Spanned;\nimport android.text.style.AbsoluteSizeSpan;\nimport android.text.style.ForegroundColorSpan;\nimport android.text.style.StyleSpan;\n')
+          s=s.replace('handler.postDelayed(this::prepareNeuralVoice, 500);','handler.postDelayed(this::refreshNeuralVoiceStatus, 500);')
+          s=s.replace('handler.postDelayed(this::refreshAllPackStatus, 350);','handler.postDelayed(this::refreshAllPackStatus, 350);\n        handler.postDelayed(this::refreshNeuralVoiceStatus, 500);')
+          needle='    private void prepareNeuralVoice() {\n'
+          insert='''    private void refreshNeuralVoiceStatus() {\n        if (neuralTts == null || neuralStatusView == null) return;\n        if (!neuralTts.isModelInstalled()) {\n            neuralStatusView.setText("△ AI 음성팩 필요 · 약 145MB · 최초 1회");\n            neuralStatusView.setTextColor(AMBER);\n            if (neuralDownloadButton != null) {\n                neuralDownloadButton.setVisibility(View.VISIBLE);\n                neuralDownloadButton.setEnabled(!neuralTts.isDownloading());\n                neuralDownloadButton.setText(neuralTts.isDownloading() ? "AI 음성팩 받는 중…" : "⬇ AI 음성팩 받기 · 약 145MB");\n            }\n            return;\n        }\n        neuralStatusView.setText(neuralTts.isReady() ? "● AI 음성 준비됨 · 여성 A / 남성" : "● AI 음성팩 설치됨 · 사용할 때 자동 준비");\n        neuralStatusView.setTextColor(neuralTts.isReady() ? GREEN : CYAN);\n        if (neuralDownloadButton != null) neuralDownloadButton.setVisibility(View.GONE);\n    }\n\n'''
+          s=s.replace(needle,insert+needle)
+          reps={
+          'neuralStatusView = text("AI 음성 준비 확인 중", 11, true, CYAN);':'neuralStatusView = text("AI 음성 준비 확인 중", 13, true, CYAN);',
+          'packSummaryView = text("번역·음성인식 언어팩 확인", 12, false, MUTED);':'packSummaryView = text("번역·음성인식 언어팩 확인", 14, false, MUTED);',
+          'voiceText.addView(text("고품질 AI 음성", 15, true, INK));':'voiceText.addView(text("고품질 AI 음성", 17, true, INK));',
+          'voiceText.addView(text("최초 1회 음성팩을 받으면 이후 완전 오프라인", 11, false, MUTED), topMargin(dp(2)));':'voiceText.addView(text("최초 1회 음성팩을 받으면 이후 완전 오프라인", 13, false, MUTED), topMargin(dp(3)));',
+          'neuralDownloadButton.setTextSize(13);':'neuralDownloadButton.setTextSize(15);',
+          'directionView = text("", 12, true, MUTED);':'directionView = text("", 14, true, MUTED);',
+          'activityStatusView = text("버튼을 누르고 말씀하세요", 12, false, MUTED);':'activityStatusView = text("버튼을 누르고 말씀하세요", 14, false, MUTED);',
+          'heardHeader.addView(text("들은 말", 12, true, MUTED)':'heardHeader.addView(text("들은 말", 14, true, MUTED)',
+          'heardLangView = text("한국어", 12, true, PRIMARY);':'heardLangView = text("한국어", 14, true, PRIMARY);',
+          'resultHeader.addView(text("번역", 12, true, MUTED)':'resultHeader.addView(text("번역", 14, true, MUTED)',
+          'resultLangView = text("English", 12, true, GREEN);':'resultLangView = text("English", 14, true, GREEN);',
+          'TextView footer = text("여행메이트 · 오프라인 우선 설계 · 환율은 참고용", 10, false, MUTED);':'TextView footer = text("여행메이트 · 오프라인 우선 설계 · 환율은 참고용", 12, false, MUTED);',
+          'TextView rate=text("",12,false,MUTED);':'TextView rate=text("",14,false,MUTED);',
+          'TextView attr=text("Rates by Exchange Rate API · 실제 카드/환전 금액과 차이가 날 수 있습니다.",10,false,MUTED);':'TextView attr=text("Rates by Exchange Rate API · 실제 카드/환전 금액과 차이가 날 수 있습니다.",12,false,MUTED);',
+          'TextView summary=text("",16,true,INK);':'TextView summary=text("",18,true,INK);',
+          'TextView krw=text("",12,false,MUTED);':'TextView krw=text("",14,false,MUTED);',
+          'TextView historyTitle=text("소비 이력",13,true,MUTED);':'TextView historyTitle=text("소비 이력",15,true,MUTED);',
+          'text(WalletStore.when(ex.time),10,false,MUTED)':'text(WalletStore.when(ex.time),12,false,MUTED)',
+          'TextView empty=text("아직 소비 이력이 없습니다.",12,false,MUTED);':'TextView empty=text("아직 소비 이력이 없습니다.",14,false,MUTED);',
+          'TextView intro=text("여행 전에 필요한 팩을 받아두면 데이터 없이도 통역할 수 있습니다.",12,false,MUTED);':'TextView intro=text("여행 전에 필요한 팩을 받아두면 데이터 없이도 통역할 수 있습니다.",14,false,MUTED);',
+          'TextView state=text(tr?"번역 ✓":"번역 필요",11,true,tr?GREEN:AMBER);':'TextView state=text(tr?"번역 ✓":"번역 필요",13,true,tr?GREEN:AMBER);',
+          'row.addView(text((tr?"✓ 번역팩 설치됨":"↓ 번역팩 다운로드 필요")+"\\n음성인식  "+sp,12,false,MUTED)':'row.addView(text((tr?"✓ 번역팩 설치됨":"↓ 번역팩 다운로드 필요")+"\\n음성인식  "+sp,14,false,MUTED)'
+          }
+          for a,b in reps.items(): s=s.replace(a,b)
+          s=s.replace('new LinearLayout.LayoutParams(0, dp(92), 1f)','new LinearLayout.LayoutParams(0, dp(108), 1f)')
+          s=s.replace('new LinearLayout.LayoutParams(0, dp(44), 1f)','new LinearLayout.LayoutParams(0, dp(50), 1f)')
+          old='    @Override protected void onDestroy(){super.onDestroy();destroyRecognizer();closeTranslator();if(systemTts!=null){systemTts.stop();systemTts.shutdown();}if(neuralTts!=null)neuralTts.release();}'
+          new='''    @Override protected void onStop(){\n        super.onStop();\n        destroyRecognizer();\n        if(neuralTts!=null) neuralTts.releaseModel();\n    }\n    @Override protected void onDestroy(){\n        destroyRecognizer(); closeTranslator();\n        if(systemTts!=null){systemTts.stop();systemTts.shutdown();}\n        if(neuralTts!=null) neuralTts.release();\n        handler.removeCallbacksAndMessages(null);\n        super.onDestroy();\n    }'''
+          s=s.replace(old,new)
+          old='''    private Button compactButton(String s,int bg,int fg){Button b=new Button(this);b.setText(s);b.setTextSize(12);b.setTextColor(fg);b.setAllCaps(false);b.setPadding(dp(8),0,dp(8),0);b.setBackground(rounded(bg,dp(14)));return b;}\n    private Button primaryButton(String s,int color){Button b=compactButton(s,color,Color.WHITE);b.setTextSize(16);b.setTypeface(Typeface.DEFAULT,Typeface.BOLD);b.setMinimumHeight(dp(54));b.setBackground(rounded(color,dp(17)));return b;}\n    private Button toolButton(String icon,String title,String sub,int bg){Button b=new Button(this);b.setAllCaps(false);b.setText(icon+"  "+title+"\\n"+sub);b.setTextSize(13);b.setTextColor(INK);b.setGravity(Gravity.CENTER_VERTICAL|Gravity.START);b.setPadding(dp(14),dp(8),dp(10),dp(8));b.setBackground(rounded(bg,dp(18)));return b;}'''
+          new='''    private Button compactButton(String s,int bg,int fg){Button b=new Button(this);b.setText(s);b.setTextSize(15);b.setTextColor(fg);b.setAllCaps(false);b.setPadding(dp(10),0,dp(10),0);b.setMinHeight(dp(48));b.setBackground(rounded(bg,dp(14)));return b;}\n    private Button primaryButton(String s,int color){Button b=compactButton(s,color,Color.WHITE);b.setTextSize(17);b.setTypeface(Typeface.DEFAULT,Typeface.BOLD);b.setMinimumHeight(dp(58));b.setBackground(rounded(color,dp(17)));return b;}\n    private Button toolButton(String icon,String title,String sub,int bg){Button b=new Button(this);b.setAllCaps(false);String value=icon+"  "+title+"\\n"+sub;SpannableString span=new SpannableString(value);int firstLine=value.indexOf('\\n');span.setSpan(new AbsoluteSizeSpan(17,true),0,firstLine,Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);span.setSpan(new StyleSpan(Typeface.BOLD),0,firstLine,Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);span.setSpan(new AbsoluteSizeSpan(14,true),firstLine+1,value.length(),Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);span.setSpan(new ForegroundColorSpan(MUTED),firstLine+1,value.length(),Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);b.setText(span);b.setTextColor(INK);b.setGravity(Gravity.CENTER_VERTICAL|Gravity.START);b.setPadding(dp(16),dp(12),dp(12),dp(12));b.setMinHeight(dp(96));b.setBackground(rounded(bg,dp(18)));return b;}'''
+          s=s.replace(old,new)
+          p.write_text(s)
+
+          p=Path('build-src/app/src/main/java/com/seungho/barointerpreter/NeuralTtsEngine.java')
+          s=p.read_text()
+          s=s.replace('import java.util.concurrent.Executors;\n','import java.util.concurrent.Executors;\nimport java.util.concurrent.atomic.AtomicInteger;\n')
+          s=s.replace('    private volatile boolean downloading = false;\n','    private volatile boolean downloading = false;\n    private volatile boolean closed = false;\n    private final AtomicInteger speechGeneration = new AtomicInteger(0);\n')
+          s=s.replace('model.setNumThreads(2);','model.setNumThreads(1);')
+          a=s.index('    public void speak(String text, String lang, boolean female, float speed, Callback callback) {')
+          b=s.index('    private void play(float[] samples, int sampleRate) {',a)
+          speak='''    public void speak(String text, String lang, boolean female, float speed, Callback callback) {\n        if (closed || text == null || text.trim().isEmpty()) return;\n        if (!isModelInstalled()) { callback.state("AI 음성팩 다운로드 필요", false); return; }\n        if (tts == null) {\n            prepare((message, ok) -> { callback.state(message, ok); if (ok && !closed) speak(text, lang, female, speed, callback); });\n            return;\n        }\n        stop();\n        final int generation = speechGeneration.incrementAndGet();\n        executor.execute(() -> {\n            try {\n                if (closed || generation != speechGeneration.get() || tts == null) return;\n                GenerationConfig gen = new GenerationConfig();\n                gen.setSid(female ? FEMALE_A : MALE_DEFAULT); gen.setNumSteps(8); gen.setSpeed(speed <= 0 ? 1.0f : speed);\n                Map<String, String> extra = new HashMap<>(); extra.put("lang", lang); gen.setExtra(extra);\n                callback.state("AI 음성 생성 중…", true);\n                for (String chunk : splitForTts(text, 180)) {\n                    if (closed || generation != speechGeneration.get() || tts == null) return;\n                    GeneratedAudio audio = tts.generateWithConfigAndCallback(chunk, gen, samples -> 1);\n                    if (closed || generation != speechGeneration.get()) return;\n                    play(audio.getSamples(), audio.getSampleRate(), generation);\n                }\n                if (!closed && generation == speechGeneration.get()) callback.state("AI 음성 재생", true);\n            } catch (Throwable t) { if (!closed && generation == speechGeneration.get()) callback.state("AI 음성 재생 실패", false); }\n        });\n    }\n\n    private static String[] splitForTts(String text, int maxChars) {\n        String clean = text == null ? "" : text.trim().replaceAll("\\\\s+", " ");\n        if (clean.length() <= maxChars) return new String[]{clean};\n        java.util.ArrayList<String> out = new java.util.ArrayList<>(); int start = 0;\n        while (start < clean.length()) {\n            int end = Math.min(clean.length(), start + maxChars);\n            if (end < clean.length()) { int best=-1; for(int i=end;i>start+Math.max(40,maxChars/2);i--){char c=clean.charAt(i-1);if(c=='.'||c=='!'||c=='?'||c=='。'||c=='！'||c=='？'||c==','||c==' '){best=i;break;}} if(best>start)end=best; }\n            String part=clean.substring(start,end).trim(); if(!part.isEmpty())out.add(part); start=end;\n        }\n        return out.toArray(new String[0]);\n    }\n\n'''
+          s=s[:a]+speak+s[b:]
+          s=s.replace('    private void play(float[] samples, int sampleRate) {','    private void play(float[] samples, int sampleRate, int generation) {\n        if (closed || generation != speechGeneration.get()) return;')
+          s=s.replace('while (offset < pcm.length && currentTrack == track) {','while (offset < pcm.length && currentTrack == track && !closed && generation == speechGeneration.get()) {')
+          s=s.replace('        track.release();\n        if (currentTrack == track) currentTrack = null;','        try { track.release(); } catch (Exception ignored) {}\n        if (currentTrack == track) currentTrack = null;')
+          s=s.replace('            try { track.release(); } catch (Exception ignored) {}\n','')
+          old='''    public void release() {\n        stop();\n        if (tts != null) {\n            try { tts.release(); } catch (Throwable ignored) {}\n            tts = null;\n        }\n        executor.shutdownNow();\n    }'''
+          new='''    public void releaseModel() {\n        if (closed) return; speechGeneration.incrementAndGet(); stop();\n        try { executor.execute(() -> { OfflineTts local=tts; tts=null; if(local!=null){try{local.release();}catch(Throwable ignored){}} preparing=false; }); } catch (RuntimeException ignored) {}\n    }\n\n    public void release() {\n        if (closed) return; closed=true; speechGeneration.incrementAndGet(); stop();\n        try { executor.execute(() -> { OfflineTts local=tts; tts=null; if(local!=null){try{local.release();}catch(Throwable ignored){}} }); } catch (RuntimeException ignored) {}\n        executor.shutdown();\n    }'''
+          s=s.replace(old,new)
+          p.write_text(s)
+          PY
+      - name: Prepare signing
+        shell: bash
+        run: |
+          set -euxo pipefail
+          KEY="$PWD/.ci-signing/baro-interpreter.jks"
+          test -s "$KEY"
+          echo "BARO_KEYSTORE_PATH=$KEY" >> "$GITHUB_ENV"
+          echo "BARO_KEYSTORE_PASSWORD=baro-local-release" >> "$GITHUB_ENV"
+          echo "BARO_KEY_ALIAS=baro" >> "$GITHUB_ENV"
+          echo "BARO_KEY_PASSWORD=baro-local-release" >> "$GITHUB_ENV"
+      - name: Static checks
+        shell: bash
+        run: |
+          set -euxo pipefail
+          grep -q "versionCode 8" build-src/app/build.gradle
+          grep -q "versionName '0.5.2'" build-src/app/build.gradle
+          grep -q "refreshNeuralVoiceStatus" build-src/app/src/main/java/com/seungho/barointerpreter/MainActivity.java
+          grep -q "releaseModel" build-src/app/src/main/java/com/seungho/barointerpreter/NeuralTtsEngine.java
+          grep -q "splitForTts" build-src/app/src/main/java/com/seungho/barointerpreter/NeuralTtsEngine.java
+          grep -q "AbsoluteSizeSpan(17" build-src/app/src/main/java/com/seungho/barointerpreter/MainActivity.java
+      - name: Build release APK
+        working-directory: build-src
+        run: gradle :app:assembleRelease --stacktrace
+      - name: Verify APK
+        shell: bash
+        run: |
+          set -euxo pipefail
+          APK=build-src/app/build/outputs/apk/release/app-release.apk
+          APKSIGNER="$ANDROID_HOME/build-tools/35.0.0/apksigner"
+          AAPT="$ANDROID_HOME/build-tools/35.0.0/aapt"
+          test -s "$APK"
+          "$APKSIGNER" verify --verbose --print-certs "$APK" | tee apk-signature.txt
+          grep -q "Signer #1 certificate SHA-256 digest: 7d411eb878d63e9b30e5a75c65ce1206d195b45a3e5f794955bd78f625b87b85" apk-signature.txt
+          "$AAPT" dump badging "$APK" | tee apk-badging.txt
+          grep -q "package: name='com.seungho.barointerpreter' versionCode='8' versionName='0.5.2'" apk-badging.txt
+          grep -q "application-label:'여행메이트'" apk-badging.txt
+          unzip -t "$APK" | tee apk-ziptest.txt
+          cp "$APK" TravelMate-v0.5.2-arm64.apk
+          sha256sum TravelMate-v0.5.2-arm64.apk | tee TravelMate-v0.5.2-arm64.sha256
+          ls -lh TravelMate-v0.5.2-arm64.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TravelMate-v0.5.2-arm64
+          path: |
+            TravelMate-v0.5.2-arm64.apk
+            TravelMate-v0.5.2-arm64.sha256
+            apk-signature.txt
+            apk-badging.txt
+            apk-ziptest.txt
+          if-no-files-found: error
+          retention-days: 30
