@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - '.ci/travelmate-v05-chunk-*.b64'
+      - '.ci/travelmate-v05-NeuralTtsEngine.java'
       - '.github/workflows/travelmate-android-v0.5.yml'
   workflow_dispatch:
 
@@ -57,7 +58,7 @@ jobs:
           echo 'bb52915a9f47366d0d59fe26cb9549ac7c6d4bd03c45bd06ce81f7b44790318a  /tmp/travelmate-v05.zip' | sha256sum -c -
           unzip -q /tmp/travelmate-v05.zip -d build-src
 
-      - name: Fix sherpa Android dependency graph
+      - name: Apply Android TTS compatibility fixes
         shell: bash
         run: |
           set -euxo pipefail
@@ -73,7 +74,10 @@ jobs:
               s = s.replace(old, new)
           p.write_text(s)
           PY
+          cp .ci/travelmate-v05-NeuralTtsEngine.java \
+            build-src/app/src/main/java/com/seungho/barointerpreter/NeuralTtsEngine.java
           grep -q "module: 'sherpa-onnx-jvm'" build-src/app/build.gradle
+          grep -q 'new OfflineTts(null, config)' build-src/app/src/main/java/com/seungho/barointerpreter/NeuralTtsEngine.java
 
       - name: Download bundled Neural TTS model
         shell: bash
@@ -121,6 +125,7 @@ jobs:
           grep -q 'showPhrasebook' "$SRC"
           grep -q 'female_voice' "$SRC"
           grep -q 'class NeuralTtsEngine' build-src/app/src/main/java/com/seungho/barointerpreter/NeuralTtsEngine.java
+          grep -q 'new OfflineTts(null, config)' build-src/app/src/main/java/com/seungho/barointerpreter/NeuralTtsEngine.java
           grep -q 'class WalletStore' build-src/app/src/main/java/com/seungho/barointerpreter/WalletStore.java
           grep -q 'class LanguageCatalog' build-src/app/src/main/java/com/seungho/barointerpreter/LanguageCatalog.java
           grep -q 'class TravelCatalog' build-src/app/src/main/java/com/seungho/barointerpreter/TravelCatalog.java
