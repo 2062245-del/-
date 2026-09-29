@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - '.ci/travelmate-v055.patch'
+      - '.ci/travelmate-v055/**'
       - '.ci/travelmate-v054/**'
       - '.github/workflows/travelmate-android-v0.5.5.yml'
   workflow_dispatch:
@@ -86,11 +87,12 @@ jobs:
           s=s.replace(old,new)
           p.write_text(s)
           PY
-      - name: Apply v0.5.5 Neural voice patch
+      - name: Apply v0.5.5 Neural voice changes
         shell: bash
         run: |
           set -uxo pipefail
           patch -d build-src -p1 --batch --forward < .ci/travelmate-v055.patch || true
+          cp .ci/travelmate-v055/NeuralTtsClient.java build-src/app/src/main/java/com/seungho/barointerpreter/NeuralTtsClient.java
       - name: Prepare signing
         shell: bash
         run: |
