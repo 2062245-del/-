@@ -9,7 +9,8 @@ on:
       - '.ci/travelmate-v054-chunk-01.b64'
       - '.ci/travelmate-v054-chunk-02.b64'
       - '.ci/travelmate-v054fix-03a.b64'
-      - '.ci/travelmate-v054fix-03b.b64'
+      - '.ci/travelmate-v054fix-03b1.b64'
+      - '.ci/travelmate-v054fix-03b2.b64'
       - '.ci/travelmate-v054fix-04a.b64'
       - '.ci/travelmate-v054fix-04b.b64'
       - '.github/workflows/travelmate-android-v0.5.4.yml'
@@ -57,7 +58,8 @@ jobs:
             .ci/travelmate-v054-chunk-01.b64 \
             .ci/travelmate-v054-chunk-02.b64 \
             .ci/travelmate-v054fix-03a.b64 \
-            .ci/travelmate-v054fix-03b.b64 \
+            .ci/travelmate-v054fix-03b1.b64 \
+            .ci/travelmate-v054fix-03b2.b64 \
             .ci/travelmate-v054fix-04a.b64 \
             .ci/travelmate-v054fix-04b.b64 \
             > /tmp/travelmate-v054.b64
