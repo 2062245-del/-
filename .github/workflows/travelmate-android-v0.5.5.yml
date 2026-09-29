@@ -89,8 +89,8 @@ jobs:
       - name: Apply v0.5.5 Neural voice patch
         shell: bash
         run: |
-          set -euxo pipefail
-          patch -d build-src -p1 < .ci/travelmate-v055.patch
+          set -uxo pipefail
+          patch -d build-src -p1 --batch --forward < .ci/travelmate-v055.patch || true
       - name: Prepare signing
         shell: bash
         run: |
@@ -111,6 +111,8 @@ jobs:
           grep -q 'forceRetry' build-src/app/src/main/java/com/seungho/barointerpreter/NeuralTtsClient.java
           grep -q 'neuralProcessCrashSince' build-src/app/src/main/java/com/seungho/barointerpreter/NeuralTtsClient.java
           grep -q 'AI 고품질 음성 다시 켜기' build-src/app/src/main/java/com/seungho/barointerpreter/MainActivity.java
+          grep -q 'safeModeRemainingSeconds' build-src/app/src/main/java/com/seungho/barointerpreter/MainActivity.java
+          grep -q 'TravelMate-Android/0.5.5' build-src/app/src/main/java/com/seungho/barointerpreter/NeuralTtsEngine.java
           ! grep -q 'recentNeuralProcessCrash()' build-src/app/src/main/java/com/seungho/barointerpreter/NeuralTtsClient.java
       - name: Build release APK
         working-directory: build-src
