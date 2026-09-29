@@ -4,7 +4,14 @@ on:
   push:
     branches: [main]
     paths:
-      - '.ci/travelmate-v054.b64'
+      - '.ci/travelmate-v054s-00.b64'
+      - '.ci/travelmate-v054fix-00tail.b64'
+      - '.ci/travelmate-v054-chunk-01.b64'
+      - '.ci/travelmate-v054-chunk-02.b64'
+      - '.ci/travelmate-v054fix-03a.b64'
+      - '.ci/travelmate-v054fix-03b.b64'
+      - '.ci/travelmate-v054fix-04a.b64'
+      - '.ci/travelmate-v054fix-04b.b64'
       - '.github/workflows/travelmate-android-v0.5.4.yml'
   workflow_dispatch:
 
@@ -44,7 +51,18 @@ jobs:
         run: |
           set -euxo pipefail
           mkdir -p build-src .ci-signing
-          base64 --decode .ci/travelmate-v054.b64 > /tmp/travelmate-v054.zip
+          cat \
+            .ci/travelmate-v054s-00.b64 \
+            .ci/travelmate-v054fix-00tail.b64 \
+            .ci/travelmate-v054-chunk-01.b64 \
+            .ci/travelmate-v054-chunk-02.b64 \
+            .ci/travelmate-v054fix-03a.b64 \
+            .ci/travelmate-v054fix-03b.b64 \
+            .ci/travelmate-v054fix-04a.b64 \
+            .ci/travelmate-v054fix-04b.b64 \
+            > /tmp/travelmate-v054.b64
+          test "$(wc -c < /tmp/travelmate-v054.b64)" -eq 58880
+          base64 --decode /tmp/travelmate-v054.b64 > /tmp/travelmate-v054.zip
           echo 'cf21e02a2659a3339db92044dafc0963e5b03e321839b5582d8595cae399df11  /tmp/travelmate-v054.zip' | sha256sum -c -
           unzip -q /tmp/travelmate-v054.zip -d build-src
       - name: Prepare signing
