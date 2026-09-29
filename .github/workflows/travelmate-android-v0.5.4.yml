@@ -4,15 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - '.ci/travelmate-v054s-00.b64'
-      - '.ci/travelmate-v054fix-00tail.b64'
-      - '.ci/travelmate-v054-chunk-01.b64'
-      - '.ci/travelmate-v054-chunk-02.b64'
-      - '.ci/travelmate-v054fix-03a.b64'
-      - '.ci/travelmate-v054fix-03b1.b64'
-      - '.ci/travelmate-v054fix-03b2.b64'
-      - '.ci/travelmate-v054fix-04a.b64'
-      - '.ci/travelmate-v054fix-04b.b64'
+      - '.ci/travelmate-v054/**'
       - '.ci/travelmate-v054-trigger.txt'
       - '.github/workflows/travelmate-android-v0.5.4.yml'
   workflow_dispatch:
@@ -48,26 +40,57 @@ jobs:
         with:
           path: .ci-signing/baro-interpreter.jks
           key: baro-interpreter-release-keystore-v1
-      - name: Restore v0.5.4 source
+      - name: Restore verified v0.5.3 source
         shell: bash
         run: |
           set -euxo pipefail
           mkdir -p build-src .ci-signing
-          cat \
-            .ci/travelmate-v054s-00.b64 \
-            .ci/travelmate-v054fix-00tail.b64 \
-            .ci/travelmate-v054-chunk-01.b64 \
-            .ci/travelmate-v054-chunk-02.b64 \
-            .ci/travelmate-v054fix-03a.b64 \
-            .ci/travelmate-v054fix-03b1.b64 \
-            .ci/travelmate-v054fix-03b2.b64 \
-            .ci/travelmate-v054fix-04a.b64 \
-            .ci/travelmate-v054fix-04b.b64 \
-            > /tmp/travelmate-v054.b64
-          test "$(wc -c < /tmp/travelmate-v054.b64)" -eq 58880
-          base64 --decode /tmp/travelmate-v054.b64 > /tmp/travelmate-v054.zip
-          echo 'cf21e02a2659a3339db92044dafc0963e5b03e321839b5582d8595cae399df11  /tmp/travelmate-v054.zip' | sha256sum -c -
-          unzip -q /tmp/travelmate-v054.zip -d build-src
+          cat .ci/travelmate-v053-chunk-*.b64 | base64 --decode > /tmp/travelmate-v053.zip
+          echo 'aed74d3cbea22ec183aa48f877a95b0e31a756c55805247d5b538fd8e1d03dec  /tmp/travelmate-v053.zip' | sha256sum -c -
+          unzip -q /tmp/travelmate-v053.zip -d build-src
+      - name: Apply v0.5.4 native isolation patch
+        shell: bash
+        run: |
+          set -euxo pipefail
+          cp .ci/travelmate-v054/NeuralTtsClient.java build-src/app/src/main/java/com/seungho/barointerpreter/NeuralTtsClient.java
+          cp .ci/travelmate-v054/NeuralTtsService.java build-src/app/src/main/java/com/seungho/barointerpreter/NeuralTtsService.java
+          python3 - <<'PY'
+          from pathlib import Path
+
+          p=Path('build-src/app/build.gradle')
+          s=p.read_text()
+          s=s.replace('versionCode 9','versionCode 10').replace("versionName '0.5.3'","versionName '0.5.4'")
+          p.write_text(s)
+
+          p=Path('build-src/app/src/main/AndroidManifest.xml')
+          s=p.read_text()
+          anchor='''        android:theme="@style/AppTheme"\n        android:usesCleartextTraffic="false">\n'''
+          repl='''        android:theme="@style/AppTheme"\n        android:usesCleartextTraffic="false">\n        <service\n            android:name=".NeuralTtsService"\n            android:exported="false"\n            android:process=":neural_tts"\n            android:stopWithTask="true" />\n'''
+          if 'android:process=":neural_tts"' not in s:
+              if anchor not in s: raise SystemExit('manifest anchor missing')
+              s=s.replace(anchor,repl)
+          p.write_text(s)
+
+          p=Path('build-src/app/src/main/java/com/seungho/barointerpreter/MainActivity.java')
+          s=p.read_text()
+          s=s.replace('private NeuralTtsEngine neuralTts;','private NeuralTtsClient neuralTts;')
+          s=s.replace('neuralTts = new NeuralTtsEngine(this);','neuralTts = new NeuralTtsClient(this);')
+          old='''        neuralStatusView.setText(neuralTts.isReady()\n                ? "● AI 음성 준비됨 · 여성 A / 남성"\n                : "● AI 음성팩 설치됨 · 사용할 때 자동 준비");\n        neuralStatusView.setTextColor(neuralTts.isReady() ? GREEN : CYAN);\n'''
+          new='''        if (neuralTts.isSafeMode()) {\n            neuralStatusView.setText("△ AI 음성 안전모드 · 기본 음성 사용 중");\n            neuralStatusView.setTextColor(AMBER);\n        } else {\n            neuralStatusView.setText(neuralTts.isReady()\n                    ? "● AI 음성 준비됨 · 여성 A / 남성"\n                    : "● AI 음성팩 설치됨 · 사용할 때 자동 준비");\n            neuralStatusView.setTextColor(neuralTts.isReady() ? GREEN : CYAN);\n        }\n'''
+          if old not in s: raise SystemExit('neural status block missing')
+          s=s.replace(old,new)
+          s=s.replace('new NeuralTtsEngine.ModelDownloadCallback()','new NeuralTtsClient.ModelDownloadCallback()')
+          s=s.replace('if(message.contains("실패")) systemSpeak(text,language);','if(message.contains("실패") || message.contains("안전모드")) systemSpeak(text,language);')
+          p.write_text(s)
+
+          p=Path('build-src/app/src/main/java/com/seungho/barointerpreter/CrashDiagnostics.java')
+          s=p.read_text()
+          old='''                        sb.append(new SimpleDateFormat("MM-dd HH:mm:ss", Locale.KOREA).format(new Date(info.getTimestamp())))\n                                .append(" · ").append(reasonName(info.getReason()));\n                        String d = info.getDescription();\n'''
+          new='''                        sb.append(new SimpleDateFormat("MM-dd HH:mm:ss", Locale.KOREA).format(new Date(info.getTimestamp())))\n                                .append(" · ").append(reasonName(info.getReason()));\n                        String process = info.getProcessName();\n                        if (process != null && !process.trim().isEmpty()) sb.append(" · 프로세스 ").append(process.trim());\n                        if (info.getPss() > 0) sb.append(" · PSS ").append(info.getPss() / 1024).append("MB");\n                        if (info.getRss() > 0) sb.append(" · RSS ").append(info.getRss() / 1024).append("MB");\n                        String d = info.getDescription();\n'''
+          if old not in s: raise SystemExit('diagnostics block missing')
+          s=s.replace(old,new)
+          p.write_text(s)
+          PY
       - name: Prepare signing
         shell: bash
         run: |
@@ -82,23 +105,21 @@ jobs:
         shell: bash
         run: |
           set -euxo pipefail
-          SRC=build-src/TravelMate_Android_v0.5.4
-          grep -q "versionCode 10" "$SRC/app/build.gradle"
-          grep -q "versionName '0.5.4'" "$SRC/app/build.gradle"
-          grep -q 'android:process=":neural_tts"' "$SRC/app/src/main/AndroidManifest.xml"
-          grep -q 'private NeuralTtsClient neuralTts' "$SRC/app/src/main/java/com/seungho/barointerpreter/MainActivity.java"
-          grep -q 'class NeuralTtsService' "$SRC/app/src/main/java/com/seungho/barointerpreter/NeuralTtsService.java"
-          grep -q 'recentNeuralProcessCrash' "$SRC/app/src/main/java/com/seungho/barointerpreter/NeuralTtsClient.java"
-          grep -q 'getProcessName' "$SRC/app/src/main/java/com/seungho/barointerpreter/CrashDiagnostics.java"
+          grep -q "versionCode 10" build-src/app/build.gradle
+          grep -q "versionName '0.5.4'" build-src/app/build.gradle
+          grep -q 'android:process=":neural_tts"' build-src/app/src/main/AndroidManifest.xml
+          grep -q 'private NeuralTtsClient neuralTts' build-src/app/src/main/java/com/seungho/barointerpreter/MainActivity.java
+          grep -q 'class NeuralTtsService' build-src/app/src/main/java/com/seungho/barointerpreter/NeuralTtsService.java
+          grep -q 'recentNeuralProcessCrash' build-src/app/src/main/java/com/seungho/barointerpreter/NeuralTtsClient.java
+          grep -q 'getProcessName' build-src/app/src/main/java/com/seungho/barointerpreter/CrashDiagnostics.java
       - name: Build release APK
-        working-directory: build-src/TravelMate_Android_v0.5.4
+        working-directory: build-src
         run: gradle :app:assembleRelease --stacktrace
       - name: Verify APK
         shell: bash
         run: |
           set -euxo pipefail
-          SRC=build-src/TravelMate_Android_v0.5.4
-          APK="$SRC/app/build/outputs/apk/release/app-release.apk"
+          APK=build-src/app/build/outputs/apk/release/app-release.apk
           APKSIGNER="$ANDROID_HOME/build-tools/35.0.0/apksigner"
           AAPT="$ANDROID_HOME/build-tools/35.0.0/aapt"
           test -s "$APK"
