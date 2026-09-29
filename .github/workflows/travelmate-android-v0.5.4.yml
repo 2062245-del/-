@@ -13,6 +13,7 @@ on:
       - '.ci/travelmate-v054fix-03b2.b64'
       - '.ci/travelmate-v054fix-04a.b64'
       - '.ci/travelmate-v054fix-04b.b64'
+      - '.ci/travelmate-v054-trigger.txt'
       - '.github/workflows/travelmate-android-v0.5.4.yml'
   workflow_dispatch:
 
