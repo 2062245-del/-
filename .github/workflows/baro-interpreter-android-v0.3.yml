@@ -46,7 +46,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .ci-signing/baro-interpreter.jks
-          key: baro-interpreter-dev-release-keystore-v1
+          key: baro-interpreter-release-keystore-v1
 
       - name: Prepare source and signing
         shell: bash
@@ -57,12 +57,12 @@ jobs:
           unzip -q /tmp/baro-v03.zip -d build-src
           KEY="$PWD/.ci-signing/baro-interpreter.jks"
           if [ ! -s "$KEY" ]; then
-            keytool -genkeypair -v -keystore "$KEY" -storepass baro-dev-local -keypass baro-dev-local -alias baro -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Baro Interpreter Development, OU=Baro, O=Local, L=Seoul, C=KR"
+            keytool -genkeypair -v -keystore "$KEY" -storepass baro-local-release -keypass baro-local-release -alias baro -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Baro Interpreter, OU=Android, O=Local, L=Seoul, C=KR"
           fi
           echo "BARO_KEYSTORE_PATH=$KEY" >> "$GITHUB_ENV"
-          echo "BARO_KEYSTORE_PASSWORD=baro-dev-local" >> "$GITHUB_ENV"
+          echo "BARO_KEYSTORE_PASSWORD=baro-local-release" >> "$GITHUB_ENV"
           echo "BARO_KEY_ALIAS=baro" >> "$GITHUB_ENV"
-          echo "BARO_KEY_PASSWORD=baro-dev-local" >> "$GITHUB_ENV"
+          echo "BARO_KEY_PASSWORD=baro-local-release" >> "$GITHUB_ENV"
 
       - name: Static source checks
         shell: bash
@@ -87,6 +87,7 @@ jobs:
           AAPT="$ANDROID_HOME/build-tools/35.0.0/aapt"
           test -s "$APK"
           "$APKSIGNER" verify --verbose --print-certs "$APK" | tee apk-signature.txt
+          grep -q "Signer #1 certificate SHA-256 digest: 7d411eb878d63e9b30e5a75c65ce1206d195b45a3e5f794955bd78f625b87b85" apk-signature.txt
           "$AAPT" dump badging "$APK" | tee apk-badging.txt
           grep -q "package: name='com.seungho.barointerpreter' versionCode='3' versionName='0.3.0'" apk-badging.txt
           unzip -t "$APK" | tee apk-ziptest.txt
