@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/travelmate-ios-v0.1.yml'
-      - '.ci/travelmate-ios-v01-source.zip.b64'
+      - '.ci/travelmate-ios-v01-chunk-*.b64'
   workflow_dispatch:
 
 concurrency:
@@ -19,11 +19,16 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Restore iOS source
+      - name: Restore verified iOS source
         shell: bash
         run: |
           set -euxo pipefail
-          base64 -D -i .ci/travelmate-ios-v01-source.zip.b64 -o /tmp/TravelMate_iOS_v0.1_source.zip
+          cat .ci/travelmate-ios-v01-chunk-*.b64 > /tmp/travelmate-ios-v01.b64
+          base64 -D -i /tmp/travelmate-ios-v01.b64 -o /tmp/TravelMate_iOS_v0.1_source.zip
+          ACTUAL="$(shasum -a 256 /tmp/TravelMate_iOS_v0.1_source.zip | awk '{print $1}')"
+          EXPECTED='63356684ebdc2f41d4a039e4c7e4dbef70da4500997be2dd0f257b14733bde70'
+          test "$ACTUAL" = "$EXPECTED"
+          unzip -tq /tmp/TravelMate_iOS_v0.1_source.zip
           mkdir -p /tmp/ios-src
           unzip -q /tmp/TravelMate_iOS_v0.1_source.zip -d /tmp/ios-src
           test -s /tmp/ios-src/TravelMate_iOS_v0.1/project.yml
@@ -67,6 +72,7 @@ jobs:
           ditto -c -k --sequesterRsrc --keepParent "$APP" TravelMate-iOS-v0.1-Simulator.app.zip
           cp /tmp/TravelMate_iOS_v0.1_source.zip TravelMate_iOS_v0.1_source.zip
           cp /tmp/xcodebuild.log xcodebuild.log
+          shasum -a 256 TravelMate_iOS_v0.1_source.zip > TravelMate_iOS_v0.1_source.sha256
 
       - uses: actions/upload-artifact@v4
         with:
@@ -74,6 +80,7 @@ jobs:
           path: |
             TravelMate-iOS-v0.1-Simulator.app.zip
             TravelMate_iOS_v0.1_source.zip
+            TravelMate_iOS_v0.1_source.sha256
             xcodebuild.log
           if-no-files-found: error
           retention-days: 30
