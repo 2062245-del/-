@@ -1,0 +1,147 @@
+diff -ruN tm057/app/build.gradle tm058/app/build.gradle
+--- tm057/app/build.gradle	2026-09-30 02:27:21.000000000 +0000
++++ tm058/app/build.gradle	2026-09-30 03:41:01.909343378 +0000
+@@ -12,8 +12,8 @@
+         applicationId 'com.seungho.barointerpreter'
+         minSdk 24
+         targetSdk 35
+-        versionCode 13
+-        versionName '0.5.7'
++        versionCode 14
++        versionName '0.5.8'
+         ndk {
+             abiFilters 'arm64-v8a'
+         }
+diff -ruN tm057/app/src/main/java/com/seungho/barointerpreter/MainActivity.java tm058/app/src/main/java/com/seungho/barointerpreter/MainActivity.java
+--- tm057/app/src/main/java/com/seungho/barointerpreter/MainActivity.java	2026-09-30 02:27:21.000000000 +0000
++++ tm058/app/src/main/java/com/seungho/barointerpreter/MainActivity.java	2026-09-30 03:41:01.908996943 +0000
+@@ -139,6 +139,7 @@
+         refreshAllPackStatus();
+         updateVoiceButtons();
+         handler.postDelayed(this::refreshNeuralVoiceStatus, 500);
++        handler.postDelayed(() -> { if (neuralTts != null) neuralTts.prewarm(); }, 700);
+     }
+ 
+     @Override protected void onResume() {
+@@ -237,10 +238,10 @@
+         LinearLayout resultHeader = row(Gravity.CENTER_VERTICAL);
+         resultHeader.addView(text("번역", 14, true, MUTED), new LinearLayout.LayoutParams(0, -2, 1f));
+         resultLangView = text("English", 14, true, GREEN); resultHeader.addView(resultLangView); resultCard.addView(resultHeader);
+-        resultView = text("번역 결과가 여기에 표시됩니다.", 22, true, INK); resultView.setMinHeight(dp(60)); resultView.setPadding(0, dp(10), 0, dp(4)); resultCard.addView(resultView);
++        resultView = text("번역 결과가 여기에 표시됩니다.", 22, true, INK); resultView.setPadding(0, dp(8), 0, 0); resultCard.addView(resultView);
+         pronunciationView = text("", 16, false, MUTED);
+         pronunciationView.setVisibility(View.GONE);
+-        pronunciationView.setPadding(0, dp(2), 0, dp(6));
++        pronunciationView.setPadding(0, 0, 0, dp(8));
+         resultCard.addView(pronunciationView);
+         LinearLayout resultActions = row(Gravity.CENTER_VERTICAL);
+         replayButton = compactButton("🔊 다시 듣기", SOFT, INK);
+@@ -250,23 +251,24 @@
+         resultCard.addView(resultActions, topMargin(dp(5)));
+         root.addView(resultCard, topMargin(dp(10)));
+ 
+-        rightTalkButton = primaryButton("🎙  영어 말하기", GREEN);
+-        root.addView(rightTalkButton, topMargin(dp(12)));
+-
+-        root.addView(section("여행 도구", "가격 환산·내 지갑을 가장 먼저 꺼냅니다."), topMargin(dp(22)));
+-        LinearLayout toolRow1 = row(Gravity.CENTER);
++        root.addView(section("빠른 도구", "자주 쓰는 기능을 번역 바로 아래에 배치했습니다."), topMargin(dp(12)));
++        LinearLayout quickRow = row(Gravity.CENTER);
+         Button walletBtn = toolButton("👛", "내 지갑", "잔액·소비 이력", Color.rgb(255, 247, 237)); walletBtn.setId(9903);
+         Button price = toolButton("💱", "가격 환산", "VND → 원화", Color.rgb(240, 253, 250)); price.setId(9902);
+-        toolRow1.addView(walletBtn, new LinearLayout.LayoutParams(0, dp(112), 1f));
+-        LinearLayout.LayoutParams t2 = new LinearLayout.LayoutParams(0, dp(112), 1f); t2.setMargins(dp(10), 0, 0, 0); toolRow1.addView(price, t2);
+-        root.addView(toolRow1, topMargin(dp(9)));
++        quickRow.addView(walletBtn, new LinearLayout.LayoutParams(0, dp(118), 1f));
++        LinearLayout.LayoutParams quick2 = new LinearLayout.LayoutParams(0, dp(118), 1f); quick2.setMargins(dp(10), 0, 0, 0); quickRow.addView(price, quick2);
++        root.addView(quickRow, topMargin(dp(7)));
++
++        rightTalkButton = primaryButton("🎙  영어 말하기", GREEN);
++        root.addView(rightTalkButton, topMargin(dp(12)));
+ 
+-        LinearLayout toolRow2 = row(Gravity.CENTER);
++        root.addView(section("여행 도구", "회화와 보여주기는 필요할 때 꺼냅니다."), topMargin(dp(18)));
++        LinearLayout toolRow = row(Gravity.CENTER);
+         Button phrases = toolButton("💬", "여행회화", "공항·택시·식당", Color.rgb(239, 246, 255)); phrases.setId(9901);
+         Button bigBtn = toolButton("🪧", "보여주기", "번역을 크게 표시", Color.rgb(250, 245, 255)); bigBtn.setId(9904);
+-        toolRow2.addView(phrases, new LinearLayout.LayoutParams(0, dp(104), 1f));
+-        LinearLayout.LayoutParams t4 = new LinearLayout.LayoutParams(0, dp(104), 1f); t4.setMargins(dp(10), 0, 0, 0); toolRow2.addView(bigBtn, t4);
+-        root.addView(toolRow2, topMargin(dp(10)));
++        toolRow.addView(phrases, new LinearLayout.LayoutParams(0, dp(96), 1f));
++        LinearLayout.LayoutParams tool2 = new LinearLayout.LayoutParams(0, dp(96), 1f); tool2.setMargins(dp(10), 0, 0, 0); toolRow.addView(bigBtn, tool2);
++        root.addView(toolRow, topMargin(dp(8)));
+ 
+         TextView footer = text("여행메이트 · 오프라인 우선 설계 · 환율은 참고용", 14, false, MUTED); footer.setGravity(Gravity.CENTER);
+         root.addView(footer, topMargin(dp(18)));
+diff -ruN tm057/app/src/main/java/com/seungho/barointerpreter/NeuralTtsClient.java tm058/app/src/main/java/com/seungho/barointerpreter/NeuralTtsClient.java
+--- tm057/app/src/main/java/com/seungho/barointerpreter/NeuralTtsClient.java	2026-09-30 02:27:21.000000000 +0000
++++ tm058/app/src/main/java/com/seungho/barointerpreter/NeuralTtsClient.java	2026-09-30 03:41:01.909170907 +0000
+@@ -92,6 +92,11 @@
+         return true;
+     }
+ 
++    public void prewarm() {
++        if (!isModelInstalled() || isSafeMode()) return;
++        prepare((message, ok) -> { });
++    }
++
+     public void prepare(Callback callback) {
+         if (isSafeMode()) { callback.state("AI 음성 일시 중지 · 다시 켜기로 재시도 가능", false); return; }
+         sendService(NeuralTtsService.ACTION_PREPARE, null, null, true, 1.0f, callback);
+diff -ruN tm057/app/src/main/java/com/seungho/barointerpreter/NeuralTtsEngine.java tm058/app/src/main/java/com/seungho/barointerpreter/NeuralTtsEngine.java
+--- tm057/app/src/main/java/com/seungho/barointerpreter/NeuralTtsEngine.java	2026-09-30 02:27:21.000000000 +0000
++++ tm058/app/src/main/java/com/seungho/barointerpreter/NeuralTtsEngine.java	2026-09-30 03:41:01.909271269 +0000
+@@ -12,6 +12,8 @@
+ 
+ import java.io.File;
+ import java.util.ArrayList;
++import java.util.LinkedHashMap;
++import java.util.Map;
+ import java.util.concurrent.ExecutorService;
+ import java.util.concurrent.Executors;
+ import java.util.concurrent.ScheduledExecutorService;
+@@ -53,6 +55,9 @@
+     private volatile boolean closed = false;
+     private volatile AudioTrack currentTrack;
+     private ScheduledFuture<?> idleUnload;
++    private final LinkedHashMap<String, float[]> audioCache = new LinkedHashMap<String, float[]>(8, 0.75f, true) {
++        @Override protected boolean removeEldestEntry(Map.Entry<String, float[]> eldest) { return size() > 6; }
++    };
+ 
+     public NeuralTtsEngine(Context context) {
+         this.context = context.getApplicationContext();
+@@ -138,9 +143,15 @@
+                 String[] chunks = splitForTts(text, safeLang.equals("ko") ? 110 : 220);
+                 for (String chunk : chunks) {
+                     if (closed || generation != speechGeneration.get() || tts != local) return;
+-                    SupertonicOrtTts.Result audio = local.synthesize(chunk, safeLang, style, 8, speed <= 0f ? 1f : speed);
++                    String cacheKey = safeLang + "|" + (female ? "F" : "M") + "|" + Math.round((speed <= 0f ? 1f : speed) * 100f) + "|" + chunk;
++                    float[] cached = audioCache.get(cacheKey);
++                    if (cached == null) {
++                        SupertonicOrtTts.Result audio = local.synthesize(chunk, safeLang, style, 8, speed <= 0f ? 1f : speed);
++                        cached = audio.wav;
++                        if (cached != null && cached.length > 0) audioCache.put(cacheKey, cached);
++                    }
+                     if (closed || generation != speechGeneration.get()) return;
+-                    play(audio.wav, local.getSampleRate(), generation);
++                    play(cached, local.getSampleRate(), generation);
+                 }
+                 if (!closed && generation == speechGeneration.get()) callback.state("AI Neural 고품질 음성 재생", true);
+             } catch (Throwable t) {
+@@ -235,7 +246,7 @@
+         cancelIdleTimer();
+         idleUnload = idleScheduler.schedule(() -> {
+             try { executor.execute(this::releaseModelInternal); } catch (Throwable ignored) {}
+-        }, 45, TimeUnit.SECONDS);
++        }, 300, TimeUnit.SECONDS);
+     }
+ 
+     private void releaseModelInternal() {
+@@ -243,6 +254,7 @@
+         tts = null;
+         femaleStyle = null;
+         maleStyle = null;
++        audioCache.clear();
+         preparing = false;
+         if (local != null) try { local.close(); } catch (Throwable ignored) {}
+     }
