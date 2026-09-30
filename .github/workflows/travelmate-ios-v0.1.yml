@@ -1,0 +1,79 @@
+name: Build TravelMate iOS v0.1
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/travelmate-ios-v0.1.yml'
+      - '.ci/travelmate-ios-v01-source.zip.b64'
+  workflow_dispatch:
+
+concurrency:
+  group: travelmate-ios-v01
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Restore iOS source
+        shell: bash
+        run: |
+          set -euxo pipefail
+          base64 --decode .ci/travelmate-ios-v01-source.zip.b64 > /tmp/TravelMate_iOS_v0.1_source.zip
+          mkdir -p /tmp/ios-src
+          unzip -q /tmp/TravelMate_iOS_v0.1_source.zip -d /tmp/ios-src
+          test -s /tmp/ios-src/TravelMate_iOS_v0.1/project.yml
+
+      - name: Install XcodeGen
+        shell: bash
+        run: |
+          set -euxo pipefail
+          brew install xcodegen
+
+      - name: Generate Xcode project
+        working-directory: /tmp/ios-src/TravelMate_iOS_v0.1
+        shell: bash
+        run: |
+          set -euxo pipefail
+          xcodegen generate
+          test -d TravelMate.xcodeproj
+
+      - name: Build iPhone Simulator release
+        working-directory: /tmp/ios-src/TravelMate_iOS_v0.1
+        shell: bash
+        run: |
+          set -euxo pipefail
+          xcodebuild \
+            -project TravelMate.xcodeproj \
+            -scheme TravelMate \
+            -configuration Release \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath /tmp/TravelMateDerived \
+            CODE_SIGNING_ALLOWED=NO \
+            build | tee /tmp/xcodebuild.log
+
+      - name: Verify output
+        shell: bash
+        run: |
+          set -euxo pipefail
+          APP=/tmp/TravelMateDerived/Build/Products/Release-iphonesimulator/여행메이트.app
+          test -d "$APP"
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$APP/Info.plist" | grep -q 'com.seungho.travelmate.ios'
+          ditto -c -k --sequesterRsrc --keepParent "$APP" TravelMate-iOS-v0.1-Simulator.app.zip
+          cp /tmp/TravelMate_iOS_v0.1_source.zip TravelMate_iOS_v0.1_source.zip
+          cp /tmp/xcodebuild.log xcodebuild.log
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TravelMate-iOS-v0.1
+          path: |
+            TravelMate-iOS-v0.1-Simulator.app.zip
+            TravelMate_iOS_v0.1_source.zip
+            xcodebuild.log
+          if-no-files-found: error
+          retention-days: 30
