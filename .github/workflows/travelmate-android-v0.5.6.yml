@@ -105,6 +105,7 @@ jobs:
           base64 --decode .ci/travelmate-v056.patch.gz.b64 | gzip -dc > /tmp/travelmate-v056.patch
           echo 'cd96520a6ce03763e789e39a83e2cf4e49a856df865f0cd4fb8c6795ecded9f5  /tmp/travelmate-v056.patch' | sha256sum -c -
           patch -d build-src -p1 --batch < /tmp/travelmate-v056.patch
+          sed -i 's/minSdkVersion 23/minSdkVersion 24/' build-src/app/build.gradle
 
       - name: Prepare signing
         shell: bash
@@ -123,6 +124,7 @@ jobs:
           set -euxo pipefail
           grep -q "versionCode 12" build-src/app/build.gradle
           grep -q "versionName '0.5.6'" build-src/app/build.gradle
+          grep -q "minSdkVersion 24" build-src/app/build.gradle
           grep -q "com.microsoft.onnxruntime:onnxruntime-android:1.26.0" build-src/app/build.gradle
           ! grep -q "sherpa-onnx" build-src/app/build.gradle
           grep -q 'android:process=":neural_tts"' build-src/app/src/main/AndroidManifest.xml
