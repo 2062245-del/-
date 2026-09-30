@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-29T03:33:08.954Z",
+  "generatedAt": "2026-09-30T03:33:03.198Z",
   "source": "playstation-official-gameslist-api",
   "sourcePage": "https://www.playstation.com/ko-kr/ps-plus/games/",
   "sources": {
@@ -11,7 +11,7 @@
     "safeToMerge": true,
     "counts": {
       "catalog": 334,
-      "classic": 140
+      "classic": 139
     },
     "thresholds": {
       "catalog": 100,
@@ -20,7 +20,7 @@
     "categoriesDistinct": true,
     "declaredConsistent": true,
     "overlap": 0,
-    "itemCount": 474
+    "itemCount": 473
   },
   "items": [
     {
@@ -53,7 +53,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -85,7 +85,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -117,7 +117,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -149,7 +149,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -182,7 +182,7 @@
       "ageRating": "GRAC 18+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -215,7 +215,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -248,7 +248,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -280,7 +280,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -312,7 +312,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -346,7 +346,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -381,7 +381,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -413,7 +413,7 @@
       "ageRating": "SKOREA 15",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -445,7 +445,7 @@
       "ageRating": "SKOREA 15",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -477,7 +477,7 @@
       "ageRating": "SKOREA 15",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -511,7 +511,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -543,7 +543,7 @@
       "ageRating": "GRAC 18+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -575,7 +575,7 @@
       "ageRating": "GRAC 18+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -608,7 +608,7 @@
       "ageRating": "GRAC 18+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -642,7 +642,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -675,7 +675,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -707,7 +707,7 @@
       "ageRating": "GRAC 18+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -739,7 +739,7 @@
       "ageRating": "GRAC 18+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -771,7 +771,7 @@
       "ageRating": "GRAC 18+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -805,7 +805,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -837,7 +837,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -870,7 +870,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -905,7 +905,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -938,7 +938,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -972,7 +972,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -1004,7 +1004,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -1037,7 +1037,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -1070,7 +1070,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -1105,7 +1105,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -1137,7 +1137,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -1170,7 +1170,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -1202,7 +1202,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -1236,7 +1236,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -1270,7 +1270,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -1302,7 +1302,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -1334,7 +1334,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -1368,7 +1368,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -1401,7 +1401,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -1434,7 +1434,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -1468,7 +1468,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -1501,7 +1501,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -1534,7 +1534,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -1568,7 +1568,7 @@
       "ageRating": "GRAC 18+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -1600,7 +1600,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -1634,7 +1634,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -1669,7 +1669,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -1701,7 +1701,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -1735,7 +1735,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -1767,7 +1767,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -1800,7 +1800,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -1834,7 +1834,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -1866,7 +1866,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -1899,7 +1899,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -1932,7 +1932,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -1965,7 +1965,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -1999,7 +1999,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -2031,7 +2031,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -2064,7 +2064,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -2096,7 +2096,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -2129,7 +2129,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -2162,7 +2162,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -2196,7 +2196,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -2229,7 +2229,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -2262,7 +2262,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -2296,7 +2296,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -2329,7 +2329,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -2363,7 +2363,7 @@
       "ageRating": "GRAC 18+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -2395,7 +2395,7 @@
       "ageRating": "SKOREA 15",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -2428,7 +2428,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -2441,6 +2441,7 @@
       ],
       "tier": "Extra",
       "platform": [
+        "PS4",
         "PS5"
       ],
       "genre": [
@@ -2453,14 +2454,14 @@
       "tag": "PlayStation Plus 공식 전체 목록",
       "store": "https://store.playstation.com/ko-kr/concept/234692",
       "image": "https://image.api.playstation.com/vulcan/ap/rnd/202203/2216/nbNXIr7w4moRpBuFCEw1tEci.png",
-      "releaseDate": "2022-06-24T02:00:00Z",
+      "releaseDate": "2020-08-23T15:00:00Z",
       "storeGenre": "Adventure",
-      "productId": "UP4382-PPSA04137_00-DUTMPS5000000000",
+      "productId": "UP4382-CUSA16750_00-DELIVERUSTHEMOON",
       "conceptId": 234692,
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -2492,7 +2493,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -2525,7 +2526,7 @@
       "ageRating": "GRAC 18+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -2559,7 +2560,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -2591,7 +2592,7 @@
       "ageRating": "SKOREA 15",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -2623,7 +2624,7 @@
       "ageRating": "GRAC 18+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -2656,7 +2657,7 @@
       "ageRating": "GRAC 18+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -2688,7 +2689,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -2722,7 +2723,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -2756,7 +2757,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -2789,7 +2790,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -2822,7 +2823,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -2855,7 +2856,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -2888,7 +2889,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -2920,7 +2921,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -2953,7 +2954,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -2986,7 +2987,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -3019,7 +3020,7 @@
       "ageRating": "GRAC 18+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -3052,7 +3053,7 @@
       "ageRating": "GRAC 18+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -3084,7 +3085,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -3117,7 +3118,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -3150,7 +3151,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -3183,7 +3184,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -3215,7 +3216,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -3247,7 +3248,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -3280,7 +3281,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -3314,7 +3315,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -3346,7 +3347,7 @@
       "ageRating": "GRAC 18+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -3379,7 +3380,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -3412,7 +3413,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -3444,7 +3445,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -3477,7 +3478,7 @@
       "ageRating": "GRAC 18+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -3511,7 +3512,7 @@
       "ageRating": "GRAC 18+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -3544,7 +3545,7 @@
       "ageRating": "GRAC 18+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -3577,7 +3578,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -3609,7 +3610,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -3643,7 +3644,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -3676,7 +3677,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -3708,7 +3709,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -3742,7 +3743,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -3774,7 +3775,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -3808,7 +3809,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -3841,7 +3842,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -3874,7 +3875,7 @@
       "ageRating": "GRAC 18+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -3906,7 +3907,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -3938,7 +3939,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -3972,7 +3973,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -4004,7 +4005,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -4037,7 +4038,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -4069,7 +4070,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -4102,7 +4103,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -4134,7 +4135,7 @@
       "ageRating": "GRAC 18+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -4167,7 +4168,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -4200,7 +4201,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -4235,7 +4236,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -4269,7 +4270,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -4303,7 +4304,7 @@
       "ageRating": null,
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -4336,7 +4337,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -4371,7 +4372,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -4405,7 +4406,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -4438,7 +4439,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -4470,7 +4471,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -4505,7 +4506,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -4538,7 +4539,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -4564,15 +4565,15 @@
       "price": "PS Plus 스페셜",
       "tag": "PlayStation Plus 공식 전체 목록",
       "store": "https://store.playstation.com/ko-kr/concept/232654",
-      "image": "https://image.api.playstation.com/vulcan/ap/rnd/202601/1505/1425e65d043da63396a10ccf87d5e4af50175464e64cda30.png",
-      "releaseDate": "2026-02-06T00:00:00Z",
+      "image": "https://image.api.playstation.com/cdn/EP1805/CUSA13285_00/ECqRBcDVCFoDAnGCWIGnEwVpofJOLCYL.png",
+      "releaseDate": "2018-09-26T16:00:00Z",
       "storeGenre": "Action · Adventure",
-      "productId": "UP1822-PPSA34970_00-HOLLOWKNIGHTPS50",
+      "productId": "EP1805-CUSA13285_00-ASIA000000000000",
       "conceptId": 232654,
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -4606,7 +4607,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -4639,7 +4640,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -4672,7 +4673,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -4707,7 +4708,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -4741,7 +4742,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -4773,7 +4774,7 @@
       "ageRating": "SKOREA 15",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -4807,7 +4808,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -4839,7 +4840,7 @@
       "ageRating": "GRAC 18+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -4872,7 +4873,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -4906,7 +4907,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -4940,7 +4941,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -4972,7 +4973,7 @@
       "ageRating": "GRAC 18+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -5004,7 +5005,7 @@
       "ageRating": "GRAC 18+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -5038,7 +5039,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -5070,7 +5071,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -5102,7 +5103,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -5134,7 +5135,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -5167,7 +5168,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -5199,7 +5200,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -5231,7 +5232,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -5263,7 +5264,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -5296,7 +5297,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -5329,7 +5330,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -5362,7 +5363,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -5394,7 +5395,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -5428,7 +5429,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -5460,7 +5461,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -5493,7 +5494,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -5526,7 +5527,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -5558,7 +5559,7 @@
       "ageRating": "SKOREA 15",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -5591,7 +5592,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -5626,7 +5627,7 @@
       "ageRating": "GRAC 18+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -5659,7 +5660,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -5692,7 +5693,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -5725,7 +5726,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -5757,7 +5758,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -5789,7 +5790,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -5822,7 +5823,7 @@
       "ageRating": "GRAC 18+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -5854,7 +5855,7 @@
       "ageRating": "SKOREA 15",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -5886,7 +5887,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -5920,7 +5921,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -5955,7 +5956,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -5987,7 +5988,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -6019,7 +6020,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -6051,7 +6052,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -6085,7 +6086,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -6117,7 +6118,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -6150,7 +6151,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -6184,7 +6185,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -6218,7 +6219,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -6251,7 +6252,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -6284,7 +6285,7 @@
       "ageRating": "GRAC 18+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -6317,7 +6318,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -6349,7 +6350,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -6381,7 +6382,7 @@
       "ageRating": "SKOREA 15",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -6414,7 +6415,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -6448,7 +6449,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -6482,7 +6483,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -6514,7 +6515,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -6546,7 +6547,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -6579,7 +6580,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -6613,7 +6614,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -6645,7 +6646,7 @@
       "ageRating": "GRAC 18+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -6678,7 +6679,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -6710,7 +6711,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -6744,7 +6745,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -6777,7 +6778,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -6810,7 +6811,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -6842,7 +6843,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -6875,7 +6876,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -6907,7 +6908,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -6940,7 +6941,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -6973,7 +6974,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -7005,7 +7006,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -7039,7 +7040,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -7071,7 +7072,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -7105,7 +7106,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -7139,7 +7140,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -7171,7 +7172,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -7203,7 +7204,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -7235,7 +7236,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -7268,7 +7269,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -7301,7 +7302,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -7333,7 +7334,7 @@
       "ageRating": "SKOREA All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -7365,7 +7366,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -7397,7 +7398,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -7430,7 +7431,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -7462,7 +7463,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -7494,7 +7495,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -7527,7 +7528,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -7560,7 +7561,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -7593,7 +7594,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -7627,7 +7628,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -7662,7 +7663,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -7696,7 +7697,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -7729,7 +7730,7 @@
       "ageRating": "GRAC 18+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -7762,7 +7763,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -7794,7 +7795,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -7826,7 +7827,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -7858,7 +7859,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -7891,7 +7892,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -7924,7 +7925,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -7958,7 +7959,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -7991,7 +7992,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -8025,7 +8026,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -8058,7 +8059,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -8090,7 +8091,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -8124,7 +8125,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -8157,7 +8158,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -8189,7 +8190,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -8221,7 +8222,7 @@
       "ageRating": "SKOREA 12",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -8254,7 +8255,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -8288,7 +8289,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -8320,7 +8321,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -8352,7 +8353,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -8384,7 +8385,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -8417,7 +8418,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -8449,7 +8450,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -8482,7 +8483,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -8516,7 +8517,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -8549,7 +8550,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -8581,7 +8582,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -8613,7 +8614,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -8645,7 +8646,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -8678,7 +8679,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -8710,7 +8711,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -8742,7 +8743,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -8775,7 +8776,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -8808,7 +8809,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -8842,7 +8843,7 @@
       "ageRating": "GRAC 18+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -8875,7 +8876,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -8909,7 +8910,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -8941,7 +8942,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -8974,7 +8975,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -9006,7 +9007,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -9041,7 +9042,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -9073,7 +9074,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -9108,7 +9109,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -9140,7 +9141,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -9172,7 +9173,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -9206,7 +9207,7 @@
       "ageRating": "GRAC 18+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -9239,7 +9240,7 @@
       "ageRating": "GRAC 18+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -9272,7 +9273,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -9305,7 +9306,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -9337,7 +9338,7 @@
       "ageRating": "GRAC 18+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -9369,7 +9370,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -9401,7 +9402,7 @@
       "ageRating": "GRAC 18+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -9433,7 +9434,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -9466,7 +9467,7 @@
       "ageRating": "GRAC 18+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -9500,7 +9501,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -9533,7 +9534,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -9566,7 +9567,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -9598,7 +9599,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -9631,7 +9632,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -9666,7 +9667,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -9698,7 +9699,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -9730,7 +9731,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -9762,7 +9763,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -9794,7 +9795,7 @@
       "ageRating": "SKOREA 15",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -9827,7 +9828,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -9860,7 +9861,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -9892,7 +9893,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -9924,7 +9925,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -9956,7 +9957,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -9990,7 +9991,7 @@
       "ageRating": "GRAC 18+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -10024,7 +10025,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -10057,7 +10058,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -10089,7 +10090,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -10122,7 +10123,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -10156,7 +10157,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -10190,7 +10191,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -10223,7 +10224,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -10257,7 +10258,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -10289,7 +10290,7 @@
       "ageRating": "SKOREA 15",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -10321,7 +10322,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -10353,7 +10354,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -10388,7 +10389,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -10422,7 +10423,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -10454,7 +10455,7 @@
       "ageRating": "GRAC 18+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -10489,7 +10490,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -10522,7 +10523,7 @@
       "ageRating": "GRAC 18+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -10554,7 +10555,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -10586,7 +10587,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -10619,7 +10620,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -10654,7 +10655,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -10688,7 +10689,7 @@
       "ageRating": "GRAC 18+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -10722,7 +10723,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -10754,7 +10755,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -10786,7 +10787,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -10818,7 +10819,7 @@
       "ageRating": "GRAC 18+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -10851,7 +10852,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -10883,7 +10884,7 @@
       "ageRating": "SKOREA 12",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -10915,7 +10916,7 @@
       "ageRating": "SKOREA M",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -10947,7 +10948,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -10979,7 +10980,7 @@
       "ageRating": "GRAC 18+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -11011,7 +11012,7 @@
       "ageRating": "GRAC 18+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-games-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -11044,7 +11045,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -11078,7 +11079,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -11111,7 +11112,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -11145,7 +11146,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -11179,7 +11180,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -11213,7 +11214,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -11246,7 +11247,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -11279,7 +11280,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -11312,7 +11313,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -11345,7 +11346,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -11378,7 +11379,7 @@
       "ageRating": "GRAC 18+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -11411,7 +11412,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -11444,7 +11445,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -11477,7 +11478,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -11511,7 +11512,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -11544,7 +11545,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -11576,7 +11577,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -11609,7 +11610,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -11642,7 +11643,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -11675,7 +11676,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -11708,41 +11709,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
-      "confidence": 100,
-      "dataQuality": "verified"
-    },
-    {
-      "id": "classic-auto-0eec2c581f2d38",
-      "title": "Disney•Pixar Buzz Lightyear of Star Command",
-      "type": "classic",
-      "categories": [
-        "classic"
-      ],
-      "tier": "Deluxe",
-      "platform": [
-        "PS4",
-        "PS5"
-      ],
-      "genre": [
-        "Action",
-        "Adventure"
-      ],
-      "ko": false,
-      "languageStatus": "unknown",
-      "desc": "PlayStation Plus 클래식 카탈로그 공식 목록에서 자동 확인된 타이틀입니다.",
-      "price": "PS Plus 디럭스",
-      "tag": "PlayStation Plus 공식 전체 목록",
-      "store": "https://store.playstation.com/ko-kr/concept/10007631",
-      "image": "https://image.api.playstation.com/vulcan/ap/rnd/202307/2521/48e4a4ba9b51dc69a334c7f5dd65d25de6803b23bfb9238a.png",
-      "releaseDate": "2023-12-19T00:00:00Z",
-      "storeGenre": "Action · Adventure",
-      "productId": "UP1082-PPSA14381_00-0570380917000461",
-      "conceptId": 10007631,
-      "ageRating": "GRAC All",
-      "streamingSupported": false,
-      "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -11775,7 +11742,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -11808,7 +11775,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -11840,7 +11807,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -11873,7 +11840,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -11906,7 +11873,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -11939,7 +11906,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -11972,7 +11939,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -12005,7 +11972,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -12038,7 +12005,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -12071,7 +12038,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -12104,7 +12071,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -12137,7 +12104,7 @@
       "ageRating": "GRAC 18+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -12171,7 +12138,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -12204,7 +12171,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -12237,7 +12204,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -12270,7 +12237,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -12303,7 +12270,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -12336,7 +12303,7 @@
       "ageRating": "GRAC 18+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -12370,7 +12337,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -12404,7 +12371,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -12438,7 +12405,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -12471,7 +12438,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -12504,7 +12471,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -12537,7 +12504,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -12569,7 +12536,7 @@
       "ageRating": "SKOREA 12",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -12602,7 +12569,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -12635,7 +12602,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -12668,7 +12635,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -12701,7 +12668,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -12735,7 +12702,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -12769,7 +12736,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -12802,7 +12769,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -12835,7 +12802,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -12868,7 +12835,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -12901,7 +12868,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -12934,7 +12901,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -12966,7 +12933,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -12998,7 +12965,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -13030,7 +12997,7 @@
       "ageRating": "SKOREA All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -13063,7 +13030,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -13096,7 +13063,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -13129,7 +13096,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -13162,7 +13129,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -13194,7 +13161,7 @@
       "ageRating": "SKOREA M",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -13227,7 +13194,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -13261,7 +13228,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -13295,7 +13262,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -13328,7 +13295,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -13361,7 +13328,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -13394,7 +13361,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -13427,7 +13394,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -13460,7 +13427,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -13492,7 +13459,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -13525,7 +13492,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -13559,7 +13526,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -13593,7 +13560,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -13626,7 +13593,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -13659,7 +13626,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -13692,7 +13659,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -13725,7 +13692,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -13758,7 +13725,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -13790,7 +13757,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -13823,7 +13790,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -13856,7 +13823,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -13889,7 +13856,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -13922,7 +13889,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -13955,7 +13922,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -13989,7 +13956,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -14022,7 +13989,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -14055,7 +14022,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -14088,7 +14055,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -14121,7 +14088,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -14154,7 +14121,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -14187,7 +14154,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -14220,7 +14187,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -14252,7 +14219,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -14285,7 +14252,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -14318,7 +14285,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -14351,7 +14318,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -14384,7 +14351,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -14417,7 +14384,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -14450,7 +14417,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -14484,7 +14451,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -14517,7 +14484,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -14550,7 +14517,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -14583,7 +14550,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -14616,7 +14583,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -14649,7 +14616,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -14682,7 +14649,7 @@
       "ageRating": "GRAC 19+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -14715,7 +14682,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -14748,7 +14715,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -14781,7 +14748,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -14814,7 +14781,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -14847,7 +14814,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -14880,7 +14847,7 @@
       "ageRating": "GRAC 18+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -14913,7 +14880,7 @@
       "ageRating": "GRAC 18+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -14946,7 +14913,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -14980,7 +14947,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -14997,8 +14964,8 @@
         "PS5"
       ],
       "genre": [
-        "Strategy",
-        "Action"
+        "Action",
+        "Strategy"
       ],
       "ko": false,
       "languageStatus": "unknown",
@@ -15007,14 +14974,14 @@
       "tag": "PlayStation Plus 공식 전체 목록",
       "store": "https://store.playstation.com/ko-kr/concept/10007620",
       "image": "https://image.api.playstation.com/vulcan/ap/rnd/202311/1621/0f0e2a9a0b0bf135d7127695b81625196f37d76d33606910.png",
-      "releaseDate": "2025-03-14T00:00:00Z",
-      "storeGenre": "Strategy · Action",
-      "productId": "HP1082-CUSA44094_00-0077960586893206",
+      "releaseDate": "2023-12-19T00:00:00Z",
+      "storeGenre": "Action · Strategy",
+      "productId": "HP1082-PPSA17274_00-0352786197745463",
       "conceptId": 10007620,
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -15047,7 +15014,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -15080,7 +15047,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -15113,7 +15080,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -15146,7 +15113,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -15179,7 +15146,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -15212,7 +15179,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -15245,7 +15212,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -15278,7 +15245,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -15311,7 +15278,7 @@
       "ageRating": "GRAC 18+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -15344,7 +15311,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -15377,7 +15344,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -15410,7 +15377,7 @@
       "ageRating": "GRAC 15+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -15443,7 +15410,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -15475,7 +15442,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -15508,7 +15475,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -15541,7 +15508,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -15574,7 +15541,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -15607,7 +15574,7 @@
       "ageRating": "GRAC 12+",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     },
@@ -15640,7 +15607,7 @@
       "ageRating": "GRAC All",
       "streamingSupported": false,
       "discoverySource": "https://www.playstation.com/bin/imagic/gameslist?locale=ko-kr&categoryList=plus-classics-list",
-      "discoveredAt": "2026-09-29T03:33:08.954Z",
+      "discoveredAt": "2026-09-30T03:33:03.198Z",
       "confidence": 100,
       "dataQuality": "verified"
     }
