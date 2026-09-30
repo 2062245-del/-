@@ -1,0 +1,282 @@
+diff --git a/app/build.gradle b/app/build.gradle
+index 2460b93..aff56b6 100644
+--- a/app/build.gradle
++++ b/app/build.gradle
+@@ -12,8 +12,8 @@ android {
+         applicationId 'com.seungho.barointerpreter'
+         minSdk 23
+         targetSdk 35
+-        versionCode 11
+-        versionName '0.5.5'
++        versionCode 12
++        versionName '0.5.6'
+         ndk {
+             abiFilters 'arm64-v8a'
+         }
+@@ -46,7 +46,5 @@ android {
+ 
+ dependencies {
+     implementation 'com.google.mlkit:translate:17.0.3'
+-    implementation('com.github.k2-fsa:sherpa-onnx:v1.13.8') {
+-        exclude group: 'com.github.k2-fsa.sherpa-onnx', module: 'sherpa-onnx-jvm'
+-    }
++    implementation 'com.microsoft.onnxruntime:onnxruntime-android:1.26.0'
+ }
+diff --git a/app/src/main/java/com/seungho/barointerpreter/MainActivity.java b/app/src/main/java/com/seungho/barointerpreter/MainActivity.java
+index 2b1e451..137ccb9 100644
+--- a/app/src/main/java/com/seungho/barointerpreter/MainActivity.java
++++ b/app/src/main/java/com/seungho/barointerpreter/MainActivity.java
+@@ -188,7 +188,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
+         LinearLayout voiceTop = row(Gravity.CENTER_VERTICAL);
+         LinearLayout voiceText = col();
+         voiceText.addView(text("고품질 AI 음성", 17, true, INK));
+-        voiceText.addView(text("여성 A / 남성 · 오프라인 Neural 음성", 15, false, MUTED), topMargin(dp(3)));
++        voiceText.addView(text("여성 A / 남성 · 오프라인 Neural 음성 · ONNX Runtime", 15, false, MUTED), topMargin(dp(3)));
+         voiceTop.addView(voiceText, new LinearLayout.LayoutParams(0, -2, 1f));
+         voice.addView(voiceTop);
+         LinearLayout voiceChoice = row(Gravity.CENTER);
+@@ -199,7 +199,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
+         maleLp.setMargins(dp(8), 0, 0, 0);
+         voiceChoice.addView(maleVoiceButton, maleLp);
+         voice.addView(voiceChoice, topMargin(dp(10)));
+-        neuralDownloadButton = compactButton("⬇ AI 음성팩 받기 · 약 145MB", Color.rgb(238, 242, 255), PRIMARY);
++        neuralDownloadButton = compactButton("⬇ AI 음성팩 받기 · 약 146MB", Color.rgb(238, 242, 255), PRIMARY);
+         neuralDownloadButton.setTextSize(15);
+         voice.addView(neuralDownloadButton, topMargin(dp(9)));
+         root.addView(voice, topMargin(dp(10)));
+@@ -362,7 +362,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
+             if (neuralDownloadButton != null) {
+                 neuralDownloadButton.setVisibility(View.VISIBLE);
+                 neuralDownloadButton.setEnabled(!neuralTts.isDownloading());
+-                neuralDownloadButton.setText(neuralTts.isDownloading() ? "AI 음성팩 받는 중…" : "⬇ AI 음성팩 받기 · 약 145MB");
++                neuralDownloadButton.setText(neuralTts.isDownloading() ? "AI 음성팩 받는 중…" : "⬇ AI 음성팩 받기 · 약 146MB");
+             }
+             return;
+         }
+@@ -431,7 +431,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
+         }
+         new AlertDialog.Builder(this)
+                 .setTitle("AI 음성팩 받기")
+-                .setMessage("고품질 여성 A / 남성 음성을 위해 약 145MB를 최초 1회 다운로드합니다.\n\n다운로드가 끝나면 인터넷 없이 사용할 수 있습니다.")
++                .setMessage("고품질 여성 A / 남성 음성을 위해 약 146MB를 최초 1회 다운로드합니다.\n\n다운로드가 끝나면 인터넷 없이 사용할 수 있습니다.")
+                 .setNegativeButton("나중에", null)
+                 .setPositiveButton("받기", (d, which) -> {
+                     neuralDownloadButton.setEnabled(false);
+diff --git a/app/src/main/java/com/seungho/barointerpreter/NeuralTtsClient.java b/app/src/main/java/com/seungho/barointerpreter/NeuralTtsClient.java
+index c67c371..271c37e 100644
+--- a/app/src/main/java/com/seungho/barointerpreter/NeuralTtsClient.java
++++ b/app/src/main/java/com/seungho/barointerpreter/NeuralTtsClient.java
+@@ -21,10 +21,7 @@ import java.util.List;
+ import java.util.concurrent.ExecutorService;
+ import java.util.concurrent.Executors;
+ 
+-/**
+- * Main-process facade for Neural TTS.
+- * Native sherpa-onnx inference runs only inside :neural_tts process via NeuralTtsService.
+- */
++/** Main-process facade for isolated ONNX Runtime Neural TTS. */
+ public final class NeuralTtsClient {
+     public interface Callback { void state(String message, boolean ok); }
+     public interface ModelDownloadCallback {
+@@ -33,19 +30,29 @@ public final class NeuralTtsClient {
+     }
+ 
+     private static final String MODEL_DIR = "supertonic3";
+-    private static final String HF_BASE =
+-            "https://huggingface.co/csukuangfj2/sherpa-onnx-supertonic-3-tts-int8-2026-05-11/resolve/main/";
+-    private static final String[] FILES = {
++    private static final String[] LOCAL = {
+             "duration_predictor.int8.onnx",
+             "text_encoder.int8.onnx",
+             "vector_estimator.int8.onnx",
+             "vocoder.int8.onnx",
+             "tts.json",
+-            "unicode_indexer.bin",
+-            "voice.bin"
++            "unicode_indexer.json",
++            "F1.json",
++            "M4.json"
++    };
++    private static final String[] REMOTE = {
++            "https://huggingface.co/csukuangfj2/sherpa-onnx-supertonic-3-tts-int8-2026-05-11/resolve/main/duration_predictor.int8.onnx?download=true",
++            "https://huggingface.co/csukuangfj2/sherpa-onnx-supertonic-3-tts-int8-2026-05-11/resolve/main/text_encoder.int8.onnx?download=true",
++            "https://huggingface.co/csukuangfj2/sherpa-onnx-supertonic-3-tts-int8-2026-05-11/resolve/main/vector_estimator.int8.onnx?download=true",
++            "https://huggingface.co/csukuangfj2/sherpa-onnx-supertonic-3-tts-int8-2026-05-11/resolve/main/vocoder.int8.onnx?download=true",
++            "https://huggingface.co/csukuangfj2/sherpa-onnx-supertonic-3-tts-int8-2026-05-11/resolve/main/tts.json?download=true",
++            "https://huggingface.co/Supertone/supertonic-3/resolve/main/onnx/unicode_indexer.json?download=true",
++            "https://huggingface.co/Supertone/supertonic-3/resolve/main/voice_styles/F1.json?download=true",
++            "https://huggingface.co/Supertone/supertonic-3/resolve/main/voice_styles/M4.json?download=true"
+     };
+     private static final long[] SIZES = {
+-            3700147L, 36416150L, 78400833L, 25991073L, 8253L, 262144L, 517168L
++            3_700_147L, 36_416_150L, 78_400_833L, 25_991_073L,
++            8_253L, 277_676L, 292_046L, 291_522L
+     };
+     private static final String[] SHA256 = {
+             "c3eb91414d5ff8a7a239b7fe9e34e7e2bf8a8140d8375ffb14718b1c639325db",
+@@ -53,10 +60,11 @@ public final class NeuralTtsClient {
+             "20cd86fa5c6effedfda0e7cffe5b0569ca401c440a0c3a1d72bf39286c0db3fd",
+             "e923d60f53f95eb1ce235f1dc33ec56d9c057823c96fa6f8acf98f32b0da6152",
+             "42078d3aef1cd43ab43021f3c54f47d2d75ceb4e75f627f118890128b06a0d09",
+-            "8402ca48e5189a8950138580b0fff64db6f072f24ac07cd54ba8b2fbb9883b30",
+-            "67d5209b0ee8ce6c74105ffbe12fe6a7628aea3b4ba2fcb308a4a67938a93ce8"
++            "9bf7346e43883a81f8645c81224f786d43c5b57f3641f6e7671a7d6c493cb24f",
++            "bbdec6ee00231c2c742ad05483df5334cab3b52fda3ba38e6a07059c4563dbc2",
++            "ca8eefad4fcd989c9379032ff3e50738adc547eeb5e221b82593a6d7b3bac303"
+     };
+-    public static final long TOTAL_MODEL_BYTES = 145295768L;
++    public static final long TOTAL_MODEL_BYTES = 145_377_700L;
+ 
+     private final Context context;
+     private final Handler main = new Handler(Looper.getMainLooper());
+@@ -66,64 +74,42 @@ public final class NeuralTtsClient {
+     private volatile long safeModeUntil = 0L;
+     private volatile long lastCrashAt = 0L;
+ 
+-    public NeuralTtsClient(Context context) {
+-        this.context = context.getApplicationContext();
+-        // v0.5.5: 과거 버전의 종료 기록으로 AI 음성을 막지 않는다.
+-        // 오직 이번 요청 이후 :neural_tts 프로세스가 실제로 죽었을 때만 안전모드로 전환한다.
+-    }
++    public NeuralTtsClient(Context context) { this.context = context.getApplicationContext(); }
+ 
+     private File modelDir() { return new File(context.getFilesDir(), MODEL_DIR); }
+     public boolean isReady() { return serviceReady && !isSafeMode(); }
+     public boolean isDownloading() { return downloading; }
+     public boolean isSafeMode() { return System.currentTimeMillis() < safeModeUntil; }
+-    public long safeModeRemainingSeconds() {
+-        return Math.max(0L, (safeModeUntil - System.currentTimeMillis() + 999L) / 1000L);
+-    }
+-    public void forceRetry() {
+-        safeModeUntil = 0L;
+-        lastCrashAt = 0L;
+-        serviceReady = false;
+-    }
++    public long safeModeRemainingSeconds() { return Math.max(0L, (safeModeUntil - System.currentTimeMillis() + 999L) / 1000L); }
++    public void forceRetry() { safeModeUntil = 0L; lastCrashAt = 0L; serviceReady = false; }
+ 
+     public boolean isModelInstalled() {
+         File dir = modelDir();
+-        for (int i = 0; i < FILES.length; i++) {
+-            File f = new File(dir, FILES[i]);
++        for (int i = 0; i < LOCAL.length; i++) {
++            File f = new File(dir, LOCAL[i]);
+             if (!f.isFile() || f.length() != SIZES[i]) return false;
+         }
+         return true;
+     }
+ 
+     public void prepare(Callback callback) {
+-        if (isSafeMode()) {
+-            callback.state("AI 음성 일시 중지 · 다시 켜기 버튼으로 즉시 재시도 가능", false);
+-            return;
+-        }
++        if (isSafeMode()) { callback.state("AI 음성 일시 중지 · 다시 켜기로 재시도 가능", false); return; }
+         sendService(NeuralTtsService.ACTION_PREPARE, null, null, true, 1.0f, callback);
+     }
+ 
+     public void speak(String text, String lang, boolean female, float speed, Callback callback) {
+-        if (isSafeMode()) {
+-            callback.state("AI 음성 일시 중지 · 현재 기본 음성 사용", false);
+-            return;
+-        }
++        if (isSafeMode()) { callback.state("AI 음성 일시 중지 · 현재 기본 음성 사용", false); return; }
+         sendService(NeuralTtsService.ACTION_SPEAK, text, lang, female, speed, callback);
+     }
+ 
+     public void stop() {
+-        try {
+-            Intent i = new Intent(context, NeuralTtsService.class).setAction(NeuralTtsService.ACTION_STOP);
+-            context.startService(i);
+-        } catch (Throwable ignored) {}
++        try { context.startService(new Intent(context, NeuralTtsService.class).setAction(NeuralTtsService.ACTION_STOP)); }
++        catch (Throwable ignored) {}
+     }
+-
+     public void releaseModel() { stop(); }
+-
+     public void release() {
+-        try {
+-            Intent i = new Intent(context, NeuralTtsService.class).setAction(NeuralTtsService.ACTION_RELEASE);
+-            context.startService(i);
+-        } catch (Throwable ignored) {}
++        try { context.startService(new Intent(context, NeuralTtsService.class).setAction(NeuralTtsService.ACTION_RELEASE)); }
++        catch (Throwable ignored) {}
+         downloader.shutdownNow();
+     }
+ 
+@@ -135,7 +121,7 @@ public final class NeuralTtsClient {
+                     String message = resultData == null ? "AI 음성 상태 확인" : resultData.getString("message", "AI 음성 상태 확인");
+                     boolean ok = resultData != null && resultData.getBoolean("ok", false);
+                     if (message.contains("준비됨") || message.contains("재생")) serviceReady = true;
+-                    if (message.contains("실패")) serviceReady = false;
++                    if (message.contains("실패") || message.contains("크래시")) serviceReady = false;
+                     callback.state(message, ok);
+                 }
+             };
+@@ -147,7 +133,6 @@ public final class NeuralTtsClient {
+             i.putExtra("receiver", receiver);
+             context.startService(i);
+ 
+-            // v0.5.5: 과거 10분의 종료 기록 전체가 아니라 '이번 요청 이후' 죽은 경우만 감지한다.
+             main.postDelayed(() -> {
+                 long crashAt = neuralProcessCrashSince(requestAt);
+                 if (crashAt > 0L && crashAt != lastCrashAt) {
+@@ -156,7 +141,7 @@ public final class NeuralTtsClient {
+                     serviceReady = false;
+                     callback.state("AI Neural 프로세스 크래시 · 기본 음성 사용 · 다시 켜기 가능", false);
+                 }
+-            }, 4500L);
++            }, 5000L);
+         } catch (Throwable t) {
+             serviceReady = false;
+             callback.state("AI 음성 시작 실패 · 기본 음성 사용", false);
+@@ -177,13 +162,10 @@ public final class NeuralTtsClient {
+                 if (ts + 750L < since) continue;
+                 if (!exactProcess.equals(info.getProcessName())) continue;
+                 int r = info.getReason();
+-                if (r == ApplicationExitInfo.REASON_CRASH_NATIVE || r == ApplicationExitInfo.REASON_CRASH) {
+-                    newest = Math.max(newest, ts);
+-                }
++                if (r == ApplicationExitInfo.REASON_CRASH_NATIVE || r == ApplicationExitInfo.REASON_CRASH) newest = Math.max(newest, ts);
+             }
+             return newest;
+-        } catch (Throwable ignored) {}
+-        return 0L;
++        } catch (Throwable ignored) { return 0L; }
+     }
+ 
+     public void downloadModel(ModelDownloadCallback callback) {
+@@ -194,21 +176,22 @@ public final class NeuralTtsClient {
+             File dir = modelDir();
+             try {
+                 if (!dir.exists() && !dir.mkdirs()) throw new IllegalStateException("모델 폴더 생성 실패");
+-                long finishedBytes = completedBytes(dir);
+-                for (int i = 0; i < FILES.length; i++) {
+-                    File target = new File(dir, FILES[i]);
++                long finished = completedBytes(dir);
++                for (int i = 0; i < LOCAL.length; i++) {
++                    File target = new File(dir, LOCAL[i]);
+                     if (target.isFile() && target.length() == SIZES[i] && verifySha256(target, SHA256[i])) {
+-                        finishedBytes = Math.max(finishedBytes, sumSizesThrough(i));
++                        finished = Math.max(finished, sumSizesThrough(i));
+                         continue;
+                     }
+-                    File part = new File(dir, FILES[i] + ".part");
++                    File part = new File(dir, LOCAL[i] + ".part");
+                     if (part.exists() && part.length() > SIZES[i]) part.delete();
+                     long existing = part.exists() ? part.length() : 0L;
+-                    callback.progress(percent(finishedBytes + existing), "AI 음성팩 받는 중 · " + (i + 1) + "/" + FILES.length);
+-                    HttpURLConnection conn = (HttpURLConnection) new URL(HF_BASE + FILES[i] + "?download=true").openConnection();
+-                    conn.setConnectTimeout(20000); conn.setReadTimeout(45000); conn.setInstanceFollowRedirects(true);
+-                    conn.setRequestProperty("User-Agent", "TravelMate-Android/0.5.5");
+-                    if (existing > 0L) conn.setRequestProperty("Range", "bytes=" + existing + "-");
++                    callback.progress(percent(finished + existing), "AI 음성팩 받는 중 · " + (i + 1) + "/" + LOCAL.length);
++
++                    HttpURLConnection conn = (HttpURLConnection) new URL(REMOTE[i]).openConnection();
++                    conn.setConnectTimeout(20_000); conn.setReadTimeout(60_000); conn.setInstanceFollowRedirects(true);
++                    conn.setRequestProperty("User-Agent", "TravelMate-Android/0.5.6");
++                    if (existing > 0) conn.setRequestProperty("Range", "bytes=" + existing + "-");
+                     conn.connect();
+                     int code = conn.getResponseCode();
+                     boolean append = code == HttpURLConnection.HTTP_PARTIAL && existing > 0L;
