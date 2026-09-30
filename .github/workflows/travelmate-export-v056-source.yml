@@ -1,0 +1,97 @@
+name: Export TravelMate v0.5.6 Source
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/travelmate-export-v056-source.yml'
+  workflow_dispatch:
+
+jobs:
+  export:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Restore verified v0.5.3 source
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p build-src
+          cat .ci/travelmate-v053-chunk-*.b64 | base64 --decode > /tmp/travelmate-v053.zip
+          echo 'aed74d3cbea22ec183aa48f877a95b0e31a756c55805247d5b538fd8e1d03dec  /tmp/travelmate-v053.zip' | sha256sum -c -
+          unzip -q /tmp/travelmate-v053.zip -d build-src
+
+      - name: Apply v0.5.4 isolation baseline
+        shell: bash
+        run: |
+          set -euxo pipefail
+          cp .ci/travelmate-v054/NeuralTtsClient.java build-src/app/src/main/java/com/seungho/barointerpreter/NeuralTtsClient.java
+          cp .ci/travelmate-v054/NeuralTtsService.java build-src/app/src/main/java/com/seungho/barointerpreter/NeuralTtsService.java
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('build-src/app/build.gradle')
+          s=p.read_text().replace('versionCode 9','versionCode 10').replace("versionName '0.5.3'","versionName '0.5.4'")
+          p.write_text(s)
+          p=Path('build-src/app/src/main/AndroidManifest.xml')
+          s=p.read_text()
+          anchor='''        android:theme="@style/AppTheme"\n        android:usesCleartextTraffic="false">\n'''
+          repl='''        android:theme="@style/AppTheme"\n        android:usesCleartextTraffic="false">\n        <service\n            android:name=".NeuralTtsService"\n            android:exported="false"\n            android:process=":neural_tts"\n            android:stopWithTask="true" />\n'''
+          if 'android:process=":neural_tts"' not in s:
+              if anchor not in s: raise SystemExit('manifest anchor missing')
+              s=s.replace(anchor,repl)
+          p.write_text(s)
+          p=Path('build-src/app/src/main/java/com/seungho/barointerpreter/MainActivity.java')
+          s=p.read_text()
+          s=s.replace('private NeuralTtsEngine neuralTts;','private NeuralTtsClient neuralTts;')
+          s=s.replace('neuralTts = new NeuralTtsEngine(this);','neuralTts = new NeuralTtsClient(this);')
+          old='''        neuralStatusView.setText(neuralTts.isReady()\n                ? "● AI 음성 준비됨 · 여성 A / 남성"\n                : "● AI 음성팩 설치됨 · 사용할 때 자동 준비");\n        neuralStatusView.setTextColor(neuralTts.isReady() ? GREEN : CYAN);\n'''
+          new='''        if (neuralTts.isSafeMode()) {\n            neuralStatusView.setText("△ AI 음성 안전모드 · 기본 음성 사용 중");\n            neuralStatusView.setTextColor(AMBER);\n        } else {\n            neuralStatusView.setText(neuralTts.isReady()\n                    ? "● AI 음성 준비됨 · 여성 A / 남성"\n                    : "● AI 음성팩 설치됨 · 사용할 때 자동 준비");\n            neuralStatusView.setTextColor(neuralTts.isReady() ? GREEN : CYAN);\n        }\n'''
+          if old not in s: raise SystemExit('neural status block missing')
+          s=s.replace(old,new)
+          s=s.replace('new NeuralTtsEngine.ModelDownloadCallback()','new NeuralTtsClient.ModelDownloadCallback()')
+          s=s.replace('if(message.contains("실패")) systemSpeak(text,language);','if(message.contains("실패") || message.contains("안전모드")) systemSpeak(text,language);')
+          p.write_text(s)
+          p=Path('build-src/app/src/main/java/com/seungho/barointerpreter/CrashDiagnostics.java')
+          s=p.read_text()
+          old='''                        sb.append(new SimpleDateFormat("MM-dd HH:mm:ss", Locale.KOREA).format(new Date(info.getTimestamp())))\n                                .append(" · ").append(reasonName(info.getReason()));\n                        String d = info.getDescription();\n'''
+          new='''                        sb.append(new SimpleDateFormat("MM-dd HH:mm:ss", Locale.KOREA).format(new Date(info.getTimestamp())))\n                                .append(" · ").append(reasonName(info.getReason()));\n                        String process = info.getProcessName();\n                        if (process != null && !process.trim().isEmpty()) sb.append(" · 프로세스 ").append(process.trim());\n                        if (info.getPss() > 0) sb.append(" · PSS ").append(info.getPss() / 1024).append("MB");\n                        if (info.getRss() > 0) sb.append(" · RSS ").append(info.getRss() / 1024).append("MB");\n                        String d = info.getDescription();\n'''
+          if old not in s: raise SystemExit('diagnostics block missing')
+          s=s.replace(old,new)
+          p.write_text(s)
+          PY
+
+      - name: Apply v0.5.5 baseline
+        shell: bash
+        run: |
+          set -uxo pipefail
+          patch -d build-src -p1 --batch --forward < .ci/travelmate-v055.patch || true
+          cp .ci/travelmate-v055/NeuralTtsClient.java build-src/app/src/main/java/com/seungho/barointerpreter/NeuralTtsClient.java
+
+      - name: Apply v0.5.6 ONNX Runtime patch
+        shell: bash
+        run: |
+          set -euxo pipefail
+          base64 --decode .ci/travelmate-v056.patch.gz.b64 | gzip -dc > /tmp/travelmate-v056.patch
+          echo 'cd96520a6ce03763e789e39a83e2cf4e49a856df865f0cd4fb8c6795ecded9f5  /tmp/travelmate-v056.patch' | sha256sum -c -
+          patch -d build-src -p1 --batch < /tmp/travelmate-v056.patch
+          sed -i -E 's/minSdk(Version)?[[:space:]]+23/minSdk 24/' build-src/app/build.gradle
+
+      - name: Export source and UI snippets
+        shell: bash
+        run: |
+          set -euxo pipefail
+          grep -n -C 18 -E '여행 도구|여행회화|가격 환산|내 지갑|보여주기' build-src/app/src/main/java/com/seungho/barointerpreter/MainActivity.java > UI_SNIPPETS.txt || true
+          grep -n -C 12 -E 'lastTranslation|resultView|번역' build-src/app/src/main/java/com/seungho/barointerpreter/MainActivity.java > TRANSLATION_SNIPPETS.txt || true
+          (cd build-src && zip -qr ../TravelMate_Android_v0.5.6_reconstructed_source.zip .)
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TravelMate-v0.5.6-reconstructed-source
+          path: |
+            TravelMate_Android_v0.5.6_reconstructed_source.zip
+            UI_SNIPPETS.txt
+            TRANSLATION_SNIPPETS.txt
+          if-no-files-found: error
+          retention-days: 7
