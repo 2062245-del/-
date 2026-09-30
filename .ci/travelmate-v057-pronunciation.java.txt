@@ -1,0 +1,316 @@
+    private void updatePronunciation(String result, LanguageProfile language) {
+        if (pronunciationView == null) return;
+        String guide = koreanPronunciation(result, language);
+        if (guide == null || guide.trim().isEmpty()) {
+            pronunciationView.setText("");
+            pronunciationView.setVisibility(View.GONE);
+            return;
+        }
+        pronunciationView.setText("한국어 발음(참고)  " + guide);
+        pronunciationView.setVisibility(View.VISIBLE);
+    }
+
+    private String koreanPronunciation(String text, LanguageProfile language) {
+        if (language == null || text == null || text.trim().isEmpty() || "ko".equals(language.id)) return "";
+        if ("vi".equals(language.id)) return vietnamesePronunciation(text);
+        if ("en".equals(language.id)) return englishPronunciation(text);
+        return "";
+    }
+
+    private String vietnamesePronunciation(String text) {
+        String key = text.trim().toLowerCase(Locale.ROOT).replaceAll("\\s+", " ");
+        switch (key) {
+            case "xin chào": return "씬 짜오";
+            case "cảm ơn": return "깜 언";
+            case "bao nhiêu tiền?":
+            case "bao nhiêu tiền": return "바오 니에우 띠엔?";
+            case "ở đâu?":
+            case "ở đâu": return "어 더우?";
+            case "xin hãy giúp tôi": return "씬 하이 줍 또이";
+            case "nhà vệ sinh ở đâu?":
+            case "nhà vệ sinh ở đâu": return "냐 베 씬 어 더우?";
+            case "tôi muốn cái này": return "또이 무온 까이 나이";
+            case "không cay": return "콩 까이";
+            case "tính tiền giúp tôi": return "띤 띠엔 줍 또이";
+            default: return pronounceWords(text, true);
+        }
+    }
+
+    private String englishPronunciation(String text) {
+        String key = text.trim().toLowerCase(Locale.ROOT).replaceAll("\\s+", " ");
+        switch (key) {
+            case "hello": return "헬로";
+            case "thank you":
+            case "thank you.": return "땡큐";
+            case "how much is it?":
+            case "how much is it": return "하우 머치 이즈 잇?";
+            case "where is it?":
+            case "where is it": return "웨어 이즈 잇?";
+            case "please help me":
+            case "please help me.": return "플리즈 헬프 미";
+            case "where is the restroom?":
+            case "where is the restroom": return "웨어 이즈 더 레스트룸?";
+            default: return pronounceWords(text, false);
+        }
+    }
+
+    private String pronounceWords(String text, boolean vietnamese) {
+        String[] words = text.trim().split("\\s+");
+        StringBuilder out = new StringBuilder();
+        for (String token : words) {
+            if (token.isEmpty()) continue;
+            String punctuation = token.endsWith("?") ? "?" : token.endsWith("!") ? "!" : token.endsWith(".") ? "." : token.endsWith(",") ? "," : "";
+            String core = token.replaceAll("[^\\p{L}']", "");
+            if (core.isEmpty()) continue;
+            String spoken = vietnamese ? pronounceVietnameseWord(core) : pronounceEnglishWord(core);
+            if (spoken == null || spoken.isEmpty()) continue;
+            if (out.length() > 0) out.append(' ');
+            out.append(spoken).append(punctuation);
+        }
+        return out.toString();
+    }
+
+    private String pronounceVietnameseWord(String word) {
+        String w = word.toLowerCase(Locale.ROOT);
+        switch (w) {
+            case "xin": return "씬";
+            case "chào": return "짜오";
+            case "cảm": return "깜";
+            case "ơn": return "언";
+            case "bao": return "바오";
+            case "nhiêu": return "니에우";
+            case "tiền": return "띠엔";
+            case "ở": return "어";
+            case "đâu": return "더우";
+            case "tôi": return "또이";
+            case "muốn": return "무온";
+            case "không": return "콩";
+            case "có": return "꺼";
+            case "vâng": return "벙";
+            case "được": return "드억";
+            case "giúp": return "줍";
+            case "hãy": return "하이";
+            case "với": return "버이";
+            case "bạn": return "반";
+            case "đi": return "디";
+            case "đến": return "덴";
+            case "đây": return "더이";
+            case "đó": return "도";
+            case "này": return "나이";
+            case "kia": return "끼아";
+            case "đường": return "드엉";
+            case "trái": return "짜이";
+            case "phải": return "파이";
+            case "thẳng": return "탕";
+            case "dừng": return "증";
+            case "xe": return "쎄";
+            case "taxi": return "딱시";
+            case "sân": return "썬";
+            case "bay": return "바이";
+            case "khách": return "카익";
+            case "sạn": return "산";
+            case "nhà": return "냐";
+            case "hàng": return "항";
+            case "ăn": return "안";
+            case "uống": return "우옹";
+            case "nước": return "느억";
+            case "cơm": return "껌";
+            case "phở": return "퍼";
+            case "cà": return "까";
+            case "phê": return "페";
+            case "bia": return "비아";
+            case "ngon": return "응온";
+            case "cay": return "까이";
+            case "ít": return "잇";
+            case "nhiều": return "니에우";
+            case "một": return "못";
+            case "hai": return "하이";
+            case "ba": return "바";
+            case "bốn": return "본";
+            case "năm": return "남";
+            case "sáu": return "싸우";
+            case "bảy": return "바이";
+            case "tám": return "땀";
+            case "chín": return "찐";
+            case "mười": return "므어이";
+            case "đồng": return "동";
+            case "nghìn": return "응인";
+            case "triệu": return "찌에우";
+            case "mua": return "무아";
+            case "bán": return "반";
+            case "giá": return "자";
+            case "rẻ": return "제";
+            case "đắt": return "닷";
+            case "hóa": return "호아";
+            case "đơn": return "던";
+            case "thẻ": return "테";
+            case "mặt": return "맛";
+            case "vệ": return "베";
+            case "sinh": return "씬";
+            case "bệnh": return "베인";
+            case "viện": return "비엔";
+            case "đau": return "다우";
+            case "thuốc": return "투옥";
+            case "tính": return "띤";
+            case "cho": return "쩌";
+            case "làm": return "람";
+            default: return vietnameseFallback(w);
+        }
+    }
+
+    private String vietnameseFallback(String word) {
+        String n = word.toLowerCase(Locale.ROOT).replace('đ', 'd');
+        n = Normalizer.normalize(n, Normalizer.Form.NFD).replaceAll("\\p{M}+", "");
+        StringBuilder out = new StringBuilder();
+        for (int i = 0; i < n.length();) {
+            String rest = n.substring(i);
+            if (rest.startsWith("ngh")) { out.append("응"); i += 3; continue; }
+            if (rest.startsWith("ng")) { out.append("응"); i += 2; continue; }
+            if (rest.startsWith("nh")) { out.append("니"); i += 2; continue; }
+            if (rest.startsWith("ch")) { out.append("치"); i += 2; continue; }
+            if (rest.startsWith("tr")) { out.append("쯔"); i += 2; continue; }
+            if (rest.startsWith("th")) { out.append("트"); i += 2; continue; }
+            if (rest.startsWith("ph")) { out.append("프"); i += 2; continue; }
+            if (rest.startsWith("kh")) { out.append("크"); i += 2; continue; }
+            if (rest.startsWith("gi")) { out.append("지"); i += 2; continue; }
+            if (rest.startsWith("qu")) { out.append("꾸"); i += 2; continue; }
+            char c = n.charAt(i++);
+            switch (c) {
+                case 'a': out.append("아"); break;
+                case 'b': out.append("브"); break;
+                case 'c': out.append("끄"); break;
+                case 'd': out.append("드"); break;
+                case 'e': out.append("에"); break;
+                case 'f': out.append("프"); break;
+                case 'g': out.append("그"); break;
+                case 'h': out.append("흐"); break;
+                case 'i': out.append("이"); break;
+                case 'j': out.append("지"); break;
+                case 'k': out.append("끄"); break;
+                case 'l': out.append("르"); break;
+                case 'm': out.append("므"); break;
+                case 'n': out.append("느"); break;
+                case 'o': out.append("오"); break;
+                case 'p': out.append("브"); break;
+                case 'q': out.append("꾸"); break;
+                case 'r': out.append("르"); break;
+                case 's': out.append("스"); break;
+                case 't': out.append("뜨"); break;
+                case 'u': out.append("우"); break;
+                case 'v': out.append("브"); break;
+                case 'w': out.append("우"); break;
+                case 'x': out.append("쓰"); break;
+                case 'y': out.append("이"); break;
+                default: break;
+            }
+        }
+        return out.toString();
+    }
+
+    private String pronounceEnglishWord(String word) {
+        String w = word.toLowerCase(Locale.ROOT);
+        switch (w) {
+            case "hello": return "헬로";
+            case "thank": return "땡크";
+            case "thanks": return "땡크스";
+            case "you": return "유";
+            case "how": return "하우";
+            case "much": return "머치";
+            case "is": return "이즈";
+            case "it": return "잇";
+            case "where": return "웨어";
+            case "what": return "왓";
+            case "when": return "웬";
+            case "why": return "와이";
+            case "please": return "플리즈";
+            case "help": return "헬프";
+            case "me": return "미";
+            case "the": return "더";
+            case "restroom": return "레스트룸";
+            case "toilet": return "토일렛";
+            case "hotel": return "호텔";
+            case "airport": return "에어포트";
+            case "taxi": return "택시";
+            case "station": return "스테이션";
+            case "restaurant": return "레스토랑";
+            case "water": return "워터";
+            case "food": return "푸드";
+            case "coffee": return "커피";
+            case "beer": return "비어";
+            case "money": return "머니";
+            case "cash": return "캐시";
+            case "card": return "카드";
+            case "price": return "프라이스";
+            case "cheap": return "칩";
+            case "expensive": return "익스펜시브";
+            case "left": return "레프트";
+            case "right": return "라이트";
+            case "straight": return "스트레이트";
+            case "stop": return "스탑";
+            case "yes": return "예스";
+            case "no": return "노";
+            case "okay":
+            case "ok": return "오케이";
+            case "sorry": return "쏘리";
+            case "one": return "원";
+            case "two": return "투";
+            case "three": return "쓰리";
+            case "four": return "포";
+            case "five": return "파이브";
+            case "six": return "식스";
+            case "seven": return "세븐";
+            case "eight": return "에이트";
+            case "nine": return "나인";
+            case "ten": return "텐";
+            default: return englishFallback(w);
+        }
+    }
+
+    private String englishFallback(String word) {
+        String n = Normalizer.normalize(word.toLowerCase(Locale.ROOT), Normalizer.Form.NFD).replaceAll("\\p{M}+", "");
+        StringBuilder out = new StringBuilder();
+        for (int i = 0; i < n.length();) {
+            String rest = n.substring(i);
+            if (rest.startsWith("tion")) { out.append("션"); i += 4; continue; }
+            if (rest.startsWith("sh")) { out.append("시"); i += 2; continue; }
+            if (rest.startsWith("ch")) { out.append("치"); i += 2; continue; }
+            if (rest.startsWith("th")) { out.append("드"); i += 2; continue; }
+            if (rest.startsWith("ph")) { out.append("프"); i += 2; continue; }
+            if (rest.startsWith("ng")) { out.append("응"); i += 2; continue; }
+            if (rest.startsWith("qu")) { out.append("쿼"); i += 2; continue; }
+            if (rest.startsWith("oo")) { out.append("우"); i += 2; continue; }
+            if (rest.startsWith("ee")) { out.append("이"); i += 2; continue; }
+            char c = n.charAt(i++);
+            switch (c) {
+                case 'a': out.append("애"); break;
+                case 'b': out.append("브"); break;
+                case 'c': out.append("크"); break;
+                case 'd': out.append("드"); break;
+                case 'e': out.append("에"); break;
+                case 'f': out.append("프"); break;
+                case 'g': out.append("그"); break;
+                case 'h': out.append("흐"); break;
+                case 'i': out.append("이"); break;
+                case 'j': out.append("지"); break;
+                case 'k': out.append("크"); break;
+                case 'l': out.append("르"); break;
+                case 'm': out.append("므"); break;
+                case 'n': out.append("느"); break;
+                case 'o': out.append("오"); break;
+                case 'p': out.append("프"); break;
+                case 'q': out.append("큐"); break;
+                case 'r': out.append("르"); break;
+                case 's': out.append("스"); break;
+                case 't': out.append("트"); break;
+                case 'u': out.append("어"); break;
+                case 'v': out.append("브"); break;
+                case 'w': out.append("우"); break;
+                case 'x': out.append("엑스"); break;
+                case 'y': out.append("이"); break;
+                case 'z': out.append("즈"); break;
+                default: break;
+            }
+        }
+        return out.toString();
+    }
+
