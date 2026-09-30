@@ -23,7 +23,7 @@ jobs:
         shell: bash
         run: |
           set -euxo pipefail
-          base64 --decode .ci/travelmate-ios-v01-source.zip.b64 > /tmp/TravelMate_iOS_v0.1_source.zip
+          base64 -D -i .ci/travelmate-ios-v01-source.zip.b64 -o /tmp/TravelMate_iOS_v0.1_source.zip
           mkdir -p /tmp/ios-src
           unzip -q /tmp/TravelMate_iOS_v0.1_source.zip -d /tmp/ios-src
           test -s /tmp/ios-src/TravelMate_iOS_v0.1/project.yml
