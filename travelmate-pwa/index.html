@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#f6f7fb" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="여행메이트" />
+  <link rel="apple-touch-icon" href="icon.svg" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="stylesheet" href="styles.css" />
+  <title>여행메이트</title>
+</head>
+<body>
+  <div id="offlineBanner" class="offline-banner hidden">오프라인 상태입니다. 여행회화·지갑은 계속 사용할 수 있어요.</div>
+  <main class="app-shell">
+    <header class="hero">
+      <div>
+        <div class="eyebrow">TRAVEL MATE</div>
+        <h1>여행메이트</h1>
+        <p>말하고, 보여주고, 계산하고, 기록하세요.</p>
+      </div>
+      <div id="targetBadge" class="lang-badge">🇻🇳 베트남어</div>
+    </header>
+
+    <section class="quick-strip" aria-label="빠른 도구">
+      <button id="openWallet" class="quick-button">👛 <span>내 지갑</span></button>
+      <button id="openFx" class="quick-button">💱 <span>가격 환산</span></button>
+    </section>
+
+    <section class="card translator-card">
+      <div class="section-head">
+        <div>
+          <span class="mini-label">바로 통역</span>
+          <h2>무엇을 번역할까요?</h2>
+        </div>
+        <button id="installHelp" class="icon-button" title="홈 화면에 추가 안내">＋</button>
+      </div>
+
+      <div class="language-row">
+        <select id="sourceLang" aria-label="원문 언어">
+          <option value="ko">🇰🇷 한국어</option>
+          <option value="en">🇺🇸 영어</option>
+          <option value="vi">🇻🇳 베트남어</option>
+        </select>
+        <button id="swapLang" class="swap-button" aria-label="언어 바꾸기">⇄</button>
+        <select id="targetLang" aria-label="번역 언어">
+          <option value="vi">🇻🇳 베트남어</option>
+          <option value="en">🇺🇸 영어</option>
+          <option value="ko">🇰🇷 한국어</option>
+        </select>
+      </div>
+
+      <div class="input-wrap">
+        <textarea id="sourceText" rows="4" placeholder="번역할 문장을 입력하세요"></textarea>
+        <button id="micButton" class="mic-button" title="음성 입력">🎙️</button>
+      </div>
+
+      <button id="translateButton" class="primary-button">번역하기</button>
+      <div id="translationStatus" class="status-line">여행회화는 오프라인에서도 바로 번역됩니다.</div>
+
+      <div id="resultArea" class="result-area hidden">
+        <div class="result-meta">
+          <span id="resultLangName">베트남어</span>
+          <button id="copyResult" class="text-button">복사</button>
+        </div>
+        <div id="resultText" class="result-text"></div>
+        <div id="pronunciation" class="pronunciation hidden"></div>
+        <div class="result-actions">
+          <button id="speakResult" class="secondary-button">🔊 듣기</button>
+          <button id="showResult" class="secondary-button">🪧 크게 보여주기</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card travel-card">
+      <div class="section-head">
+        <div>
+          <span class="mini-label">베트남 여행</span>
+          <h2>여행회화</h2>
+        </div>
+        <button id="phraseRefresh" class="icon-button" title="처음으로">↻</button>
+      </div>
+      <div id="phraseCategories" class="chip-row"></div>
+      <div id="phraseList" class="phrase-list"></div>
+    </section>
+
+    <section class="privacy-note">
+      <strong>내 데이터는 이 아이폰에 저장됩니다.</strong>
+      <span>지갑·소비 내역은 서버 계정 없이 이 브라우저에만 보관됩니다.</span>
+    </section>
+  </main>
+
+  <dialog id="walletDialog" class="sheet-dialog">
+    <form method="dialog" class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-head">
+        <div><span class="mini-label">TRAVEL WALLET</span><h2>내 지갑</h2></div>
+        <button value="cancel" class="close-button">✕</button>
+      </div>
+
+      <div class="balance-card">
+        <span>현재 잔액</span>
+        <strong id="walletBalance">0₫</strong>
+        <small id="walletBalanceKrw">약 0원</small>
+        <div class="progress-track"><div id="walletProgress" class="progress-bar"></div></div>
+        <div id="walletProgressText" class="progress-text">시작 금액을 설정해 주세요.</div>
+      </div>
+
+      <div class="wallet-stats">
+        <div><span>오늘 사용</span><strong id="walletToday">0₫</strong></div>
+        <div><span>총 사용</span><strong id="walletSpent">0₫</strong></div>
+      </div>
+
+      <section class="wallet-input-card">
+        <h3>소비 기록</h3>
+        <div class="amount-field"><input id="expenseAmount" inputmode="numeric" placeholder="사용 금액" /><span>₫</span></div>
+        <div id="expenseQuick" class="amount-chips"></div>
+        <input id="expenseMemo" class="memo-input" placeholder="메모 예: 쌀국수, 택시" />
+        <button id="addExpense" type="button" class="primary-button">＋ 소비 기록</button>
+      </section>
+
+      <section class="history-card">
+        <div class="history-head"><h3>최근 사용</h3><span id="expenseCount">0건</span></div>
+        <div id="expenseHistory" class="expense-history"></div>
+      </section>
+
+      <details class="wallet-settings">
+        <summary>여행 지갑 설정</summary>
+        <div class="settings-inner">
+          <label>시작 금액</label>
+          <div class="amount-field"><input id="startingAmount" inputmode="numeric" placeholder="예: 5000000" /><span>₫</span></div>
+          <div id="startQuick" class="amount-chips"></div>
+          <button id="saveStartingAmount" type="button" class="secondary-button full">시작 금액 저장</button>
+          <button id="resetWallet" type="button" class="danger-button">여행 지갑 초기화</button>
+        </div>
+      </details>
+    </form>
+  </dialog>
+
+  <dialog id="fxDialog" class="sheet-dialog">
+    <form method="dialog" class="sheet compact-sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-head">
+        <div><span class="mini-label">PRICE CHECK</span><h2>가격 환산</h2></div>
+        <button value="cancel" class="close-button">✕</button>
+      </div>
+      <div class="fx-hero">
+        <label>베트남 동</label>
+        <div class="amount-field giant"><input id="fxVnd" inputmode="numeric" placeholder="100000" /><span>₫</span></div>
+        <div id="fxKrw" class="fx-result">≈ 0원</div>
+      </div>
+      <div id="fxQuick" class="amount-chips"></div>
+      <div class="rate-row"><span id="rateText">환율 확인 중…</span><button id="refreshRate" type="button" class="text-button">새로고침</button></div>
+      <p class="helper">실제 카드사·환전소 환율과 수수료에 따라 차이가 날 수 있습니다.</p>
+    </form>
+  </dialog>
+
+  <dialog id="showDialog" class="show-dialog">
+    <form method="dialog" class="show-sheet">
+      <button value="cancel" class="show-close">✕</button>
+      <div id="showLang" class="show-lang"></div>
+      <div id="showText" class="show-text"></div>
+      <div id="showPronunciation" class="show-pronunciation"></div>
+      <button id="showSpeak" type="button" class="show-speak">🔊 다시 듣기</button>
+    </form>
+  </dialog>
+
+  <dialog id="installDialog" class="sheet-dialog">
+    <form method="dialog" class="sheet compact-sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-head"><div><span class="mini-label">IPHONE</span><h2>홈 화면에 설치</h2></div><button value="cancel" class="close-button">✕</button></div>
+      <ol class="install-steps">
+        <li>이 페이지를 <strong>Safari</strong>에서 엽니다.</li>
+        <li>하단의 <strong>공유 버튼 ⎋</strong>을 누릅니다.</li>
+        <li><strong>홈 화면에 추가</strong>를 선택합니다.</li>
+        <li>홈 화면의 <strong>여행메이트</strong> 아이콘으로 실행합니다.</li>
+      </ol>
+    </form>
+  </dialog>
+
+  <script src="app.js" defer></script>
+</body>
+</html>
