@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - '.ci/travelmate-v056-chunk-*.b64'
+      - '.ci/travelmate-v056.patch.gz.b64'
       - '.ci/travelmate-v055/**'
       - '.ci/travelmate-v055.patch'
       - '.ci/travelmate-v054/**'
@@ -102,7 +102,7 @@ jobs:
         shell: bash
         run: |
           set -euxo pipefail
-          cat .ci/travelmate-v056-chunk-*.b64 | tr -d '\r\n\t ' | base64 --decode > /tmp/travelmate-v056.patch
+          base64 --decode .ci/travelmate-v056.patch.gz.b64 | gzip -dc > /tmp/travelmate-v056.patch
           echo 'cd96520a6ce03763e789e39a83e2cf4e49a856df865f0cd4fb8c6795ecded9f5  /tmp/travelmate-v056.patch' | sha256sum -c -
           patch -d build-src -p1 --batch < /tmp/travelmate-v056.patch
 
