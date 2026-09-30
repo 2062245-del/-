@@ -1,0 +1,154 @@
+name: Build TravelMate v0.5.9
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/travelmate-android-v0.5.9.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: travelmate-v059
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      ANDROID_HOME: /usr/local/lib/android/sdk
+      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install Android SDK
+        shell: bash
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$SDKMANAGER" --licenses >/dev/null 2>&1 || true
+          "$SDKMANAGER" "platforms;android-35" "build-tools;35.0.0"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+      - name: Restore signing key
+        uses: actions/cache@v4
+        with:
+          path: .ci-signing/baro-interpreter.jks
+          key: baro-interpreter-release-keystore-v1
+
+      - name: Restore verified v0.5.8 source artifact
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p build-src .ci-signing /tmp/v058
+          curl -fL \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/2062245-del/-/actions/artifacts/11075828941/zip" \
+            -o /tmp/v058-artifact.zip
+          unzip -q /tmp/v058-artifact.zip -d /tmp/v058
+          test -s /tmp/v058/TravelMate_Android_v0.5.8_source.zip
+          unzip -q /tmp/v058/TravelMate_Android_v0.5.8_source.zip -d build-src
+          grep -q "versionName '0.5.8'" build-src/app/build.gradle
+
+      - name: Apply v0.5.9 UI patch
+        shell: bash
+        run: |
+          set -euxo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          gradle = Path('build-src/app/build.gradle')
+          g = gradle.read_text()
+          g = g.replace('versionCode 14','versionCode 15').replace("versionName '0.5.8'", "versionName '0.5.9'")
+          if 'versionCode 15' not in g or "versionName '0.5.9'" not in g:
+              raise SystemExit('version bump failed')
+          gradle.write_text(g)
+
+          p = Path('build-src/app/src/main/java/com/seungho/barointerpreter/MainActivity.java')
+          s = p.read_text()
+
+          old = '''        root.addView(hero);\n\n        LinearLayout packCard = card();\n'''
+          new = '''        root.addView(hero);\n\n        // v0.5.9: 가장 자주 쓰는 두 도구를 앱 최상단에 작은 퀵버튼으로 고정\n        LinearLayout quickRow = row(Gravity.CENTER_VERTICAL);\n        Button walletBtn = compactButton("👛  내 지갑", Color.rgb(255, 247, 237), INK); walletBtn.setId(9903);\n        Button price = compactButton("💱  가격 환산", Color.rgb(240, 253, 250), INK); price.setId(9902);\n        walletBtn.setTextSize(15); walletBtn.setTypeface(Typeface.DEFAULT, Typeface.BOLD);\n        price.setTextSize(15); price.setTypeface(Typeface.DEFAULT, Typeface.BOLD);\n        quickRow.addView(walletBtn, new LinearLayout.LayoutParams(0, dp(44), 1f));\n        LinearLayout.LayoutParams quick2 = new LinearLayout.LayoutParams(0, dp(44), 1f);\n        quick2.setMargins(dp(8), 0, 0, 0);\n        quickRow.addView(price, quick2);\n        root.addView(quickRow, topMargin(dp(8)));\n\n        LinearLayout packCard = card();\n'''
+          if old not in s: raise SystemExit('hero anchor missing')
+          s = s.replace(old, new, 1)
+
+          old = '''        root.addView(section("빠른 도구", "자주 쓰는 기능을 번역 바로 아래에 배치했습니다."), topMargin(dp(12)));\n        LinearLayout quickRow = row(Gravity.CENTER);\n        Button walletBtn = toolButton("👛", "내 지갑", "잔액·소비 이력", Color.rgb(255, 247, 237)); walletBtn.setId(9903);\n        Button price = toolButton("💱", "가격 환산", "VND → 원화", Color.rgb(240, 253, 250)); price.setId(9902);\n        quickRow.addView(walletBtn, new LinearLayout.LayoutParams(0, dp(118), 1f));\n        LinearLayout.LayoutParams quick2 = new LinearLayout.LayoutParams(0, dp(118), 1f); quick2.setMargins(dp(10), 0, 0, 0); quickRow.addView(price, quick2);\n        root.addView(quickRow, topMargin(dp(7)));\n\n'''
+          if old not in s: raise SystemExit('old quick block missing')
+          s = s.replace(old, '', 1)
+
+          s = s.replace('pronunciationView = text("", 16, false, MUTED);', 'pronunciationView = text("", 17, false, MUTED);', 1)
+          s = s.replace('pronunciationView.setPadding(0, 0, 0, dp(8));', 'pronunciationView.setPadding(0, 0, 0, dp(6));', 1)
+          old_label = 'pronunciationView.setText("한국어 발음(참고)  " + guide);'
+          if old_label not in s: raise SystemExit('pronunciation label anchor missing')
+          s = s.replace(old_label, 'pronunciationView.setText(guide);', 1)
+
+          p.write_text(s)
+          Path('build-src/README.md').write_text('''# 여행메이트 v0.5.9\n\n- 내 지갑 / 가격 환산을 앱 최상단의 작은 퀵버튼으로 이동\n- 번역 발음은 외국어 바로 아래에 발음만 표시\n- 한국어 발음(참고) 라벨 제거\n- v0.5.8 ONNX Runtime 음성 구조 유지\n''')
+          PY
+
+      - name: Prepare signing
+        shell: bash
+        run: |
+          set -euxo pipefail
+          KEY="$PWD/.ci-signing/baro-interpreter.jks"
+          test -s "$KEY"
+          echo "BARO_KEYSTORE_PATH=$KEY" >> "$GITHUB_ENV"
+          echo "BARO_KEYSTORE_PASSWORD=baro-local-release" >> "$GITHUB_ENV"
+          echo "BARO_KEY_ALIAS=baro" >> "$GITHUB_ENV"
+          echo "BARO_KEY_PASSWORD=baro-local-release" >> "$GITHUB_ENV"
+
+      - name: Static checks
+        shell: bash
+        run: |
+          set -euxo pipefail
+          MAIN=build-src/app/src/main/java/com/seungho/barointerpreter/MainActivity.java
+          grep -q 'versionCode 15' build-src/app/build.gradle
+          grep -q "versionName '0.5.9'" build-src/app/build.gradle
+          grep -q 'v0.5.9: 가장 자주 쓰는 두 도구를 앱 최상단' "$MAIN"
+          grep -q 'new LinearLayout.LayoutParams(0, dp(44), 1f)' "$MAIN"
+          ! grep -q '한국어 발음(참고)' "$MAIN"
+          ! grep -q '자주 쓰는 기능을 번역 바로 아래에 배치했습니다' "$MAIN"
+          grep -q 'com.microsoft.onnxruntime:onnxruntime-android:1.26.0' build-src/app/build.gradle
+
+      - name: Build release APK
+        working-directory: build-src
+        shell: bash
+        run: |
+          set -euxo pipefail
+          gradle --no-daemon :app:assembleRelease
+
+      - name: Verify APK and package source
+        shell: bash
+        run: |
+          set -euxo pipefail
+          APK=build-src/app/build/outputs/apk/release/app-release.apk
+          test -s "$APK"
+          unzip -tq "$APK"
+          APKSIGNER="$ANDROID_HOME/build-tools/35.0.0/apksigner"
+          AAPT="$ANDROID_HOME/build-tools/35.0.0/aapt"
+          "$APKSIGNER" verify --verbose --print-certs "$APK" | tee apk-signature.txt
+          grep -qi '7d411eb878d63e9b30e5a75c65ce1206d195b45a3e5f794955bd78f625b87b85' apk-signature.txt
+          "$AAPT" dump badging "$APK" | head -n 25 | tee apk-badging.txt
+          grep -q "versionCode='15'" apk-badging.txt
+          grep -q "versionName='0.5.9'" apk-badging.txt
+          cp "$APK" TravelMate-v0.5.9-arm64.apk
+          (cd build-src && zip -qr ../TravelMate_Android_v0.5.9_source.zip . -x 'app/build/*' '.gradle/*')
+          sha256sum TravelMate-v0.5.9-arm64.apk > TravelMate-v0.5.9-arm64.sha256
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TravelMate-v0.5.9-arm64
+          path: |
+            TravelMate-v0.5.9-arm64.apk
+            TravelMate-v0.5.9-arm64.sha256
+            TravelMate_Android_v0.5.9_source.zip
+            apk-signature.txt
+            apk-badging.txt
+          if-no-files-found: error
+          retention-days: 30
