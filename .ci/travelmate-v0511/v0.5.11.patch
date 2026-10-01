@@ -65,7 +65,7 @@
          if (activeToolDialog == null || !activeToolDialog.isShowing()) speak(result, to);
      }
  
-@@ -665,6 +688,18 @@
+@@ -665,6 +688,16 @@
              case "tôi muốn cái này": return "또이 무온 까이 나이";
              case "không cay": return "콩 까이";
              case "tính tiền giúp tôi": return "띤 띠엔 줍 또이";
@@ -79,12 +79,10 @@
 +            case "làm ơn nói chậm hơn": return "람 언 노이 쩜 헌";
 +            case "vui lòng nói lại giúp tôi.":
 +            case "vui lòng nói lại giúp tôi": return "부이 롱 노이 라이 줍 또이";
-+            case "nhà vệ sinh ở đâu?":
-+            case "nhà vệ sinh ở đâu": return "냐 베 씬 어 더우?";
              default: return pronounceWords(text, true);
          }
      }
-@@ -1075,9 +1110,14 @@
+@@ -1075,9 +1108,14 @@
          balanceCard.setPadding(dp(16),dp(14),dp(16),dp(14));
          balanceCard.setBackground(gradient(new int[]{Color.rgb(245,243,255),Color.rgb(239,246,255)},dp(18)));
          TextView balanceLabel=text("현재 잔액",13,true,PRIMARY);
@@ -100,7 +98,7 @@
          balanceCard.addView(balanceValue,topMargin(dp(3)));
          balanceCard.addView(balanceKrw,topMargin(dp(3)));
          root.addView(balanceCard);
-@@ -1149,6 +1189,7 @@
+@@ -1149,6 +1187,7 @@
              memo.setText("");
              render.run();
          });
@@ -108,7 +106,7 @@
          settings.setOnClickListener(v->showWalletSettings(d));
          render.run();
          trackToolDialog(d);
-@@ -1164,13 +1205,32 @@
+@@ -1164,13 +1203,32 @@
          return card;
      }
  
@@ -143,7 +141,7 @@
                      long a=parseMoney(e.getText().toString());
                      if(a<=0){toast("금액을 확인해주세요.");return;}
                      wallet.setStartingAmount(a);
-@@ -1178,7 +1238,7 @@
+@@ -1178,7 +1236,7 @@
                      handler.postDelayed(()->{if(isActivityUsable())showWallet();},180);
                  }).show();
              }else{
@@ -152,7 +150,7 @@
                      wallet.resetTrip();
                      if(parent!=null) parent.dismiss();
                      toast("지갑을 초기화했습니다.");
-@@ -1220,7 +1280,7 @@
+@@ -1220,7 +1278,7 @@
          balanceKrw.setText("약 "+formatKrw(Math.max(0,balance)*fx.rateToKrw())+" · 저장 환율 기준");
          todayValue.setText(formatVnd(today));
          totalValue.setText(formatVnd(spent));
