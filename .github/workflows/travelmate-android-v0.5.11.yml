@@ -1,0 +1,168 @@
+name: Build TravelMate v0.5.11
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/travelmate-android-v0.5.11.yml'
+      - '.ci/travelmate-v0511/**'
+  workflow_dispatch:
+
+concurrency:
+  group: travelmate-v0511
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      ANDROID_HOME: /usr/local/lib/android/sdk
+      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install Android SDK
+        shell: bash
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$SDKMANAGER" --licenses >/dev/null 2>&1 || true
+          "$SDKMANAGER" "platforms;android-35" "build-tools;35.0.0"
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+
+      - name: Restore signing key
+        uses: actions/cache@v4
+        with:
+          path: .ci-signing/baro-interpreter.jks
+          key: baro-interpreter-release-keystore-v1
+
+      - name: Restore verified v0.5.10 source artifact
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p build-src .ci-signing /tmp/v0510
+          curl -fL \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/2062245-del/-/actions/artifacts/11081400531/zip" \
+            -o /tmp/v0510-artifact.zip
+          unzip -q /tmp/v0510-artifact.zip -d /tmp/v0510
+          test -s /tmp/v0510/TravelMate_Android_v0.5.10_source.zip
+          unzip -q /tmp/v0510/TravelMate_Android_v0.5.10_source.zip -d build-src
+          grep -q "versionName '0.5.10'" build-src/app/build.gradle
+          grep -q 'versionCode 16' build-src/app/build.gradle
+
+      - name: Apply v0.5.11 patch
+        shell: bash
+        run: |
+          set -euxo pipefail
+          cd build-src
+          patch -p1 < ../.ci/travelmate-v0511/v0.5.11.patch
+
+      - name: Translation quality regression tests
+        shell: bash
+        run: |
+          set -euxo pipefail
+          PKG=/tmp/qtest/com/seungho/barointerpreter
+          mkdir -p "$PKG"
+          cp build-src/app/src/main/java/com/seungho/barointerpreter/TravelTranslationQuality.java "$PKG/"
+          cat > "$PKG/TravelTranslationQualityTest.java" <<'JAVA'
+          package com.seungho.barointerpreter;
+          public final class TravelTranslationQualityTest {
+              private static void expect(String name, boolean ok) {
+                  if (!ok) throw new AssertionError(name);
+                  System.out.println("PASS: " + name);
+              }
+              public static void main(String[] args) {
+                  String ko = "너무 더운데 에어컨 좀 틀어 주세요";
+                  String vi = TravelTranslationQuality.curated(ko, "ko", "vi");
+                  expect("reported AC ko->vi curated", "Nóng quá, làm ơn bật điều hòa giúp tôi.".equals(vi));
+                  String en = TravelTranslationQuality.curated(ko, "ko", "en");
+                  expect("reported AC ko->en curated", "It's very hot. Please turn on the air conditioner.".equals(en));
+                  expect("old broken AC result rejected", !TravelTranslationQuality.isMeaningSafe(ko, "Quá nhiều nóng,", "ko", "vi"));
+                  expect("good AC result accepted", TravelTranslationQuality.isMeaningSafe(ko, "Nóng quá, làm ơn bật điều hòa giúp tôi.", "ko", "vi"));
+                  expect("restroom curated", "Nhà vệ sinh ở đâu?".equals(TravelTranslationQuality.curated("화장실 어디예요?", "ko", "vi")));
+                  expect("card payment curated", TravelTranslationQuality.curated("카드 결제 돼요?", "ko", "vi") != null);
+              }
+          }
+          JAVA
+          javac -encoding UTF-8 "$PKG/TravelTranslationQuality.java" "$PKG/TravelTranslationQualityTest.java"
+          java -cp /tmp/qtest com.seungho.barointerpreter.TravelTranslationQualityTest
+
+      - name: Prepare signing
+        shell: bash
+        run: |
+          set -euxo pipefail
+          KEY="$PWD/.ci-signing/baro-interpreter.jks"
+          test -s "$KEY"
+          echo "BARO_KEYSTORE_PATH=$KEY" >> "$GITHUB_ENV"
+          echo "BARO_KEYSTORE_PASSWORD=baro-local-release" >> "$GITHUB_ENV"
+          echo "BARO_KEY_ALIAS=baro" >> "$GITHUB_ENV"
+          echo "BARO_KEY_PASSWORD=baro-local-release" >> "$GITHUB_ENV"
+
+      - name: Static checks
+        shell: bash
+        run: |
+          set -euxo pipefail
+          MAIN=build-src/app/src/main/java/com/seungho/barointerpreter/MainActivity.java
+          WALLET=build-src/app/src/main/java/com/seungho/barointerpreter/WalletStore.java
+          QUALITY=build-src/app/src/main/java/com/seungho/barointerpreter/TravelTranslationQuality.java
+          grep -q 'versionCode 17' build-src/app/build.gradle
+          grep -q "versionName '0.5.11'" build-src/app/build.gradle
+          grep -q 'TravelTranslationQuality.curated' "$MAIN"
+          grep -q 'TravelTranslationQuality.isMeaningSafe' "$MAIN"
+          grep -q 'applyUnsafeTranslationResult' "$MAIN"
+          grep -q 'Nóng quá, làm ơn bật điều hòa giúp tôi.' "$QUALITY"
+          grep -q '현재 잔액 수정' "$MAIN"
+          grep -q 'showWalletBalanceEditor' "$MAIN"
+          grep -q 'setCurrentBalance' "$WALLET"
+          grep -q 'wallet_balance_adjustment_vnd' "$WALLET"
+          grep -q '잔액 보정 적용' "$MAIN"
+          grep -q 'com.microsoft.onnxruntime:onnxruntime-android:1.26.0' build-src/app/build.gradle
+
+      - name: Build release APK
+        working-directory: build-src
+        shell: bash
+        run: |
+          set -euxo pipefail
+          gradle --no-daemon :app:assembleRelease
+
+      - name: Verify APK and package source
+        shell: bash
+        run: |
+          set -euxo pipefail
+          APK=build-src/app/build/outputs/apk/release/app-release.apk
+          test -s "$APK"
+          unzip -tq "$APK"
+          APKSIGNER="$ANDROID_HOME/build-tools/35.0.0/apksigner"
+          AAPT="$ANDROID_HOME/build-tools/35.0.0/aapt"
+          "$APKSIGNER" verify --verbose --print-certs "$APK" | tee apk-signature.txt
+          grep -qi '7d411eb878d63e9b30e5a75c65ce1206d195b45a3e5f794955bd78f625b87b85' apk-signature.txt
+          "$AAPT" dump badging "$APK" | head -n 25 | tee apk-badging.txt
+          grep -q "package: name='com.seungho.barointerpreter'" apk-badging.txt
+          grep -q "versionCode='17'" apk-badging.txt
+          grep -q "versionName='0.5.11'" apk-badging.txt
+          cp "$APK" TravelMate-v0.5.11-arm64.apk
+          (cd build-src && zip -qr ../TravelMate_Android_v0.5.11_source.zip . -x 'app/build/*' '.gradle/*')
+          sha256sum TravelMate-v0.5.11-arm64.apk > TravelMate-v0.5.11-arm64.sha256
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TravelMate-v0.5.11-arm64
+          path: |
+            TravelMate-v0.5.11-arm64.apk
+            TravelMate-v0.5.11-arm64.sha256
+            TravelMate_Android_v0.5.11_source.zip
+            apk-signature.txt
+            apk-badging.txt
+          if-no-files-found: error
+          retention-days: 30
