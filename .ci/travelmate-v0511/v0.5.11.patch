@@ -1,0 +1,415 @@
+--- a/app/build.gradle
++++ b/app/build.gradle
+@@ -12,8 +12,8 @@
+         applicationId 'com.seungho.barointerpreter'
+         minSdk 24
+         targetSdk 35
+-        versionCode 16
+-        versionName '0.5.10'
++        versionCode 17
++        versionName '0.5.11'
+         ndk {
+             abiFilters 'arm64-v8a'
+         }
+--- a/app/src/main/java/com/seungho/barointerpreter/MainActivity.java
++++ b/app/src/main/java/com/seungho/barointerpreter/MainActivity.java
+@@ -602,12 +602,22 @@
+             if (session == translationSession) applyTranslationResult(optimized, to, true);
+             return;
+         }
++        String curated = TravelTranslationQuality.curated(value, from.id, to.id);
++        if (curated != null) {
++            if (session == translationSession) applyTranslationResult(curated, to, true);
++            return;
++        }
+         TranslatorOptions options = new TranslatorOptions.Builder().setSourceLanguage(from.mlCode).setTargetLanguage(to.mlCode).build();
+         final Translator localTranslator = Translation.getClient(options);
+         translator = localTranslator;
+         localTranslator.translate(value)
+                 .addOnSuccessListener(result -> {
+-                    if (session == translationSession && !isFinishing() && !isDestroyed()) applyTranslationResult(result, to, false);
++                    if (session != translationSession || isFinishing() || isDestroyed()) return;
++                    if (!TravelTranslationQuality.isMeaningSafe(value, result, from.id, to.id)) {
++                        applyUnsafeTranslationResult(to);
++                        return;
++                    }
++                    applyTranslationResult(result, to, false);
+                 })
+                 .addOnFailureListener(e -> {
+                     if (session == translationSession && !isFinishing() && !isDestroyed()) {
+@@ -621,13 +631,26 @@
+                 });
+     }
+ 
++    private void applyUnsafeTranslationResult(LanguageProfile to) {
++        lastTranslation = "";
++        lastOutputLanguage = to;
++        resultView.setText("번역 결과에서 핵심 의미가 빠진 것 같아요.\n문장을 조금 짧게 다시 입력해주세요.");
++        resultLangView.setText(to.nativeName);
++        if (pronunciationView != null) {
++            pronunciationView.setText("");
++            pronunciationView.setVisibility(View.GONE);
++        }
++        setActivityStatus("⚠️ 의미 누락 가능성 · 결과 차단", AMBER);
++        toast("의미가 불완전한 번역 결과를 표시하지 않았습니다.");
++    }
++
+     private void applyTranslationResult(String result, LanguageProfile to, boolean optimized) {
+         lastTranslation = result;
+         lastOutputLanguage = to;
+         resultView.setText(result);
+         resultLangView.setText(to.nativeName);
+         updatePronunciation(result, to);
+-        setActivityStatus(optimized ? "여행회화 표현으로 번역 완료" : "번역 완료", GREEN);
++        setActivityStatus(optimized ? "여행 표현 최적화 번역 완료" : "번역 완료", GREEN);
+         if (activeToolDialog == null || !activeToolDialog.isShowing()) speak(result, to);
+     }
+ 
+@@ -665,6 +688,18 @@
+             case "tôi muốn cái này": return "또이 무온 까이 나이";
+             case "không cay": return "콩 까이";
+             case "tính tiền giúp tôi": return "띤 띠엔 줍 또이";
++            case "nóng quá, làm ơn bật điều hòa giúp tôi.":
++            case "nóng quá, làm ơn bật điều hòa giúp tôi": return "농 꽈, 람 언 벗 디에우 호아 줍 또이";
++            case "làm ơn bật điều hòa giúp tôi.":
++            case "làm ơn bật điều hòa giúp tôi": return "람 언 벗 디에우 호아 줍 또이";
++            case "làm ơn tắt điều hòa giúp tôi.":
++            case "làm ơn tắt điều hòa giúp tôi": return "람 언 땃 디에우 호아 줍 또이";
++            case "làm ơn nói chậm hơn.":
++            case "làm ơn nói chậm hơn": return "람 언 노이 쩜 헌";
++            case "vui lòng nói lại giúp tôi.":
++            case "vui lòng nói lại giúp tôi": return "부이 롱 노이 라이 줍 또이";
++            case "nhà vệ sinh ở đâu?":
++            case "nhà vệ sinh ở đâu": return "냐 베 씬 어 더우?";
+             default: return pronounceWords(text, true);
+         }
+     }
+@@ -1075,9 +1110,14 @@
+         balanceCard.setPadding(dp(16),dp(14),dp(16),dp(14));
+         balanceCard.setBackground(gradient(new int[]{Color.rgb(245,243,255),Color.rgb(239,246,255)},dp(18)));
+         TextView balanceLabel=text("현재 잔액",13,true,PRIMARY);
++        Button balanceEdit=compactButton("수정",Color.WHITE,PRIMARY);
++        balanceEdit.setTextSize(12);
++        LinearLayout balanceHeader=row(Gravity.CENTER_VERTICAL);
++        balanceHeader.addView(balanceLabel,new LinearLayout.LayoutParams(0,-2,1f));
++        balanceHeader.addView(balanceEdit,new LinearLayout.LayoutParams(dp(64),dp(34)));
+         TextView balanceValue=text("",30,true,INK);
+         TextView balanceKrw=text("",14,false,MUTED);
+-        balanceCard.addView(balanceLabel);
++        balanceCard.addView(balanceHeader);
+         balanceCard.addView(balanceValue,topMargin(dp(3)));
+         balanceCard.addView(balanceKrw,topMargin(dp(3)));
+         root.addView(balanceCard);
+@@ -1149,6 +1189,7 @@
+             memo.setText("");
+             render.run();
+         });
++        balanceEdit.setOnClickListener(v->showWalletBalanceEditor(d));
+         settings.setOnClickListener(v->showWalletSettings(d));
+         render.run();
+         trackToolDialog(d);
+@@ -1164,13 +1205,32 @@
+         return card;
+     }
+ 
++    private void showWalletBalanceEditor(AlertDialog parent){
++        LinearLayout root=dialogRoot();
++        root.addView(text("실제로 가지고 있는 현금과 앱 잔액이 다를 때 맞춰주세요. 기존 소비 이력은 그대로 유지됩니다.",14,false,MUTED));
++        EditText e=moneyInput("현재 가지고 있는 베트남 돈 (VND)");
++        e.setText(String.valueOf(Math.max(0,wallet.balance())));
++        root.addView(e,topMargin(dp(9)));
++        new AlertDialog.Builder(this).setTitle("현재 잔액 수정").setView(root).setNegativeButton("취소",null).setPositiveButton("저장",(x,y)->{
++            String raw=e.getText().toString().trim();
++            if(raw.isEmpty()){toast("현재 잔액을 입력해주세요.");return;}
++            long a=parseMoney(raw);
++            wallet.setCurrentBalance(a);
++            if(parent!=null) parent.dismiss();
++            toast("현재 잔액을 맞췄습니다. 소비 이력은 유지됩니다.");
++            handler.postDelayed(()->{if(isActivityUsable())showWallet();},180);
++        }).show();
++    }
++
+     private void showWalletSettings(AlertDialog parent){
+-        String[] items={"시작 금액 변경","여행 종료 · 지갑 초기화"};
++        String[] items={"현재 잔액 수정","시작 금액 변경","여행 종료 · 지갑 초기화"};
+         new AlertDialog.Builder(this).setTitle("여행 지갑 설정").setItems(items,(dialog,which)->{
+             if(which==0){
++                showWalletBalanceEditor(parent);
++            }else if(which==1){
+                 EditText e=moneyInput("새 시작 금액 (VND)");
+                 e.setText(String.valueOf(wallet.startingAmount()));
+-                new AlertDialog.Builder(this).setTitle("시작 금액 변경").setView(e).setNegativeButton("취소",null).setPositiveButton("저장",(x,y)->{
++                new AlertDialog.Builder(this).setTitle("시작 금액 변경").setMessage("시작 금액을 바꾸면 이전의 잔액 보정값은 초기화됩니다. 소비 이력은 유지됩니다.").setView(e).setNegativeButton("취소",null).setPositiveButton("저장",(x,y)->{
+                     long a=parseMoney(e.getText().toString());
+                     if(a<=0){toast("금액을 확인해주세요.");return;}
+                     wallet.setStartingAmount(a);
+@@ -1178,7 +1238,7 @@
+                     handler.postDelayed(()->{if(isActivityUsable())showWallet();},180);
+                 }).show();
+             }else{
+-                new AlertDialog.Builder(this).setTitle("여행을 종료할까요?").setMessage("시작 금액과 모든 소비 이력이 삭제됩니다.").setNegativeButton("취소",null).setPositiveButton("초기화",(x,y)->{
++                new AlertDialog.Builder(this).setTitle("여행을 종료할까요?").setMessage("시작 금액, 잔액 보정값과 모든 소비 이력이 삭제됩니다.").setNegativeButton("취소",null).setPositiveButton("초기화",(x,y)->{
+                     wallet.resetTrip();
+                     if(parent!=null) parent.dismiss();
+                     toast("지갑을 초기화했습니다.");
+@@ -1220,7 +1280,7 @@
+         balanceKrw.setText("약 "+formatKrw(Math.max(0,balance)*fx.rateToKrw())+" · 저장 환율 기준");
+         todayValue.setText(formatVnd(today));
+         totalValue.setText(formatVnd(spent));
+-        startInfo.setText("시작 "+formatVnd(start)+" · 남은 비율 "+wallet.remainingPercent()+"%");
++        startInfo.setText("시작 "+formatVnd(start)+" · 남은 비율 "+wallet.remainingPercent()+"%"+(wallet.hasBalanceAdjustment()?" · 잔액 보정 적용":""));
+         list.removeAllViews();
+         List<WalletStore.Expense> items=wallet.expenses();
+         int shown=0;
+--- a/app/src/main/java/com/seungho/barointerpreter/WalletStore.java
++++ b/app/src/main/java/com/seungho/barointerpreter/WalletStore.java
+@@ -23,13 +23,29 @@
+     private final SharedPreferences prefs;
+     private static final String KEY_START = "wallet_start_vnd";
+     private static final String KEY_LOG = "wallet_expenses_json";
++    private static final String KEY_BALANCE_ADJUSTMENT = "wallet_balance_adjustment_vnd";
+ 
+     public WalletStore(Context context) {
+         prefs = context.getSharedPreferences("travelmate_wallet", Context.MODE_PRIVATE);
+     }
+ 
+     public long startingAmount() { return prefs.getLong(KEY_START, 0L); }
+-    public void setStartingAmount(long amount) { prefs.edit().putLong(KEY_START, Math.max(0, amount)).apply(); }
++    public void setStartingAmount(long amount) {
++        prefs.edit()
++                .putLong(KEY_START, Math.max(0, amount))
++                .remove(KEY_BALANCE_ADJUSTMENT)
++                .apply();
++    }
++
++    public long balanceAdjustment() { return prefs.getLong(KEY_BALANCE_ADJUSTMENT, 0L); }
++    public boolean hasBalanceAdjustment() { return prefs.contains(KEY_BALANCE_ADJUSTMENT) && balanceAdjustment() != 0L; }
++
++    /** 현재 잔액만 맞추며 기존 소비 이력은 그대로 보존한다. */
++    public void setCurrentBalance(long desiredBalance) {
++        long baseBalance = startingAmount() - spent();
++        long adjustment = Math.max(0, desiredBalance) - baseBalance;
++        prefs.edit().putLong(KEY_BALANCE_ADJUSTMENT, adjustment).apply();
++    }
+ 
+     public List<Expense> expenses() {
+         List<Expense> out = new ArrayList<>();
+@@ -95,10 +111,10 @@
+         return (int)Math.max(0, Math.min(100, Math.round(balance * 100.0 / start)));
+     }
+ 
+-    public long balance() { return startingAmount() - spent(); }
++    public long balance() { return startingAmount() - spent() + balanceAdjustment(); }
+ 
+     public void resetTrip() {
+-        prefs.edit().remove(KEY_START).remove(KEY_LOG).apply();
++        prefs.edit().remove(KEY_START).remove(KEY_LOG).remove(KEY_BALANCE_ADJUSTMENT).apply();
+     }
+ 
+     public static String when(long time) {
+--- /dev/null
++++ b/app/src/main/java/com/seungho/barointerpreter/TravelTranslationQuality.java
+@@ -0,0 +1,203 @@
++package com.seungho.barointerpreter;
++
++import java.util.Locale;
++
++/**
++ * 여행에서 자주 쓰는 문장은 일반 통계 번역보다 의미 보존을 우선한다.
++ *
++ * 1) 자주 쓰는 요청/상황 문장은 의도 기반으로 자연스러운 표현을 먼저 반환한다.
++ * 2) 일반 번역 결과는 핵심 여행 개념이 통째로 빠졌는지 보수적으로 검사한다.
++ *
++ * 이 클래스는 Android API에 의존하지 않아 JVM에서 단독 회귀 테스트할 수 있다.
++ */
++public final class TravelTranslationQuality {
++    private TravelTranslationQuality() {}
++
++    public static String curated(String source, String fromId, String toId) {
++        if (source == null || fromId == null || toId == null) return null;
++        if (!"ko".equals(fromId)) return null;
++        if (!"vi".equals(toId) && !"en".equals(toId)) return null;
++
++        String n = normalizeKorean(source);
++        if (n.isEmpty()) return null;
++
++        // 에어컨은 여행지에서 오역 시 의사 전달 실패가 큰 대표 요청이다.
++        if (containsAny(n, "에어컨", "에어콘", "냉방")) {
++            if (containsAny(n, "꺼", "끄", "끄어", "정지")) {
++                return pick(toId,
++                        "Làm ơn tắt điều hòa giúp tôi.",
++                        "Please turn off the air conditioner.");
++            }
++            if (containsAny(n, "켜", "틀어", "가동")) {
++                if (containsAny(n, "더워", "덥", "더운데", "더우")) {
++                    return pick(toId,
++                            "Nóng quá, làm ơn bật điều hòa giúp tôi.",
++                            "It's very hot. Please turn on the air conditioner.");
++                }
++                return pick(toId,
++                        "Làm ơn bật điều hòa giúp tôi.",
++                        "Please turn on the air conditioner.");
++            }
++            if (containsAny(n, "세게", "강하게", "시원하게")) {
++                return pick(toId,
++                        "Làm ơn chỉnh điều hòa lạnh hơn một chút.",
++                        "Please make the air conditioner a little cooler.");
++            }
++            if (containsAny(n, "약하게", "줄여")) {
++                return pick(toId,
++                        "Làm ơn giảm điều hòa xuống một chút.",
++                        "Please turn the air conditioner down a little.");
++            }
++        }
++
++        if (containsAny(n, "너무더워", "더운데", "더워요", "덥네요") && !containsAny(n, "에어컨", "에어콘")) {
++            return pick(toId, "Nóng quá.", "It's very hot.");
++        }
++        if (containsAny(n, "너무추워", "추운데", "추워요", "춥네요")) {
++            return pick(toId, "Lạnh quá.", "It's very cold.");
++        }
++
++        if (containsAny(n, "천천히말", "말천천히")) {
++            return pick(toId, "Làm ơn nói chậm hơn.", "Please speak more slowly.");
++        }
++        if (containsAny(n, "다시말", "한번더말")) {
++            return pick(toId, "Vui lòng nói lại giúp tôi.", "Please say that again.");
++        }
++        if (containsAny(n, "잘못알아", "이해못", "이해가안", "무슨말인지")) {
++            return pick(toId, "Tôi không hiểu. Vui lòng nói lại.", "I don't understand. Please say that again.");
++        }
++
++        if (containsAny(n, "화장실", "화장실이") && containsAny(n, "어디", "찾")) {
++            return pick(toId, "Nhà vệ sinh ở đâu?", "Where is the restroom?");
++        }
++        if (containsAny(n, "와이파이", "wifi") && containsAny(n, "비밀번호", "암호")) {
++            return pick(toId, "Mật khẩu Wi-Fi là gì?", "What is the Wi-Fi password?");
++        }
++        if (containsAny(n, "메뉴판", "메뉴") && containsAny(n, "보여", "주세요")) {
++            return pick(toId, "Cho tôi xem thực đơn với.", "Please show me the menu.");
++        }
++        if (containsAny(n, "계산할", "계산해", "계산해주세요", "계산이요")) {
++            return pick(toId, "Cho tôi thanh toán.", "I'd like to pay, please.");
++        }
++        if (containsAny(n, "영수증") && containsAny(n, "주세요", "주실", "필요")) {
++            return pick(toId, "Cho tôi xin hóa đơn.", "Please give me a receipt.");
++        }
++        if (containsAny(n, "물") && containsAny(n, "주세요", "한잔", "한병")) {
++            return pick(toId, "Cho tôi xin nước.", "Please give me some water.");
++        }
++        if (containsAny(n, "고수") && containsAny(n, "빼", "제외", "넣지")) {
++            return pick(toId, "Làm ơn đừng cho rau mùi.", "Please don't add cilantro.");
++        }
++        if (containsAny(n, "맵지않", "안맵게", "덜맵게")) {
++            return pick(toId, "Làm ơn đừng làm cay.", "Please make it not spicy.");
++        }
++        if (containsAny(n, "알레르기", "알러지")) {
++            return pick(toId, "Tôi bị dị ứng thực phẩm.", "I have a food allergy.");
++        }
++
++        if (containsAny(n, "이거얼마", "얼마예요", "얼마인가", "가격이얼마")) {
++            return pick(toId, "Cái này bao nhiêu tiền?", "How much is this?");
++        }
++        if (containsAny(n, "카드결제", "카드돼", "카드되", "카드로결제")) {
++            return pick(toId, "Có thanh toán bằng thẻ được không?", "Can I pay by card?");
++        }
++        if (containsAny(n, "할인") && containsAny(n, "가능", "해주", "될까요", "되나요")) {
++            return pick(toId, "Có thể giảm giá một chút không?", "Could you give me a small discount?");
++        }
++
++        if (containsAny(n, "이주소") && containsAny(n, "가주세요", "가주", "가고싶")) {
++            return pick(toId, "Vui lòng đưa tôi đến địa chỉ này.", "Please take me to this address.");
++        }
++        if (containsAny(n, "여기서세워", "여기세워", "여기내려")) {
++            return pick(toId, "Vui lòng dừng ở đây.", "Please stop here.");
++        }
++        if (containsAny(n, "미터기") && containsAny(n, "켜", "사용")) {
++            return pick(toId, "Vui lòng bật đồng hồ tính tiền.", "Please turn on the meter.");
++        }
++
++        if (containsAny(n, "체크인") && containsAny(n, "싶", "할게", "하려")) {
++            return pick(toId, "Tôi muốn nhận phòng.", "I'd like to check in.");
++        }
++        if (containsAny(n, "짐", "수하물") && containsAny(n, "맡길", "보관")) {
++            return pick(toId, "Tôi có thể gửi hành lý ở đây không?", "Can I leave my luggage here?");
++        }
++        if (containsAny(n, "병원") && containsAny(n, "어디", "가까운", "찾")) {
++            return pick(toId, "Bệnh viện gần nhất ở đâu?", "Where is the nearest hospital?");
++        }
++        if (containsAny(n, "경찰") && containsAny(n, "불러", "도와")) {
++            return pick(toId, "Vui lòng gọi cảnh sát.", "Please call the police.");
++        }
++        if (containsAny(n, "지갑") && containsAny(n, "잃어", "분실")) {
++            return pick(toId, "Tôi bị mất ví.", "I lost my wallet.");
++        }
++
++        return null;
++    }
++
++    /**
++     * 알려진 핵심 개념이 번역문에서 완전히 사라졌을 때만 false를 반환한다.
++     * 문체/단어 선택은 평가하지 않으며, 거짓 경고를 줄이기 위해 보수적으로 동작한다.
++     */
++    public static boolean isMeaningSafe(String source, String translated, String fromId, String toId) {
++        if (source == null || translated == null || translated.trim().isEmpty()) return false;
++        if (!"ko".equals(fromId)) return true;
++        if (!"vi".equals(toId) && !"en".equals(toId)) return true;
++
++        String s = normalizeKorean(source);
++        String t = translated.toLowerCase(Locale.ROOT);
++
++        if (containsAny(s, "에어컨", "에어콘", "냉방") && !targetHas(t, toId,
++                new String[]{"điều hòa", "máy lạnh"}, new String[]{"air conditioner", "a/c", " ac "})) return false;
++        if (containsAny(s, "화장실") && !targetHas(t, toId,
++                new String[]{"nhà vệ sinh", "toilet"}, new String[]{"restroom", "toilet", "bathroom"})) return false;
++        if (containsAny(s, "와이파이", "wifi") && !targetHas(t, toId,
++                new String[]{"wi-fi", "wifi"}, new String[]{"wi-fi", "wifi"})) return false;
++        if (containsAny(s, "카드") && !targetHas(t, toId,
++                new String[]{"thẻ"}, new String[]{"card"})) return false;
++        if (containsAny(s, "병원") && !targetHas(t, toId,
++                new String[]{"bệnh viện"}, new String[]{"hospital"})) return false;
++        if (containsAny(s, "경찰") && !targetHas(t, toId,
++                new String[]{"cảnh sát"}, new String[]{"police"})) return false;
++        if (containsAny(s, "지갑") && !targetHas(t, toId,
++                new String[]{"ví"}, new String[]{"wallet"})) return false;
++        if (containsAny(s, "영수증") && !targetHas(t, toId,
++                new String[]{"hóa đơn", "biên lai"}, new String[]{"receipt"})) return false;
++        if (containsAny(s, "메뉴") && !targetHas(t, toId,
++                new String[]{"thực đơn", "menu"}, new String[]{"menu"})) return false;
++        if (containsAny(s, "짐", "수하물") && !targetHas(t, toId,
++                new String[]{"hành lý"}, new String[]{"luggage", "baggage"})) return false;
++        if (containsAny(s, "고수") && !targetHas(t, toId,
++                new String[]{"rau mùi", "ngò"}, new String[]{"cilantro", "coriander"})) return false;
++        if (containsAny(s, "맵", "매운") && !targetHas(t, toId,
++                new String[]{"cay"}, new String[]{"spicy"})) return false;
++
++        if (containsAny(s, "에어컨", "에어콘", "냉방") && containsAny(s, "켜", "틀어") &&
++                !targetHas(t, toId, new String[]{"bật"}, new String[]{"turn on", "switch on"})) return false;
++        if (containsAny(s, "에어컨", "에어콘", "냉방") && containsAny(s, "꺼", "끄") &&
++                !targetHas(t, toId, new String[]{"tắt"}, new String[]{"turn off", "switch off"})) return false;
++
++        return true;
++    }
++
++    private static String pick(String toId, String vi, String en) {
++        return "vi".equals(toId) ? vi : en;
++    }
++
++    private static boolean targetHas(String translated, String toId, String[] viTerms, String[] enTerms) {
++        String[] terms = "vi".equals(toId) ? viTerms : enTerms;
++        for (String term : terms) if (translated.contains(term)) return true;
++        return false;
++    }
++
++    private static boolean containsAny(String text, String... values) {
++        for (String value : values) if (text.contains(value)) return true;
++        return false;
++    }
++
++    private static String normalizeKorean(String text) {
++        return text.toLowerCase(Locale.ROOT)
++                .replaceAll("[\\s\\p{Punct}·…]+", "")
++                .replace("주세요", "주세요")
++                .trim();
++    }
++}
