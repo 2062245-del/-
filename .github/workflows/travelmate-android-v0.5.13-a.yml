@@ -1,4 +1,4 @@
-name: Build TravelMate v0.5.20 A
+name: Build TravelMate v0.5.21 A
 
 on:
   pull_request:
@@ -86,7 +86,7 @@ jobs:
           p = Path('build-src/app/build.gradle')
           s = p.read_text()
           assert 'versionCode 19' in s
-          p.write_text(s.replace('versionCode 19', 'versionCode 23').replace("versionName '0.5.13'", "versionName '0.5.20'"))
+          p.write_text(s.replace('versionCode 19', 'versionCode 24').replace("versionName '0.5.13'", "versionName '0.5.21'"))
           PY
           base64 -d .ci/travelmate-v0513-a/hotfix-v0515.tgz.b64 > /tmp/hotfix-v0515.tgz
           echo '3051c10f13ff784aab0222713472728a50bae395d43d9fa1213073e36b8f3a90  /tmp/hotfix-v0515.tgz' | sha256sum -c -
@@ -126,13 +126,13 @@ jobs:
         shell: bash
         run: |
           set -euxo pipefail
-          base64 -d .ci/travelmate-v0513-a/native-v0520.tgz.b64 > /tmp/native-v0520.tgz
-          echo '39ab5102f5d680aaf6a866677e2cde7410d9beab2aec42d9dcce063475212289  /tmp/native-v0520.tgz' | sha256sum -c -
-          mkdir -p /tmp/native-v0520
-          tar -xzf /tmp/native-v0520.tgz -C /tmp/native-v0520
-          cp /tmp/native-v0520/MainActivity.java build-src/app/src/main/java/com/seungho/barointerpreter/
-          cp /tmp/native-v0520/OnlineTranslationClient.java build-src/app/src/main/java/com/seungho/barointerpreter/
-          cp /tmp/native-v0520/build.gradle build-src/app/build.gradle
+          base64 -d .ci/travelmate-v0513-a/native-v0521.tgz.b64 > /tmp/native-v0521.tgz
+          echo '0e86c0d7601cd739e92bfeb3290a445635d7ea0f49149f455068b598502b02b1  /tmp/native-v0521.tgz' | sha256sum -c -
+          mkdir -p /tmp/native-v0521
+          tar -xzf /tmp/native-v0521.tgz -C /tmp/native-v0521
+          cp /tmp/native-v0521/MainActivity.java build-src/app/src/main/java/com/seungho/barointerpreter/
+          cp /tmp/native-v0521/OnlineTranslationClient.java build-src/app/src/main/java/com/seungho/barointerpreter/
+          cp /tmp/native-v0521/build.gradle build-src/app/build.gradle
           test "$(rg -c 'addJavascriptInterface' build-src/app/src/main/java/com/seungho/barointerpreter/OnlineTranslationClient.java || true)" = ''
           ! rg -n 'sk-proj-|siwc_bypass|OAI-Sites-Authorization|api.openai.com' build-src/app/src/main/java/com/seungho/barointerpreter/OnlineTranslationClient.java
 
@@ -142,8 +142,8 @@ jobs:
           set -euxo pipefail
           MAIN=build-src/app/src/main/java/com/seungho/barointerpreter/MainActivity.java
           VERIFY=build-src/app/src/main/java/com/seungho/barointerpreter/TranslationVerification.java
-          grep -q 'versionCode 23' build-src/app/build.gradle
-          grep -q "versionName '0.5.20'" build-src/app/build.gradle
+          grep -q 'versionCode 24' build-src/app/build.gradle
+          grep -q "versionName '0.5.21'" build-src/app/build.gradle
           grep -q 'showListeningOverlay' "$MAIN"
           grep -q 'startListeningPulse' "$MAIN"
           grep -q 'onRmsChanged' "$MAIN"
@@ -177,19 +177,19 @@ jobs:
           grep -qi '7d411eb878d63e9b30e5a75c65ce1206d195b45a3e5f794955bd78f625b87b85' apk-signature.txt
           "$AAPT" dump badging "$APK" | head -n 25 | tee apk-badging.txt
           grep -q "name='com.seungho.barointerpreter'" apk-badging.txt
-          grep -q "versionCode='23'" apk-badging.txt
-          grep -q "versionName='0.5.20'" apk-badging.txt
-          cp "$APK" TravelMate-v0.5.20-A-arm64.apk
-          (cd build-src && zip -qr ../TravelMate_Android_v0.5.20-A_source.zip . -x 'app/build/*' '.gradle/*')
-          sha256sum TravelMate-v0.5.20-A-arm64.apk > TravelMate-v0.5.20-A-arm64.sha256
+          grep -q "versionCode='24'" apk-badging.txt
+          grep -q "versionName='0.5.21'" apk-badging.txt
+          cp "$APK" TravelMate-v0.5.21-A-arm64.apk
+          (cd build-src && zip -qr ../TravelMate_Android_v0.5.21-A_source.zip . -x 'app/build/*' '.gradle/*')
+          sha256sum TravelMate-v0.5.21-A-arm64.apk > TravelMate-v0.5.21-A-arm64.sha256
 
       - uses: actions/upload-artifact@v4
         with:
-          name: TravelMate-v0.5.20-A-arm64
+          name: TravelMate-v0.5.21-A-arm64
           path: |
-            TravelMate-v0.5.20-A-arm64.apk
-            TravelMate-v0.5.20-A-arm64.sha256
-            TravelMate_Android_v0.5.20-A_source.zip
+            TravelMate-v0.5.21-A-arm64.apk
+            TravelMate-v0.5.21-A-arm64.sha256
+            TravelMate_Android_v0.5.21-A_source.zip
             travelmate-regression-test.txt
             apk-signature.txt
             apk-badging.txt
