@@ -1,0 +1,32 @@
+{
+  "generatedAt": "2026-10-02T06:32:02.251Z",
+  "targets": [
+    {
+      "source": "psprices",
+      "url": "https://psprices.com/region-kr/game/4867346/geulan-tuliseumo-7-junggugeogancheja-hangugeo-taegugeo-yeongeo-junggugeobeoncheja",
+      "ok": false,
+      "status": 403,
+      "bytes": 5317,
+      "matches": [],
+      "scriptSrc": [],
+      "jsonScripts": [],
+      "endpointCandidates": [
+        "https://psprices.com/cdn-cgi/content?id=srgLOaE9VVwrvYq7bQPdX0cYB4yBfXYxIVXchG8n3So-1790922722.374082-1.2.1.1-UNPEAfARaUehjCqnDZ_yIm.sMAC71xTp_4RJQkl0zxHB_poxlEb_o5QzsgUC3NZ3"
+      ]
+    },
+    {
+      "source": "psdeals",
+      "url": "https://psdeals.net/kr-store/game/2267934/%EA%B7%B8%EB%9E%80-%ED%88%AC%EB%A6%AC%EC%8A%A4%EB%AA%A8-7",
+      "ok": false,
+      "status": 403,
+      "bytes": 5856,
+      "matches": [
+        "ation.search === '' && location.href.slice(0, location.href.length - window._cf_chl_opt.cOgUHash.length).indexOf('?') !== -1 ? '?' : location.search;if (window.history && window.history.replaceState) {var ogU = location.pathname + window._cf_chl_opt.cOgUQuery + window._cf_chl_opt.cOgUHash;history.replaceState(null, null,\"/kr-store/game/2267934/%EA%B7%B8%EB%9E%80-%ED%88%AC%EB%A6%AC%EC%8A%A4%EB%AA%A8-7?__cf_chl_rt_tk=cHIg94wKbiuQrh8Wma_BFdQxDAuHkpp.ur6i3Fp3CJY-1790922722-1.0.1.1-UnaXi",
+        "9tmpY2oHvct8.osY6umY_eNBh6ZtkCif0KX1Q4\"+ window._cf_chl_opt.cOgUHash);a.onload = function() {history.replaceState(null, null, ogU);}}document.getElementsByTagName('head')[0].appendChild(a);}());</script></body></html>"
+      ],
+      "scriptSrc": [],
+      "jsonScripts": [],
+      "endpointCandidates": []
+    }
+  ]
+}
