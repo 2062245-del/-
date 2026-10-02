@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import { chromium } from 'playwright';
 
+// Triggered separately after the workflow file is present on the branch.
 const targets = [
   {
     source: 'psprices',
