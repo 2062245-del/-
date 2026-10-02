@@ -1,0 +1,218 @@
+name: Build TravelMate v0.5.23-share A
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/travelmate-share.yml'
+      - 'android/shared-v0523/**'
+  workflow_dispatch:
+
+concurrency:
+  group: travelmate-share
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      ANDROID_HOME: /usr/local/lib/android/sdk
+      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install Android SDK
+        shell: bash
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$SDKMANAGER" --licenses >/dev/null 2>&1 || true
+          "$SDKMANAGER" "platforms;android-35" "build-tools;35.0.0"
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+
+      - name: Restore signing key
+        uses: actions/cache@v4
+        with:
+          path: .ci-signing/baro-interpreter.jks
+          key: baro-interpreter-release-keystore-v1
+
+      - name: Restore verified v0.5.12 source artifact
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p build-src .ci-signing /tmp/v0512
+          curl -fL \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/2062245-del/-/actions/artifacts/11134871577/zip" \
+            -o /tmp/v0512-artifact.zip
+          unzip -q /tmp/v0512-artifact.zip -d /tmp/v0512
+          test -s /tmp/v0512/TravelMate_Android_v0.5.12_source.zip
+          unzip -q /tmp/v0512/TravelMate_Android_v0.5.12_source.zip -d build-src
+          grep -q "versionName '0.5.12'" build-src/app/build.gradle
+          grep -q 'versionCode 18' build-src/app/build.gradle
+
+      - name: Apply v0.5.13 UX latency verification bundle
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p /tmp/v0513
+          cat .ci/travelmate-v0513/chunks/*.b64 | tr -d '\r\n' > /tmp/v0513/bundle.tgz.b64
+          echo 'f8ef2015bec53d2b08412495640e365e978dec15dd04bda03a6c4191512adaec  /tmp/v0513/bundle.tgz.b64' | sha256sum -c -
+          base64 -d /tmp/v0513/bundle.tgz.b64 > /tmp/v0513/bundle.tgz
+          echo '682c18fae3d57e2c0caa8afe4ab13b68045f5df733018032bdc333ab49293b67  /tmp/v0513/bundle.tgz' | sha256sum -c -
+          tar -xzf /tmp/v0513/bundle.tgz -C /tmp/v0513
+          test -s /tmp/v0513/apply.py
+          test -s /tmp/v0513/MainActivity.java
+          test -s /tmp/v0513/TranslationVerification.java
+          python3 /tmp/v0513/apply.py build-src
+          base64 -d .ci/travelmate-v0513-a/MainActivity.java.gz.b64 | gzip -d > build-src/app/src/main/java/com/seungho/barointerpreter/MainActivity.java
+          echo '5fdea9d71f5b717f4d46949b1a523d9736cb23547447f3d72b13843204c252ec  build-src/app/src/main/java/com/seungho/barointerpreter/MainActivity.java' | sha256sum -c -
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('build-src/app/build.gradle')
+          s = p.read_text()
+          assert 'versionCode 19' in s
+          p.write_text(s.replace('versionCode 19', 'versionCode 26').replace("versionName '0.5.13'", "versionName '0.5.23-share'"))
+          PY
+          base64 -d .ci/travelmate-v0513-a/hotfix-v0515.tgz.b64 > /tmp/hotfix-v0515.tgz
+          echo '3051c10f13ff784aab0222713472728a50bae395d43d9fa1213073e36b8f3a90  /tmp/hotfix-v0515.tgz' | sha256sum -c -
+          mkdir -p /tmp/hotfix-v0515
+          tar -xzf /tmp/hotfix-v0515.tgz -C /tmp/hotfix-v0515
+          cp /tmp/hotfix-v0515/TravelTranslationQuality.java build-src/app/src/main/java/com/seungho/barointerpreter/
+          cp /tmp/hotfix-v0515/TranslationVerification.java build-src/app/src/main/java/com/seungho/barointerpreter/
+          cp /tmp/hotfix-v0515/TravelOrderTranslator.java build-src/app/src/main/java/com/seungho/barointerpreter/
+
+      - name: Translation and verification regression tests
+        shell: bash
+        run: |
+          set -euxo pipefail
+          PKG=/tmp/qtest/com/seungho/barointerpreter
+          mkdir -p "$PKG"
+          cp build-src/app/src/main/java/com/seungho/barointerpreter/TravelTranslationQuality.java "$PKG/"
+          cp build-src/app/src/main/java/com/seungho/barointerpreter/TranslationVerification.java "$PKG/"
+          cp build-src/app/src/main/java/com/seungho/barointerpreter/TravelOrderTranslator.java "$PKG/"
+          cp /tmp/hotfix-v0515/TravelMateRegressionTest.java "$PKG/"
+          javac -encoding UTF-8 "$PKG/TravelTranslationQuality.java" "$PKG/TranslationVerification.java" "$PKG/TravelOrderTranslator.java" "$PKG/TravelMateRegressionTest.java"
+          java -cp /tmp/qtest com.seungho.barointerpreter.TravelMateRegressionTest | tee travelmate-regression-test.txt
+          grep -q 'TOTAL PASS=54' travelmate-regression-test.txt
+
+      - name: Prepare signing
+        shell: bash
+        run: |
+          set -euxo pipefail
+          KEY="$PWD/.ci-signing/baro-interpreter.jks"
+          test -s "$KEY"
+          echo "BARO_KEYSTORE_PATH=$KEY" >> "$GITHUB_ENV"
+          echo "BARO_KEYSTORE_PASSWORD=baro-local-release" >> "$GITHUB_ENV"
+          echo "BARO_KEY_ALIAS=baro" >> "$GITHUB_ENV"
+          echo "BARO_KEY_PASSWORD=baro-local-release" >> "$GITHUB_ENV"
+
+
+      - name: Integrate native online translation
+        shell: bash
+        run: |
+          set -euxo pipefail
+          base64 -d android/shared-v0523/native.tgz.b64 > /tmp/native-v0523.tgz
+          echo 'b79dd298ca933612e57f73830e18e03ecfc0df3a824a9017d8ad1ed80563af33  /tmp/native-v0523.tgz' | sha256sum -c -
+          mkdir -p /tmp/native-v0523
+          tar -xzf /tmp/native-v0523.tgz -C /tmp/native-v0523
+          cp /tmp/native-v0523/MainActivity.java build-src/app/src/main/java/com/seungho/barointerpreter/
+          cp /tmp/native-v0523/OnlineTranslationClient.java build-src/app/src/main/java/com/seungho/barointerpreter/
+          cp /tmp/native-v0523/LanguageCatalog.java build-src/app/src/main/java/com/seungho/barointerpreter/
+          cp /tmp/native-v0523/build.gradle build-src/app/build.gradle
+          cp /tmp/native-v0523/NeuralTtsEngine.java build-src/app/src/main/java/com/seungho/barointerpreter/
+          cp /tmp/native-v0523/SpeechLanguageTags.java build-src/app/src/main/java/com/seungho/barointerpreter/
+          cp /tmp/native-v0523/UnicodeProcessor.java build-src/app/src/main/java/com/seungho/barointerpreter/supertonic/
+          cp /tmp/native-v0523/strings.xml build-src/app/src/main/res/values/strings.xml
+          test "$(rg -c 'addJavascriptInterface' build-src/app/src/main/java/com/seungho/barointerpreter/OnlineTranslationClient.java || true)" = ''
+          ! rg -n 'sk-proj-|siwc_bypass|OAI-Sites-Authorization|api.openai.com' build-src/app/src/main/java/com/seungho/barointerpreter/OnlineTranslationClient.java
+
+      - name: Language and voice regression checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          PKG=/tmp/voice-test/com/seungho/barointerpreter
+          mkdir -p "$PKG/supertonic"
+          cp build-src/app/src/main/java/com/seungho/barointerpreter/SpeechLanguageTags.java "$PKG/"
+          cp build-src/app/src/main/java/com/seungho/barointerpreter/supertonic/UnicodeProcessor.java "$PKG/supertonic/"
+          cp /tmp/native-v0523/LanguageVoiceRegressionTest.java "$PKG/"
+          javac -encoding UTF-8 "$PKG/SpeechLanguageTags.java" "$PKG/supertonic/UnicodeProcessor.java" "$PKG/LanguageVoiceRegressionTest.java"
+          java -cp /tmp/voice-test com.seungho.barointerpreter.LanguageVoiceRegressionTest | tee language-voice-regression.txt
+          grep -q 'VOICE AND LANGUAGE PASS=22' language-voice-regression.txt
+
+      - name: Static checks
+        shell: bash
+        run: |
+          set -euxo pipefail
+          MAIN=build-src/app/src/main/java/com/seungho/barointerpreter/MainActivity.java
+          VERIFY=build-src/app/src/main/java/com/seungho/barointerpreter/TranslationVerification.java
+          grep -q 'TranslateLanguage.CHINESE' build-src/app/src/main/java/com/seungho/barointerpreter/LanguageCatalog.java
+          grep -q 'TranslateLanguage.JAPANESE' build-src/app/src/main/java/com/seungho/barointerpreter/LanguageCatalog.java
+          grep -q 'versionCode 26' build-src/app/build.gradle
+          grep -q "versionName '0.5.23-share'" build-src/app/build.gradle
+          grep -q 'showListeningOverlay' "$MAIN"
+          grep -q 'startListeningPulse' "$MAIN"
+          grep -q 'onRmsChanged' "$MAIN"
+          grep -q 'EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS' "$MAIN"
+          grep -q 'cachedTranslator' "$MAIN"
+          grep -q 'prewarmCurrentPair' "$MAIN"
+          grep -q '번역 확인 · 원문과 비교' "$MAIN"
+          grep -q 'verifyLastTranslation' "$MAIN"
+          grep -q 'openExternalTranslationComparison' "$MAIN"
+          grep -q 'TranslationVerification.inspect' "$MAIN"
+          grep -q 'class TranslationVerification' "$VERIFY"
+          grep -q 'com.microsoft.onnxruntime:onnxruntime-android:1.26.0' build-src/app/build.gradle
+
+      - name: Build release APK
+        working-directory: build-src
+        shell: bash
+        run: |
+          set -euxo pipefail
+          gradle --no-daemon :app:assembleRelease
+
+      - name: Verify APK and package source
+        shell: bash
+        run: |
+          set -euxo pipefail
+          APK=build-src/app/build/outputs/apk/release/app-release.apk
+          test -s "$APK"
+          unzip -tq "$APK"
+          APKSIGNER="$ANDROID_HOME/build-tools/35.0.0/apksigner"
+          AAPT="$ANDROID_HOME/build-tools/35.0.0/aapt"
+          "$APKSIGNER" verify --verbose --print-certs "$APK" | tee apk-signature.txt
+          grep -qi '7d411eb878d63e9b30e5a75c65ce1206d195b45a3e5f794955bd78f625b87b85' apk-signature.txt
+          "$AAPT" dump badging "$APK" | head -n 25 | tee apk-badging.txt
+          grep -q "name='com.seungho.barointerpreter.shared'" apk-badging.txt
+          grep -q "versionCode='26'" apk-badging.txt
+          grep -q "versionName='0.5.23-share'" apk-badging.txt
+          cp "$APK" TravelMate-v0.5.23-Share-arm64.apk
+          (cd build-src && zip -qr ../TravelMate_Android_v0.5.23-Share_source.zip . -x 'app/build/*' '.gradle/*')
+          sha256sum TravelMate-v0.5.23-Share-arm64.apk > TravelMate-v0.5.23-Share-arm64.sha256
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TravelMate-v0.5.23-Share-arm64
+          path: |
+            TravelMate-v0.5.23-Share-arm64.apk
+            TravelMate-v0.5.23-Share-arm64.sha256
+            TravelMate_Android_v0.5.23-Share_source.zip
+            travelmate-regression-test.txt
+            apk-signature.txt
+            apk-badging.txt
+            language-voice-regression.txt
+          if-no-files-found: error
+          retention-days: 30
