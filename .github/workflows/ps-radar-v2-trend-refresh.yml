@@ -74,10 +74,10 @@ jobs:
       - name: Build price timeline and trend snapshot
         env:
           PSRADAR_PRICE_TOLERANCE: '2.5'
-          PSRADAR_MAX_TIMELINE: '64'
+          PSRADAR_MAX_TIMELINE: '96'
         run: node ps-radar/scripts/update-deal-history.mjs
 
-      - name: Validate PS Radar 2.0 trend data
+      - name: Validate PS Radar v3 trend data
         run: |
           node - <<'NODE'
           const fs=require('fs');
@@ -86,20 +86,27 @@ jobs:
           const t=JSON.parse(fs.readFileSync('ps-radar/data/deal-trends.json','utf8'));
           if(!d?.health?.safeToMerge) throw new Error('deal safety flag false');
           if(!Array.isArray(d.items)||d.items.length<1500) throw new Error(`too few deals: ${d.items?.length}`);
-          if(Number(h.version)<2) throw new Error(`history version ${h.version}`);
-          if(Number(t.version)<2) throw new Error(`trend version ${t.version}`);
+          if(Number(h.version)<3) throw new Error(`historical backfill was downgraded: history version ${h.version}`);
+          if(Number(t.version)<3) throw new Error(`historical backfill was downgraded: trend version ${t.version}`);
+          if(!h.gitHistoryBackfill) throw new Error('git historical backfill metadata missing');
           if(!t.items||Number(t.itemCount)<d.items.length*0.9) throw new Error(`trend coverage too small: ${t.itemCount}/${d.items.length}`);
-          let valid=0,bad=0,withTimeline=0;
+          let valid=0,bad=0,withTimeline=0,withBackfill=0,tooLong=0;
           for(const x of d.items){
             if(String(x.priceStatus||'').startsWith('rejected')) continue;
             const c=Number(x.currentPrice),o=Number(x.originalPrice),p=Number(x.discountPercent);
             if(c>0&&o>c&&p>0&&Math.abs((1-c/o)*100-p)<=2.5) valid++; else bad++;
           }
-          for(const x of Object.values(t.items)){ if(Array.isArray(x.timeline)&&x.timeline.length) withTimeline++; }
+          for(const x of Object.values(t.items)){
+            if(Array.isArray(x.timeline)&&x.timeline.length) withTimeline++;
+            if(Array.isArray(x.timeline)&&x.timeline.length>96) tooLong++;
+            if(x.historyBackfill) withBackfill++;
+          }
           if(valid<1500) throw new Error(`too few valid prices: ${valid}`);
           if(bad) throw new Error(`invalid visible prices: ${bad}`);
           if(withTimeline<t.itemCount*0.8) throw new Error(`timeline coverage too small: ${withTimeline}/${t.itemCount}`);
-          console.log('PS Radar 2.0 trend QA passed',{deals:d.items.length,valid,history:h.itemCount,trends:t.itemCount,withTimeline,timelineChanges:h.timelineChangeCount});
+          if(tooLong) throw new Error(`timeline cap exceeded: ${tooLong}`);
+          if(withBackfill<1) throw new Error('no live trend entry retains historical backfill metadata');
+          console.log('PS Radar v3 trend QA passed',{deals:d.items.length,valid,history:h.itemCount,trends:t.itemCount,withTimeline,withBackfill,timelineChanges:h.timelineChangeCount,gitHistoryBackfill:h.gitHistoryBackfill});
           NODE
 
       - name: Commit refreshed deal and trend data
