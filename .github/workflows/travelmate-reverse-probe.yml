@@ -1,0 +1,57 @@
+name: TravelMate reverse engine A-B probe
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/travelmate-reverse-probe.yml'
+      - '.ci/travelmate-reverse-probe/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+      - name: Extract isolated diagnostic project
+        run: |
+          base64 -d .ci/travelmate-reverse-probe/project.tgz.b64 > /tmp/probe.tgz
+          echo '3d866a1a26c34c9c5d30ca56fdeca1db71a76b8d38007e913fca3fee91daa620  /tmp/probe.tgz' | sha256sum -c -
+          mkdir probe
+          tar -xzf /tmp/probe.tgz -C probe
+      - name: Enable hardware acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Run real offline translation comparisons
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 29
+          arch: x86_64
+          target: google_apis
+          disable-animations: true
+          script: |
+            adb logcat -c
+            cd probe
+            gradle --no-daemon :app:connectedDebugAndroidTest
+      - name: Collect actual engine output
+        if: always()
+        run: adb logcat -d -s TravelMateProbe:I '*:S' > reverse-engine-output.txt || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: TravelMate-reverse-engine-probe
+          path: |
+            reverse-engine-output.txt
+            probe/app/build/outputs/androidTest-results/
+            probe/app/build/reports/androidTests/
+          retention-days: 14
