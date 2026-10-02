@@ -34,18 +34,19 @@ jobs:
         run: |
           set -euo pipefail
           test -s ps-radar/preview-v2/index.html
-          test -s ps-radar/preview-v2/payload1.txt
-          test -s ps-radar/preview-v2/payload2.txt
-          test -s ps-radar/preview-v2/payload3.txt
-          grep -q 'PS Radar 2.2.' ps-radar/preview-v2/index.html
+          for i in 1 2 3 4 5 6; do test -s "ps-radar/preview-v2/payload${i}.txt"; done
+          grep -q 'PS Radar 2.2.6 Preview' ps-radar/preview-v2/index.html
           python3 - <<'PY'
           import base64,gzip,pathlib
           root=pathlib.Path('ps-radar/preview-v2')
-          s=''.join((root/f'payload{i}.txt').read_text().strip() for i in (1,2,3))
+          s=''.join((root/f'payload{i}.txt').read_text().strip() for i in (1,2,3,4,5,6))
           html=gzip.decompress(base64.b64decode(s)).decode('utf-8')
           assert 'PS Radar' in html
+          assert '2.2.6' in html
           assert 'refreshBtn' in html
           assert 'refreshStatus' in html
+          assert 'compositionstart' in html
+          assert 'compositionend' in html
           assert len(html)>20000
           print('preview payload OK',len(html))
           PY
