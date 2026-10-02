@@ -1,0 +1,116 @@
+name: PS Radar 2.0 Deal Trend Refresh
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '7 */6 * * *'
+  push:
+    branches: [main]
+    paths:
+      - 'ps-radar/scripts/fetch-store-deals.mjs'
+      - 'ps-radar/scripts/repair-deals-v1742.mjs'
+      - 'ps-radar/scripts/sanitize-deals.mjs'
+      - 'ps-radar/scripts/hydrate-missing-art.mjs'
+      - 'ps-radar/scripts/update-deal-history.mjs'
+      - '.github/workflows/ps-radar-v2-trend-refresh.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ps-radar-deals-refresh
+  cancel-in-progress: true
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v6
+        with:
+          ref: main
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright@1.51.1
+          npx playwright install --with-deps chromium
+
+      - name: Collect PS Store deals
+        env:
+          PSRADAR_MAX_CAMPAIGNS: '8'
+          PSRADAR_MAX_PAGES_PER_CAMPAIGN: '60'
+          PSRADAR_MAX_TOTAL_PAGES: '160'
+          PSRADAR_MAX_EMPTY_STREAK: '5'
+          PSRADAR_MIN_SAFE_ITEMS: '20'
+          PSRADAR_MIN_PREVIOUS_RATIO: '0.25'
+        run: node ps-radar/scripts/fetch-store-deals.mjs
+
+      - name: Crosscheck prices and artwork
+        env:
+          PSRADAR_REPAIR_MAX_PAGES: '160'
+          PSRADAR_REPAIR_MAX_CAMPAIGN_PAGES: '60'
+          PSRADAR_PRICE_TOLERANCE: '2.5'
+        run: node ps-radar/scripts/repair-deals-v1742.mjs
+
+      - name: Sanitize deal rows
+        run: node ps-radar/scripts/sanitize-deals.mjs
+
+      - name: Hydrate missing official artwork
+        env:
+          PSRADAR_ART_MAX_ITEMS: '240'
+          PSRADAR_ART_CONCURRENCY: '8'
+          PSRADAR_ART_TIMEOUT_MS: '8000'
+        run: node ps-radar/scripts/hydrate-missing-art.mjs
+
+      - name: Recheck artwork collisions
+        run: node ps-radar/scripts/sanitize-deals.mjs
+
+      - name: Build price timeline and trend snapshot
+        env:
+          PSRADAR_PRICE_TOLERANCE: '2.5'
+          PSRADAR_MAX_TIMELINE: '64'
+        run: node ps-radar/scripts/update-deal-history.mjs
+
+      - name: Validate PS Radar 2.0 trend data
+        run: |
+          node - <<'NODE'
+          const fs=require('fs');
+          const d=JSON.parse(fs.readFileSync('ps-radar/data/deals-auto.json','utf8'));
+          const h=JSON.parse(fs.readFileSync('ps-radar/data/deal-history.json','utf8'));
+          const t=JSON.parse(fs.readFileSync('ps-radar/data/deal-trends.json','utf8'));
+          if(!d?.health?.safeToMerge) throw new Error('deal safety flag false');
+          if(!Array.isArray(d.items)||d.items.length<1500) throw new Error(`too few deals: ${d.items?.length}`);
+          if(Number(h.version)<2) throw new Error(`history version ${h.version}`);
+          if(Number(t.version)<2) throw new Error(`trend version ${t.version}`);
+          if(!t.items||Number(t.itemCount)<d.items.length*0.9) throw new Error(`trend coverage too small: ${t.itemCount}/${d.items.length}`);
+          let valid=0,bad=0,withTimeline=0;
+          for(const x of d.items){
+            if(String(x.priceStatus||'').startsWith('rejected')) continue;
+            const c=Number(x.currentPrice),o=Number(x.originalPrice),p=Number(x.discountPercent);
+            if(c>0&&o>c&&p>0&&Math.abs((1-c/o)*100-p)<=2.5) valid++; else bad++;
+          }
+          for(const x of Object.values(t.items)){ if(Array.isArray(x.timeline)&&x.timeline.length) withTimeline++; }
+          if(valid<1500) throw new Error(`too few valid prices: ${valid}`);
+          if(bad) throw new Error(`invalid visible prices: ${bad}`);
+          if(withTimeline<t.itemCount*0.8) throw new Error(`timeline coverage too small: ${withTimeline}/${t.itemCount}`);
+          console.log('PS Radar 2.0 trend QA passed',{deals:d.items.length,valid,history:h.itemCount,trends:t.itemCount,withTimeline,timelineChanges:h.timelineChangeCount});
+          NODE
+
+      - name: Commit refreshed deal and trend data
+        run: |
+          git add ps-radar/data/deals-auto.json ps-radar/data/deal-history.json ps-radar/data/deal-trends.json
+          if git diff --cached --quiet; then
+            echo 'No data changes'
+            exit 0
+          fi
+          git config user.name 'ps-radar-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git commit -m 'Refresh PS Radar 2.0 deal trends'
+          git pull --rebase origin main
+          git push origin main
