@@ -10,19 +10,19 @@ html,body{height:100%;margin:0;background:#04111f;color:#eaf4ff;font-family:syst
 </style>
 </head>
 <body>
-<div class="loading"><div class="mark">PS</div><h1><span class="spin">↻</span>PS Radar 2.2.6 미리보기 불러오는 중</h1><p id="status">검색·가격 이력·판정 개선판을 준비하고 있습니다.</p><button class="retry" id="retry" hidden>다시 시도</button></div>
+<div class="loading"><div class="mark">PS</div><h1><span class="spin">↻</span>PS Radar 미리보기 불러오는 중</h1><p id="status">2.2.6 수정판을 준비하고 있습니다.</p><button class="retry" id="retry" hidden>다시 시도</button></div>
 <script>
-const parts=['payload1.txt','payload2.txt','payload3.txt'];
+const parts=['payload1.txt','payload2.txt','payload3.txt','payload4.txt','payload5.txt','payload6.txt'];
 async function boot(){
- const status=document.getElementById('status'),retry=document.getElementById('retry');retry.hidden=true;status.className='';status.textContent='검색·가격 이력·판정 개선판을 준비하고 있습니다.';
+ const status=document.getElementById('status'),retry=document.getElementById('retry');retry.hidden=true;status.className='';status.textContent='2.2.6 수정판을 준비하고 있습니다.';
  try{
-  const chunks=await Promise.all(parts.map((p,i)=>fetch(`${p}?v=226-${Date.now()}-${i}`,{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error(`${p}: ${r.status}`);return r.text()})));
+  const chunks=await Promise.all(parts.map((p,i)=>fetch(`${p}?v=${Date.now()}-${i}`,{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error(`${p}: ${r.status}`);return r.text()})));
   const b64=chunks.join('').replace(/\s+/g,'');
   const raw=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
   if(!('DecompressionStream' in window)) throw new Error('이 브라우저는 온라인 미리보기 압축 해제를 지원하지 않습니다. 최신 Chrome 또는 Samsung Internet을 사용해 주세요.');
   const stream=new Blob([raw]).stream().pipeThrough(new DecompressionStream('gzip'));
   const html=await new Response(stream).text();
-  if(!html.includes('PS Radar 2.2.6')||html.length<20000)throw new Error('2.2.6 미리보기 파일 검증에 실패했습니다.');
+  if(!html.includes('PS Radar')||!html.includes('2.2.6')||html.length<20000)throw new Error('미리보기 파일 검증에 실패했습니다.');
   document.open();document.write(html);document.close();
  }catch(err){status.className='error';status.textContent=`미리보기를 열지 못했습니다: ${err.message||err}`;retry.hidden=false;}
 }
