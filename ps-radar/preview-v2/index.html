@@ -1,32 +1,744 @@
 <!doctype html>
 <html lang="ko">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#04111f">
-<title>PS Radar 2.2.6 Preview</title>
-<style>
-html,body{height:100%;margin:0;background:#04111f;color:#eaf4ff;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}body{display:grid;place-items:center}.loading{width:min(420px,calc(100% - 40px));text-align:center}.mark{width:62px;height:62px;margin:0 auto 18px;border-radius:20px;display:grid;place-items:center;background:linear-gradient(145deg,#1675ff,#683dff);font-size:25px;font-weight:900;box-shadow:0 18px 50px #006cff33}.spin{display:inline-block;margin-right:7px;animation:r 1s linear infinite}@keyframes r{to{transform:rotate(360deg)}}h1{font-size:22px;margin:0 0 8px}p{color:#8da6bf;margin:0;line-height:1.55;font-size:14px}.error{color:#ff8fa1}.retry{margin-top:16px;border:1px solid #29435d;background:#0c2034;color:#fff;border-radius:12px;padding:10px 16px;font-weight:800}
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#04111f" />
+  <title>PS Radar 2.2.7</title>
+  <style>
+:root{
+  --bg:#020913;--rail:#04111f;--panel:#06182b;--panel2:#08223a;--panel3:#0a2945;
+  --line:#153e63;--line-hi:#1c79b5;--text:#f6fbff;--muted:#8ca7c0;--blue:#1597ff;--cyan:#3fe2ff;
+  --hot:#ff315e;--green:#18eca2;--amber:#ffae31;--soft:#0d2136;--shadow:0 26px 80px rgba(0,0,0,.48);
+  --rail-w:82px;--mobile-nav:66px;--safe-top:max(env(safe-area-inset-top,0px),24px);
+}
+*{box-sizing:border-box}html,body{margin:0;width:100%;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{overflow:hidden;background:radial-gradient(circle at 55% -10%,rgba(15,103,185,.15),transparent 35%),#020913}
+button,input,select{font:inherit}button{color:inherit}.app-shell{height:calc(100dvh - var(--safe-top));margin-top:var(--safe-top);display:grid;grid-template-columns:var(--rail-w) 1fr;overflow:hidden}
+.side-rail{background:linear-gradient(180deg,#03101e 0%,#020b15 100%);border-right:1px solid #0e2f4d;display:flex;flex-direction:column;align-items:center;padding:18px 8px 14px;z-index:12}
+.rail-brand{width:56px;height:56px;border:0;border-radius:18px;background:linear-gradient(145deg,#0d4d91,#0b91e8);box-shadow:0 10px 28px rgba(0,137,255,.2);display:grid;place-items:center;cursor:pointer}.rail-brand span{font-size:19px;font-weight:950;font-style:italic;letter-spacing:-2px;color:#dff7ff}
+.rail-nav{display:flex;flex-direction:column;gap:8px;width:100%;margin-top:18px}.rail-nav .nav-item{height:74px;border:0;border-radius:14px;background:transparent;color:#91acc6;display:flex;flex-direction:column;gap:7px;align-items:center;justify-content:center;cursor:pointer}.rail-nav .nav-item .nav-icon{font-size:25px}.rail-nav .nav-item b{font-size:12px}.rail-nav .nav-item.active{background:linear-gradient(180deg,#0d69d5,#064caf);color:white;box-shadow:0 0 22px rgba(15,123,255,.36),inset 0 0 0 1px #2da5ff}.rail-settings{margin-top:auto;width:50px;height:50px;border:0;border-radius:14px;background:transparent;color:#9cb7cf;font-size:22px;cursor:pointer}
+.workspace{min-width:0;min-height:0;display:grid;grid-template-columns:minmax(430px,47%) minmax(0,53%);gap:8px;padding:10px;background:linear-gradient(180deg,#03101d,#020913)}
+.panel{min-width:0;min-height:0;border:1px solid #0e3556;background:linear-gradient(180deg,rgba(5,23,41,.99),rgba(4,17,31,.99));border-radius:20px;box-shadow:var(--shadow);overflow:hidden}
+.deal-pane{display:flex;flex-direction:column}.deal-header{padding:18px 18px 8px;border-bottom:1px solid rgba(22,63,97,.85);background:linear-gradient(180deg,rgba(6,28,49,.98),rgba(4,20,36,.96))}.brand-copy-block h1{margin:0;font-size:31px;line-height:1;font-weight:900;letter-spacing:-1px}.brand-copy-block h1 em{font-style:normal;font-size:18px;color:#7ac9ff}.brand-copy-block p{margin:7px 0 0;color:#92acc3;font-size:13px}.mobile-brand{display:none}
+.deal-summary-row{display:grid;grid-template-columns:154px minmax(180px,1fr) 42px 42px;gap:8px;align-items:center;margin-top:16px}.deal-count-box{height:58px;padding:9px 12px;border:1px solid #153f63;border-radius:14px;background:linear-gradient(180deg,#0a2945,#071d31);display:grid;grid-template-columns:1fr auto;grid-template-rows:auto 1fr;align-items:center}.deal-count-box small{font-size:11px;color:#a7bed2}.deal-count-box strong{font-size:22px;line-height:1}.data-stamp{grid-column:2;grid-row:1/3;align-self:center;font-size:9px;color:#67cfff;background:#0a3456;border:1px solid #1d6999;border-radius:999px;padding:5px 7px;max-width:68px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.search-inline{height:58px;border:1px solid #173f63;border-radius:14px;background:#0a2742;display:flex;align-items:center;padding:0 12px;gap:9px}.search-inline>span{font-size:22px;color:#a7bfd4}.search-inline input{min-width:0;flex:1;border:0;outline:0;background:transparent;color:#eff8ff;font-size:14px}.search-inline input::placeholder{color:#718ba4}.search-inline button{border:0;background:transparent;color:#6e8ba4;font-size:21px;cursor:pointer}.filter-tool-btn{width:42px;height:42px;border-radius:12px;border:1px solid #174a73;background:#08253f;color:#a9c6dc;font-size:19px;cursor:pointer}
+.filter-strip{display:flex;align-items:center;gap:7px;margin-top:11px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}.filter-strip::-webkit-scrollbar{display:none}.chip{white-space:nowrap;border:1px solid #1b4569;background:#09243d;color:#c0d2e1;border-radius:999px;padding:7px 11px;font-size:11px;font-weight:800;cursor:pointer}.chip.active{border-color:#3cb7ff;background:linear-gradient(180deg,#188eff,#0b6fd6);color:#fff;box-shadow:0 0 18px rgba(29,140,255,.28)}.select-chip{appearance:none;max-width:112px;padding-right:18px}.filter-drawer{margin-top:10px;padding:10px;border:1px solid #174566;border-radius:13px;background:#061a2d;display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:10px}.filter-drawer label{font-size:10px;color:#8ea9c0;display:flex;flex-direction:column;gap:6px}.filter-drawer select{border:1px solid #235476;border-radius:9px;background:#0a2842;color:#eef8ff;padding:7px}.filter-drawer .check-label{justify-content:center;flex-direction:row;align-items:center;font-size:11px;color:#d6e5f0}
+.section-context{margin:8px 16px 0;border:1px solid #153d5e;border-radius:12px;background:#061a2c;padding:9px 11px;color:#a6bed2;font-size:11px}.section-context strong{color:#e9f6ff}
+.deal-list{flex:1;min-height:0;overflow:auto;padding:10px 14px 8px;scrollbar-width:thin;scrollbar-color:#315a78 transparent}.deal-card{display:grid;grid-template-columns:76px minmax(0,1fr) auto 52px;gap:10px;align-items:center;min-height:90px;margin-bottom:8px;padding:8px 10px;border:1px solid #102f4b;border-radius:13px;background:linear-gradient(90deg,#071c30,#061725);cursor:pointer;transition:.16s ease}.deal-card:hover{background:#0a2741;border-color:#1a5d8c}.deal-card.selected{border-color:#28b7ff;box-shadow:0 0 0 1px #067ec9,0 0 22px rgba(0,155,255,.24);background:linear-gradient(90deg,#0b3153,#071c31)}.deal-cover{width:76px;height:76px;border-radius:9px;background:#0d2a43 center/cover no-repeat;overflow:hidden;box-shadow:inset 0 0 0 1px #295574;display:flex;align-items:flex-end}.cover-fallback{font-size:9px;font-weight:800;padding:7px;background:linear-gradient(transparent,rgba(0,0,0,.8));width:100%}.deal-main{min-width:0}.deal-title{font-size:15px;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mini-tags{display:flex;gap:4px;margin-top:5px;max-height:21px;overflow:hidden}.mini-tag{font-size:9px;color:#bfd1e0;border:1px solid #275072;border-radius:5px;background:#0b2945;padding:3px 5px}.deal-price{display:flex;align-items:center;gap:7px;margin-top:7px;flex-wrap:wrap}.deal-price .off{font-size:12px;font-weight:900;background:#ff315e;color:#fff;border-radius:7px;padding:5px 7px}.deal-price strong{font-size:15px;color:white}.deal-price del{font-size:10px;color:#6e879c}.deal-verdict{display:flex;flex-direction:column;align-items:center;gap:7px}.timing-mini{min-width:66px;text-align:center;font-size:10px;font-weight:900;border-radius:8px;padding:8px 8px}.timing-mini.buy{background:#17e7a2;color:#001c12}.timing-mini.good{background:#087bff;color:#fff}.timing-mini.wait{background:#ff9d28;color:#241100}.timing-mini.watch{background:#1e405e;color:#bad2e5}.score-dot{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:900;border:3px solid #20e7b2;background:#082238;color:white;box-shadow:inset 0 0 0 3px #061422}.score-dot.wait{border-color:#f59d2d}.score-dot.good{border-color:#168dff}.score-dot.watch{border-color:#607d96}.deal-actions{align-self:flex-start}.tiny-bookmark{border:0;background:transparent;color:#9fb8ce;font-size:19px;cursor:pointer}.tiny-bookmark.active{color:#ff5476}.load-more{margin:5px auto 10px;border:1px solid #23557b;background:#08243d;color:#d9ebf8;border-radius:999px;padding:8px 18px}
+.detail-pane{overflow:auto;background:linear-gradient(180deg,#051728,#04111f);position:relative}.mobile-back{display:none}.empty-state{height:100%;display:grid;place-content:center;text-align:center;color:#87a4bd}.radar-rings{font-size:76px;color:#26baff;text-shadow:0 0 38px #177dd2}.empty-state h2{color:#edf8ff;margin:8px 0}.empty-state p{max-width:380px}
+.detail-hero{min-height:300px;position:relative;padding:38px 28px 20px;overflow:hidden;background:#0b243c center/cover no-repeat;border-bottom:1px solid #1c4b6d}.detail-hero:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(2,10,17,.9) 0%,rgba(2,10,17,.64) 48%,rgba(2,10,17,.12) 100%),linear-gradient(0deg,#051728 0%,transparent 45%)}.hero-shade{position:absolute;inset:0;background:radial-gradient(circle at 72% 26%,rgba(0,0,0,0),rgba(0,0,0,.08) 30%,rgba(0,0,0,.3) 70%);pointer-events:none}.hero-top-actions{position:absolute;top:18px;right:18px;display:flex;gap:8px;z-index:2}.hero-action{width:42px;height:42px;border-radius:50%;border:1px solid rgba(160,207,240,.26);background:rgba(4,17,29,.78);backdrop-filter:blur(8px);font-size:20px;cursor:pointer}.hero-action.active{color:#ff4f79;border-color:#ff4f79}.hero-copy{position:relative;z-index:1;max-width:62%;padding-top:23px}.hero-copy h2{font-size:34px;line-height:1.06;margin:10px 0 4px;letter-spacing:-1px}.hero-copy>p{margin:0;color:#c3d3df;font-size:12px}.tag-row{display:flex;gap:6px;flex-wrap:wrap}.tag{font-size:10px;color:#eff8ff;background:rgba(10,35,57,.86);border:1px solid rgba(94,145,183,.4);padding:4px 7px;border-radius:6px}.price-block{display:flex;align-items:center;gap:12px;margin-top:20px;flex-wrap:wrap}.discount-badge{font-size:28px;font-weight:950;background:#c81f43;color:white;border-radius:9px;padding:9px 16px;box-shadow:0 0 18px rgba(255,35,86,.18)}.price-block strong{font-size:31px}.price-block del{font-size:15px;color:#8ba0b3}.sale-clock{display:flex;align-items:center;gap:7px;margin-top:12px;color:#e9f1f7;font-size:12px}.timing-badge{position:absolute;right:28px;bottom:20px;z-index:2;min-width:205px;height:92px;border-radius:14px;display:grid;grid-template-columns:48px 1fr;grid-template-rows:1fr 1fr;align-items:center;padding:14px 18px;background:#16e9a3;color:#01291b;box-shadow:0 0 24px rgba(16,225,156,.2)}.timing-badge .cart-icon{grid-row:1/3;font-size:30px}.timing-badge b{font-size:25px;line-height:1}.timing-badge small{font-size:10px;font-weight:800}.timing-badge.good{background:#087bff;color:white}.timing-badge.wait{background:#ff9d28;color:#241100}.timing-badge.watch{background:#294b67;color:#d6e7f3}
+.detail-tabs{display:grid;grid-template-columns:repeat(4,1fr);margin:0 16px;border-bottom:1px solid #183e5d}.detail-tab{height:52px;border:0;background:transparent;color:#a1b6c8;font-size:12px;font-weight:800;cursor:pointer;position:relative}.detail-tab.active{color:#32b4ff}.detail-tab.active:after{content:"";position:absolute;left:18%;right:18%;bottom:-1px;height:2px;background:#26aaff;box-shadow:0 0 12px #26aaff}.detail-tab-pane{display:none;padding:12px 16px 20px}.detail-tab-pane.active{display:block}.timing-card{display:grid;grid-template-columns:minmax(0,1fr) 112px;gap:18px;align-items:center;border:1px solid #144866;border-radius:13px;background:linear-gradient(110deg,#06263b,#071d30);padding:15px 16px}.timing-copy .eyebrow{margin:0 0 5px;color:#1ce6a0;font-size:11px;font-weight:900}.timing-copy h3{margin:0;font-size:22px;color:#36f1b2}.timing-copy>p:last-child{margin:6px 0 0;color:#abc0d0;font-size:11px;line-height:1.55}.score-ring{width:92px;height:92px;border-radius:50%;border:8px solid #12e6a0;box-shadow:inset 0 0 0 4px #06243b,0 0 18px rgba(11,229,156,.14);display:grid;place-content:center;text-align:center}.score-ring strong{font-size:28px;line-height:1}.score-ring small{font-size:9px;color:#a8c7ba;margin-top:4px}.metric-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:10px}.metric{min-width:0;background:#071d31;border:1px solid #143c5a;border-radius:10px;padding:10px}.metric small{display:block;color:#87a2b9;font-size:9px}.metric b{display:block;margin-top:5px;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.metric .accent{color:#ff4770}.analysis-card{margin-top:10px;border:1px solid #15415f;border-radius:13px;background:#05182a;padding:12px}.card-head{display:flex;align-items:center;justify-content:space-between;gap:8px}.card-head h3{margin:0;font-size:16px}.card-head>span{font-size:9px;color:#9bb0c2}.trend-chart{height:205px;margin-top:8px}.trend-svg{width:100%;height:100%;overflow:visible}.trend-svg .grid{stroke:#183a54;stroke-width:1}.trend-svg .line{fill:none;stroke:#139eff;stroke-width:3;filter:drop-shadow(0 0 5px rgba(0,155,255,.7))}.trend-svg .point{fill:#1db4ff;stroke:#d7f5ff;stroke-width:1.2}.trend-svg .low-line{stroke:#eeb965;stroke-width:1.5;stroke-dasharray:6 6}.trend-empty{height:100%;display:grid;place-content:center;text-align:center;border:1px dashed #21435f;border-radius:10px;color:#819bb0}.trend-empty b{color:#e3eef5;margin-bottom:5px}.compare-rows{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:9px}.compare-row{border:1px solid #153b58;background:#081d30;border-radius:9px;padding:9px;display:grid;gap:4px}.compare-row.current{border-color:#2085bd;background:#092844}.compare-row label{font-size:9px;color:#8da8be}.compare-row .bar-shell{display:none}.compare-row strong{font-size:12px}.compare-row em{font-style:normal;font-size:10px;color:#ff5577}.chart-note{margin:8px 0 0;color:#7592aa;font-size:10px}.confidence-chip{display:inline-block;margin-top:6px;font-size:9px;color:#a6bfd3;border:1px solid #244d6b;border-radius:999px;padding:4px 7px}.truth-note{font-size:9px;color:#648197;margin:2px 18px 14px;line-height:1.4}.info-stack{display:grid;gap:10px}.info-card{border:1px solid #163e5d;background:#061a2c;border-radius:12px;padding:14px}.info-card h3{margin:0 0 8px;font-size:15px}.info-card p{margin:0;color:#a2b7c9;font-size:11px;line-height:1.6}.info-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.info-kv{background:#081f35;border:1px solid #143b58;border-radius:10px;padding:10px}.info-kv small{display:block;color:#7f9ab0;font-size:9px}.info-kv b{display:block;margin-top:4px;font-size:13px}.similar-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.similar-card{border:1px solid #153b58;background:#061a2d;border-radius:11px;padding:8px;display:grid;grid-template-columns:58px 1fr;gap:9px;align-items:center;cursor:pointer}.similar-card .deal-cover{width:58px;height:58px}.similar-card b{font-size:11px}.similar-card span{font-size:9px;color:#819aae}.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:50;background:#0b2943;border:1px solid #24608a;color:#eef8ff;border-radius:999px;padding:9px 15px;font-size:11px;box-shadow:var(--shadow)}
+.bottom-nav{display:none}
+@media(max-width:1180px){:root{--rail-w:74px}.workspace{grid-template-columns:minmax(380px,46%) minmax(0,54%)}.deal-header{padding:14px 12px 7px}.brand-copy-block h1{font-size:27px}.brand-copy-block p{font-size:11px}.deal-summary-row{grid-template-columns:126px minmax(160px,1fr) 38px 38px}.deal-count-box,.search-inline{height:52px}.deal-card{grid-template-columns:66px minmax(0,1fr) auto 44px;padding:7px}.deal-cover{width:66px;height:66px}.deal-title{font-size:13px}.deal-price strong{font-size:13px}.deal-price del{display:none}.timing-mini{min-width:57px;padding:6px}.score-dot{width:38px;height:38px;font-size:11px}.hero-copy{max-width:60%}.hero-copy h2{font-size:29px}.timing-badge{min-width:178px;height:82px}.timing-badge b{font-size:21px}.metric-strip{grid-template-columns:repeat(3,1fr)}.metric-strip .metric:nth-child(n+4){display:none}.trend-chart{height:175px}}
+@media(max-width:599px){body{overflow:auto}.app-shell{height:auto;min-height:100dvh;display:block;padding-bottom:calc(var(--mobile-nav) + env(safe-area-inset-bottom) + 10px)}.side-rail{display:none}.workspace{display:block;padding:0;background:#020913}.panel{border-radius:0;border-left:0;border-right:0}.deal-pane{min-height:calc(100dvh - var(--mobile-nav));height:auto}.deal-header{position:sticky;top:0;z-index:10;padding:11px 10px 8px;background:rgba(3,16,29,.97);backdrop-filter:blur(12px)}.brand-copy-block h1,.brand-copy-block>p{display:none}.mobile-brand{display:flex;align-items:center;gap:8px;height:34px}.mobile-ps{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-weight:950;font-style:italic;background:#0878d3;color:white;font-size:11px}.mobile-brand strong{font-size:17px}.mobile-brand em{font-style:normal;font-size:11px;color:#65c7ff}.deal-summary-row{margin-top:9px;grid-template-columns:1fr 38px}.deal-count-box{display:none}.search-inline{grid-column:1;height:42px}.filter-tool-btn{width:38px;height:38px}.filter-tool-btn#refreshBtn{display:none}.filter-strip{margin-top:8px}.filter-drawer{grid-template-columns:1fr 1fr}.filter-drawer .check-label{grid-column:1/3}.section-context{margin:6px 10px 0}.deal-list{padding:8px 9px}.deal-card{grid-template-columns:64px minmax(0,1fr) auto 42px;min-height:80px;margin-bottom:7px}.deal-cover{width:64px;height:64px}.deal-main .mini-tags{display:none}.deal-price{margin-top:5px}.deal-price .off{font-size:11px;padding:4px 6px}.deal-price strong{font-size:14px}.timing-mini{font-size:9px}.score-dot{width:36px;height:36px}.deal-actions{display:none}.detail-pane{position:fixed;inset:0 0 calc(var(--mobile-nav) + env(safe-area-inset-bottom)) 0;z-index:30;display:none;overflow:auto;background:#04111f}.detail-pane.mobile-open{display:block}.mobile-back{display:block;position:sticky;top:8px;left:8px;z-index:20;border:1px solid #1a527b;border-radius:999px;background:rgba(3,20,35,.92);color:#d9efff;padding:7px 11px;margin:8px;font-size:11px}.detail-hero{min-height:300px;padding:66px 18px 18px}.hero-copy{max-width:78%;padding-top:18px}.hero-copy h2{font-size:27px}.timing-badge{right:14px;bottom:16px;min-width:150px;height:72px;padding:9px 11px;grid-template-columns:36px 1fr}.timing-badge .cart-icon{font-size:23px}.timing-badge b{font-size:17px}.timing-badge small{font-size:8px}.detail-tabs{margin:0 8px}.detail-tab{font-size:10px;height:46px}.detail-tab-pane{padding:10px 9px 18px}.timing-card{grid-template-columns:1fr 80px;padding:12px}.timing-copy h3{font-size:18px}.score-ring{width:72px;height:72px;border-width:6px}.score-ring strong{font-size:22px}.metric-strip{grid-template-columns:repeat(3,1fr)}.metric{padding:8px}.metric b{font-size:11px}.trend-chart{height:170px}.compare-rows{grid-template-columns:repeat(2,1fr)}.bottom-nav{position:fixed;display:grid;grid-template-columns:repeat(4,1fr);left:0;right:0;bottom:0;height:calc(var(--mobile-nav) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);z-index:40;background:rgba(3,15,27,.98);border-top:1px solid #123d5f}.bottom-nav .nav-item{border:0;background:transparent;color:#829db4;display:flex;flex-direction:column;gap:3px;align-items:center;justify-content:center}.bottom-nav .nav-item span{font-size:19px}.bottom-nav .nav-item b{font-size:9px}.bottom-nav .nav-item.active{color:#21b8ff}.toast{bottom:86px}}
+@media(min-width:600px) and (max-height:760px){.workspace{padding:6px}.deal-header{padding-top:11px}.brand-copy-block p{display:none}.deal-summary-row{margin-top:10px}.deal-card{min-height:75px}.deal-cover{width:62px;height:62px}.deal-list{padding-top:7px}.detail-hero{min-height:242px;padding-top:28px}.hero-copy h2{font-size:29px}.timing-badge{height:74px}.detail-tabs .detail-tab{height:44px}.timing-card{padding:10px}.metric{padding:8px}.trend-chart{height:145px}}
+
+
+/* === v2.2.1 Fold inner-display layout ===
+   Galaxy Z Fold inner display is ~650-750 CSS px wide in portrait.
+   Keep the approved rail + list + detail composition instead of switching to phone UI. */
+@media(min-width:600px) and (max-width:900px){
+  :root{--rail-w:54px;--safe-top:max(env(safe-area-inset-top,0px),22px)}
+  body{overflow:hidden}
+  .app-shell{display:grid;grid-template-columns:var(--rail-w) 1fr;height:calc(100dvh - var(--safe-top));margin-top:var(--safe-top);padding-bottom:0}
+  .side-rail{display:flex;padding:8px 4px 8px}
+  .rail-brand{width:42px;height:42px;border-radius:12px}.rail-brand span{font-size:14px}
+  .rail-nav{margin-top:10px;gap:4px}.rail-nav .nav-item{height:62px;border-radius:10px;gap:4px}.rail-nav .nav-item .nav-icon{font-size:19px}.rail-nav .nav-item b{font-size:9px}.rail-settings{width:40px;height:40px;font-size:18px}
+  .workspace{display:grid;grid-template-columns:minmax(245px,42%) minmax(0,58%);gap:5px;padding:5px;height:100%;background:#020913}
+  .panel{border-radius:14px}
+  .deal-pane{height:100%;min-height:0}.deal-header{position:relative;top:auto;padding:10px 9px 6px;background:linear-gradient(180deg,rgba(6,28,49,.99),rgba(4,20,36,.98));backdrop-filter:none}
+  .brand-copy-block h1{display:block;font-size:21px;letter-spacing:-.7px}.brand-copy-block h1 em{font-size:12px}.brand-copy-block>p{display:block;margin-top:4px;font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mobile-brand{display:none}
+  .deal-summary-row{margin-top:9px;grid-template-columns:90px minmax(0,1fr) 34px;gap:5px}.deal-count-box{display:grid;height:45px;padding:6px 7px;border-radius:10px}.deal-count-box small{font-size:8px}.deal-count-box strong{font-size:15px}.data-stamp{display:none}.search-inline{grid-column:auto;height:45px;padding:0 8px;border-radius:10px}.search-inline>span{font-size:16px}.search-inline input{font-size:10px}.filter-tool-btn{display:block;width:34px;height:34px;border-radius:9px;font-size:14px}.filter-tool-btn#refreshBtn{display:none}
+  .filter-strip{margin-top:7px;gap:4px}.chip{padding:5px 7px;font-size:8px}.filter-strip .chip[data-filter="korean"],.filter-strip .chip[data-filter="50plus"]{display:none}.select-chip{max-width:78px;padding-right:10px}
+  .filter-drawer{grid-template-columns:1fr 1fr;padding:7px;gap:6px}.filter-drawer .check-label{grid-column:1/3}.filter-drawer label{font-size:8px}.filter-drawer select{padding:5px;font-size:9px}
+  .section-context{margin:5px 8px 0;padding:6px 7px;font-size:8px}
+  .deal-list{padding:6px 7px 6px}.deal-card{grid-template-columns:50px minmax(0,1fr) 52px;gap:6px;min-height:64px;margin-bottom:5px;padding:5px 6px;border-radius:10px}.deal-cover{width:50px;height:50px;border-radius:7px}.cover-fallback{font-size:7px;padding:4px}.deal-title{font-size:10px}.mini-tags{margin-top:2px;height:15px}.mini-tag{font-size:6px;padding:2px 3px;border-radius:4px}.deal-price{gap:4px;margin-top:3px;flex-wrap:nowrap}.deal-price .off{font-size:8px;padding:3px 4px;border-radius:5px}.deal-price strong{font-size:9px}.deal-price del{display:none}.deal-verdict{gap:3px}.timing-mini{min-width:46px;font-size:7px;padding:5px 4px;border-radius:6px}.score-dot{width:29px;height:29px;border-width:2px;font-size:8px}.deal-card .score-dot{position:absolute;right:6px;bottom:5px}.deal-card{position:relative;padding-right:58px}.deal-actions{display:none}.load-more{font-size:8px;padding:5px 12px;margin:2px auto 5px}
+  .detail-pane{display:block;position:relative;inset:auto;z-index:auto;height:100%;overflow:auto;background:linear-gradient(180deg,#051728,#04111f)}.detail-pane.mobile-open{display:block}.mobile-back{display:none}
+  .detail-hero{min-height:208px;padding:24px 14px 12px;border-radius:0;background-position:center}.hero-top-actions{top:10px;right:10px;gap:5px}.hero-action{width:31px;height:31px;font-size:14px}.hero-copy{max-width:58%;padding-top:14px}.hero-copy h2{font-size:22px;margin:6px 0 3px}.hero-copy>p{font-size:8px}.tag-row{gap:3px}.tag{font-size:7px;padding:3px 5px}.price-block{gap:7px;margin-top:12px}.discount-badge{font-size:18px;padding:6px 9px}.price-block strong{font-size:19px}.price-block del{font-size:9px}.sale-clock{font-size:8px;margin-top:7px}
+  .timing-badge{right:10px;bottom:12px;min-width:124px;height:62px;padding:7px 8px;border-radius:10px;grid-template-columns:31px 1fr}.timing-badge .cart-icon{font-size:20px}.timing-badge b{font-size:14px}.timing-badge small{font-size:7px}
+  .detail-tabs{margin:0 5px}.detail-tab{height:36px;font-size:8px}.detail-tab-pane{padding:7px 6px 12px}.timing-card{grid-template-columns:minmax(0,1fr) 62px;padding:9px 10px;border-radius:10px}.timing-copy .eyebrow{font-size:7px}.timing-copy h3{font-size:14px;margin:4px 0}.timing-copy>p{font-size:8px;line-height:1.35}.score-ring{width:56px;height:56px;border-width:5px}.score-ring strong{font-size:17px}.score-ring small{font-size:6px}
+  .metric-strip{grid-template-columns:repeat(5,1fr);gap:4px}.metric-strip .metric:nth-child(n){display:block}.metric{padding:6px 5px;border-radius:8px}.metric small{font-size:6px}.metric b{font-size:9px;margin-top:3px}.analysis-card{padding:9px;border-radius:10px}.card-head h3{font-size:12px}.card-head span{font-size:7px}.trend-chart{height:128px}.compare-rows{grid-template-columns:repeat(2,1fr);gap:5px}.compare-row{padding:6px}.compare-row label{font-size:7px}.compare-row strong{font-size:9px}.compare-row em{font-size:7px}.chart-note{font-size:7px}.confidence-chip{font-size:7px}
+  .bottom-nav{display:none!important}.toast{bottom:20px}
+}
+
+
+/* === v2.2.2 usability + price-trend fixes === */
+.trend-baseline{height:100%;display:flex;flex-direction:column;justify-content:center;gap:13px;padding:12px 14px}
+.trend-state-title{display:flex;flex-direction:column;gap:4px}.trend-state-title b{font-size:15px;color:#edf9ff}.trend-state-title span{font-size:11px;color:#8ca9c1;line-height:1.45}
+.price-reference-row{display:grid;grid-template-columns:52px minmax(0,1fr) 86px;align-items:center;gap:9px}.price-reference-row label{font-size:10px;color:#9bb4c8}.price-reference-row strong{font-size:12px;text-align:right}.reference-track{height:11px;border-radius:999px;background:#0a2944;border:1px solid #174769;overflow:hidden}.reference-track span{display:block;height:100%;border-radius:inherit}.reference-normal{width:100%;background:#55728c}.reference-current{background:linear-gradient(90deg,#0d8cff,#31d9ff);box-shadow:0 0 12px rgba(33,174,255,.45)}
+.price-reference-row.current label,.price-reference-row.current strong{color:#58d8ff}.trend-observation-meta{display:flex;gap:7px;flex-wrap:wrap}.trend-observation-meta span{border:1px solid #194765;border-radius:999px;background:#071d31;padding:5px 8px;font-size:9px;color:#a9bfd1}
+.trend-svg .axis-label{fill:#7896ae;font-size:10px}.trend-svg .axis-label.y{font-size:9px}
+
+/* Fold inner display: readability takes priority over raw information density. */
+@media(min-width:600px) and (max-width:900px){
+  :root{--rail-w:62px}
+  .workspace{grid-template-columns:minmax(278px,44%) minmax(0,56%);gap:6px;padding:6px}
+  .side-rail{padding:10px 5px}
+  .rail-brand{width:48px;height:48px;border-radius:14px}.rail-brand span{font-size:16px}
+  .rail-nav{margin-top:12px;gap:5px}.rail-nav .nav-item{height:68px;gap:5px}.rail-nav .nav-item .nav-icon{font-size:22px}.rail-nav .nav-item b{font-size:11px}.rail-settings{font-size:20px}
+  .deal-header{padding:12px 11px 8px}
+  .brand-copy-block h1{font-size:24px}.brand-copy-block h1 em{font-size:13px}.brand-copy-block>p{font-size:11px;margin-top:5px}
+  .deal-summary-row{grid-template-columns:98px minmax(0,1fr) 38px;gap:6px;margin-top:11px}.deal-count-box{height:49px;padding:7px 8px}.deal-count-box small{font-size:9px}.deal-count-box strong{font-size:18px}.search-inline{height:49px;padding:0 9px}.search-inline>span{font-size:18px}.search-inline input{font-size:12px}.filter-tool-btn{width:38px;height:38px;font-size:16px}
+  .filter-strip{gap:5px;margin-top:8px}.chip{padding:6px 9px;font-size:10px}.select-chip{max-width:92px}
+  .filter-drawer{padding:9px;gap:8px}.filter-drawer label{font-size:10px}.filter-drawer select{font-size:11px;padding:7px}.filter-drawer .check-label{font-size:11px}
+  .section-context{font-size:10px;padding:7px 8px}
+  .deal-list{padding:8px}.deal-card{grid-template-columns:58px minmax(0,1fr) 60px;gap:7px;min-height:76px;margin-bottom:7px;padding:7px 8px;padding-right:64px}.deal-cover{width:58px;height:58px}.cover-fallback{font-size:8px}
+  .deal-title{font-size:12.5px}.mini-tags{height:18px;margin-top:3px}.mini-tag{font-size:8px;padding:2px 4px}.deal-price{gap:5px;margin-top:5px}.deal-price .off{font-size:9.5px;padding:4px 5px}.deal-price strong{font-size:11.5px}.timing-mini{min-width:54px;font-size:8.5px;padding:6px 5px}.score-dot{width:34px;height:34px;font-size:10px}.deal-card .score-dot{right:7px;bottom:7px}
+  .detail-hero{min-height:230px;padding:28px 16px 14px}.hero-action{width:34px;height:34px;font-size:16px}.hero-copy{max-width:62%;padding-top:16px}.hero-copy h2{font-size:26px;margin:7px 0 4px}.hero-copy>p{font-size:10.5px}.tag{font-size:8.5px;padding:4px 6px}.price-block{margin-top:14px}.discount-badge{font-size:21px;padding:7px 10px}.price-block strong{font-size:23px}.price-block del{font-size:10.5px}.sale-clock{font-size:10px}
+  .timing-badge{min-width:138px;height:68px;grid-template-columns:34px 1fr}.timing-badge .cart-icon{font-size:22px}.timing-badge b{font-size:16px}.timing-badge small{font-size:8.5px}
+  .detail-tabs{margin:0 6px}.detail-tab{height:42px;font-size:10.5px}.detail-tab-pane{padding:9px 8px 16px}
+  .timing-card{grid-template-columns:minmax(0,1fr) 70px;padding:11px 12px}.timing-copy .eyebrow{font-size:9px}.timing-copy h3{font-size:17px;margin:5px 0}.timing-copy>p{font-size:10.5px;line-height:1.45}.score-ring{width:64px;height:64px}.score-ring strong{font-size:20px}.score-ring small{font-size:7.5px}
+  .metric-strip{gap:5px}.metric{padding:8px 6px}.metric small{font-size:8px}.metric b{font-size:11px;margin-top:4px}
+  .analysis-card{padding:11px}.card-head h3{font-size:14px}.card-head span{font-size:9px}.trend-chart{height:154px}.compare-row{padding:8px}.compare-row label{font-size:9px}.compare-row strong{font-size:11px}.compare-row em{font-size:8.5px}.chart-note{font-size:9px;line-height:1.45}.confidence-chip{font-size:9px}
+  .trend-state-title b{font-size:13px}.trend-state-title span{font-size:9.5px}.price-reference-row{grid-template-columns:42px minmax(0,1fr) 72px;gap:6px}.price-reference-row label{font-size:9px}.price-reference-row strong{font-size:10px}.trend-observation-meta span{font-size:8px;padding:4px 6px}
+  .info-card h3{font-size:15px}.info-card p{font-size:10.5px;line-height:1.5}.info-kv small{font-size:8.5px}.info-kv b{font-size:11.5px}
+}
+
+/* Phone text remains compact but no longer microscopic. */
+@media(max-width:599px){
+  .chip{font-size:12px}.search-inline input{font-size:14px}.deal-title{font-size:15px}.deal-price strong{font-size:15px}.timing-mini{font-size:10px}.detail-tab{font-size:11px}.timing-copy>p{font-size:11px}.metric small{font-size:9px}.metric b{font-size:12px}.chart-note{font-size:10px}
+}
+
+/* === v2.2.3 readability + expanded filters === */
+.filter-drawer[hidden]{display:none!important}
+.filter-drawer{display:block;padding:12px}
+.filter-drawer-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;padding-bottom:9px;border-bottom:1px solid #153e5e}
+.filter-drawer-head>div{display:flex;flex-direction:column;gap:3px}.filter-drawer-head b{font-size:13px;color:#f1f9ff}.filter-drawer-head span{font-size:10px;color:#8ea8be}
+.filter-drawer-head button{border:1px solid #245a7f;border-radius:9px;background:#0a2842;color:#bfe3fa;padding:7px 10px;font-size:10px;font-weight:800;white-space:nowrap;cursor:pointer}
+.filter-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.filter-grid label{font-size:10px;color:#9bb3c7;display:flex;flex-direction:column;gap:6px}.filter-grid select{width:100%;border:1px solid #235476;border-radius:9px;background:#0a2842;color:#eef8ff;padding:8px 9px;font-size:11px}
+.filter-drawer>.check-label{margin-top:10px;min-height:34px;display:flex;align-items:center;justify-content:flex-start;gap:8px;border:1px solid #183f60;border-radius:10px;background:#071d31;padding:7px 9px;font-size:11px;color:#d9e9f5}
+.filter-drawer>.check-label input{width:18px;height:18px;accent-color:#1597ff}
+
+@media(min-width:600px) and (max-width:900px){
+  .rail-nav .nav-item b{font-size:12.5px}
+  .brand-copy-block h1{font-size:26px}.brand-copy-block h1 em{font-size:14px}.brand-copy-block>p{font-size:12px}
+  .deal-count-box small{font-size:10px}.deal-count-box strong{font-size:20px}
+  .search-inline input{font-size:13.5px}.search-inline>span{font-size:20px}
+  .chip{padding:7px 10px;font-size:11px}.select-chip{max-width:108px}
+  .filter-drawer{padding:10px}.filter-drawer-head b{font-size:13px}.filter-drawer-head span{font-size:10px}.filter-drawer-head button{font-size:10px;padding:6px 9px}.filter-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.filter-grid label{font-size:10px}.filter-grid select{font-size:11.5px;padding:7px 8px}.filter-drawer>.check-label{font-size:11.5px}
+  .section-context{font-size:11px}
+  .deal-card{grid-template-columns:62px minmax(0,1fr) 64px;min-height:82px;padding:8px 9px;padding-right:68px}.deal-cover{width:62px;height:62px}
+  .deal-title{font-size:14px}.mini-tag{font-size:9px}.deal-price .off{font-size:10.5px}.deal-price strong{font-size:13px}.timing-mini{font-size:9.5px;min-width:58px}.score-dot{width:36px;height:36px;font-size:11px}
+  .hero-copy h2{font-size:28px}.hero-copy>p{font-size:11px}.tag{font-size:9px}.discount-badge{font-size:22px}.price-block strong{font-size:25px}.price-block del{font-size:11px}.sale-clock{font-size:10.5px}
+  .timing-badge b{font-size:17px}.timing-badge small{font-size:9px}
+  .detail-tab{font-size:11.5px}.timing-copy .eyebrow{font-size:9.5px}.timing-copy h3{font-size:18px}.timing-copy>p{font-size:11.5px}.score-ring strong{font-size:21px}.score-ring small{font-size:8px}
+  .metric small{font-size:8.5px}.metric b{font-size:12.5px}.card-head h3{font-size:15px}.card-head span{font-size:9.5px}.compare-row label{font-size:9.5px}.compare-row strong{font-size:12px}.compare-row em{font-size:9px}.chart-note{font-size:9.8px}.confidence-chip{font-size:9.5px}
+  .trend-state-title b{font-size:14px}.trend-state-title span{font-size:10.5px}.price-reference-row label{font-size:9.5px}.price-reference-row strong{font-size:11px}.trend-observation-meta span{font-size:8.8px}
+}
+
+@media(max-width:599px){
+  .filter-grid{grid-template-columns:1fr 1fr}.filter-drawer-head span{display:none}.filter-drawer{padding:9px}.filter-grid label{font-size:11px}.filter-grid select{font-size:12px}.filter-drawer>.check-label{font-size:12px}
+  .deal-title{font-size:16px}.deal-price strong{font-size:16px}.deal-price .off{font-size:12px}.timing-mini{font-size:11px}.score-dot{font-size:10px}
+  .detail-tab{font-size:12px}.timing-copy h3{font-size:16px}.timing-copy>p{font-size:12px}.metric small{font-size:10px}.metric b{font-size:13px}.chart-note{font-size:11px}
+}
+
+
+/* === v2.2.4 navigation distinction + title readability + collapsible filters === */
+.filter-strip[hidden],.radar-filter-strip[hidden]{display:none!important}
+.filter-toggle-btn{width:auto!important;min-width:64px;padding:0 8px;gap:5px;display:flex!important;align-items:center;justify-content:center;white-space:nowrap}.filter-toggle-btn b{font-size:10px}.filter-toggle-btn.open{border-color:#38aff8;background:#0b3760;color:#eaf8ff}
+.radar-filter-strip{display:flex;align-items:center;gap:7px;margin-top:11px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}.radar-filter-strip::-webkit-scrollbar{display:none}.radar-chip{white-space:nowrap;border:1px solid #214868;background:#071f35;color:#b9d0e3;border-radius:10px;padding:8px 10px;font-size:10.5px;font-weight:850;cursor:pointer}.radar-chip.active{border-color:#28c7ff;background:linear-gradient(180deg,#0a527e,#073557);color:#fff;box-shadow:0 0 18px rgba(39,181,255,.18)}
+.filter-head-actions{display:flex;gap:6px;align-items:center}.filter-head-actions button:last-child{border-color:#34749d;color:#e6f5ff}
+.deal-title{white-space:normal;text-overflow:clip;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-height:1.2;min-height:2.4em}
+@media(min-width:600px) and (max-width:900px){
+  .deal-summary-row{grid-template-columns:98px minmax(0,1fr) 64px!important}
+  .filter-toggle-btn{height:40px!important;min-width:64px!important}.filter-toggle-btn b{font-size:10px}
+  .radar-filter-strip{gap:5px;margin-top:8px}.radar-chip{font-size:9.5px;padding:7px 8px}
+  .deal-card{grid-template-columns:60px minmax(0,1fr) 52px!important;min-height:92px!important;padding:8px 8px!important;padding-right:47px!important;gap:7px!important}.deal-cover{width:60px!important;height:60px!important}.deal-title{font-size:13px!important;line-height:1.18!important;min-height:2.36em!important}.deal-price{flex-wrap:nowrap!important;gap:4px!important}.deal-price .off{font-size:10px!important;padding:4px 5px!important}.deal-price strong{font-size:12px!important;white-space:nowrap}.mini-tags{margin-top:4px!important}.timing-mini{min-width:50px!important;font-size:8.8px!important;padding:6px 4px!important}.deal-card .score-dot{right:7px!important;bottom:8px!important}
+}
+@media(max-width:599px){.filter-toggle-btn b{display:none}.filter-toggle-btn{min-width:38px!important;width:38px!important;padding:0!important}.radar-filter-strip{gap:5px}.radar-chip{font-size:10px;padding:7px 8px}.deal-title{font-size:14px!important;line-height:1.2;min-height:2.4em}}
+
+
+/* === v2.2.5 always-visible live refresh === */
+.refresh-tool-btn{display:inline-flex!important;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.refresh-tool-btn .refresh-icon{display:inline-block;line-height:1;font-size:20px;transform-origin:50% 50%}
+.refresh-tool-btn.refreshing{border-color:#25bfff!important;background:#0a3557!important;color:#eaf9ff!important;box-shadow:0 0 0 2px rgba(37,191,255,.08),0 0 18px rgba(37,191,255,.15)}
+.refresh-tool-btn.refreshing .refresh-icon{animation:psr225-refresh-spin .72s linear infinite}
+.refresh-tool-btn:disabled{opacity:.78;cursor:wait}
+@keyframes psr225-refresh-spin{to{transform:rotate(360deg)}}
+
+@media(min-width:600px) and (max-width:900px){
+  .deal-summary-row{grid-template-columns:98px minmax(0,1fr) 64px 40px!important}
+  .filter-tool-btn#refreshBtn{display:inline-flex!important;width:38px!important;height:38px!important;padding:0!important}
+  .refresh-tool-btn .refresh-icon{font-size:18px}
+}
+@media(max-width:599px){
+  .deal-summary-row{grid-template-columns:minmax(0,1fr) 38px 38px!important;gap:6px!important}
+  .search-inline{grid-column:auto!important}
+  .filter-tool-btn#refreshBtn{display:inline-flex!important;width:38px!important;height:38px!important;padding:0!important}
+  .refresh-tool-btn .refresh-icon{font-size:18px}
+}
+
+/* === v2.2.5 A-layout persistent top refresh override === */
+.deal-header{position:relative!important}
+.header-actions{position:absolute;top:16px;right:18px;z-index:12;display:flex;align-items:center;gap:8px}
+.refresh-primary{height:42px;min-width:118px;padding:0 14px;border:1px solid #2577a9;border-radius:12px;background:linear-gradient(180deg,#0b426c,#082d4c);color:#edfaff;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:13px;font-weight:850;cursor:pointer;box-shadow:0 8px 22px rgba(0,89,155,.18)}
+.refresh-primary .refresh-icon{display:inline-block;font-size:19px;line-height:1;transform-origin:50% 50%}
+.refresh-primary .refresh-label{font-size:12px;white-space:nowrap}
+.refresh-primary.refreshing{border-color:#2dc6ff;background:linear-gradient(180deg,#0c527f,#093758);box-shadow:0 0 0 2px rgba(45,198,255,.08),0 0 20px rgba(45,198,255,.18)}
+.refresh-primary.refreshing .refresh-icon{animation:psr225-refresh-spin .72s linear infinite}
+.refresh-primary:disabled{opacity:.78;cursor:wait}
+.refresh-status{max-width:140px;color:#79d5ff;font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(min-width:901px){.brand-copy-block{padding-right:150px}.deal-summary-row{grid-template-columns:154px minmax(180px,1fr) 64px!important}}
+@media(min-width:600px) and (max-width:900px){.header-actions{top:10px;right:10px}.refresh-primary{height:38px;min-width:105px;padding:0 10px;gap:6px}.refresh-primary .refresh-label{font-size:10.5px}.refresh-primary .refresh-icon{font-size:18px}.refresh-status{display:none}.brand-copy-block{padding-right:114px}.deal-summary-row{grid-template-columns:98px minmax(0,1fr) 64px!important}}
+@media(max-width:599px){.header-actions{top:9px;right:10px}.refresh-primary{width:36px;min-width:36px;height:36px;padding:0;border-radius:10px}.refresh-primary .refresh-label,.refresh-status{display:none}.refresh-primary .refresh-icon{font-size:18px}.mobile-brand{padding-right:46px}.deal-summary-row{grid-template-columns:minmax(0,1fr) 38px!important;gap:6px!important}}
+
+/* v2.2.6 correctness + Fold UX */
+.deal-title{white-space:normal!important;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-overflow:ellipsis;line-height:1.18;min-height:2.36em}
+.empty-actions{display:flex;justify-content:center;gap:8px;margin-top:16px}.empty-actions button{border:1px solid #24577d;background:#08243d;color:#dff3ff;border-radius:10px;padding:9px 12px;font-weight:800}.product-id{font-size:10px!important;overflow-wrap:anywhere}.info-card h3 small{font-size:11px;color:#83bde5;font-weight:700}.detail-empty{min-height:70vh}
+@media(min-width:600px) and (max-width:900px){.deal-card{grid-template-columns:74px minmax(0,1fr) 62px!important;padding-right:8px!important;gap:8px!important}.deal-card .score-dot{position:absolute;right:9px;bottom:8px;width:36px;height:36px;font-size:11px}.deal-verdict{align-self:start;margin-top:3px}.deal-title{font-size:13px!important}.mini-tags{max-height:42px!important;flex-wrap:wrap}.deal-price{padding-right:38px}.detail-pane{scroll-behavior:auto}}
+
+
+/* === v2.2.7 Fold search + Korean IME hardening === */
+@media(min-width:600px) and (max-width:900px){
+  .deal-summary-row{display:grid!important;grid-template-columns:minmax(0,1fr) 86px!important;grid-template-rows:auto auto!important;gap:8px!important;margin-top:12px!important;align-items:center!important}
+  .deal-count-box{grid-column:1!important;grid-row:1!important;width:auto!important;height:48px!important}
+  .filter-toggle-btn{grid-column:2!important;grid-row:1!important;width:86px!important;height:48px!important;justify-content:center!important;gap:5px!important;font-size:13px!important}
+  .search-inline{grid-column:1/-1!important;grid-row:2!important;width:auto!important;height:52px!important;padding:0 13px!important;border-radius:12px!important}
+  .search-inline input{font-size:15px!important;min-width:0!important;width:100%!important}
+  .search-inline>span{font-size:21px!important}
+  .filter-strip{margin-top:10px!important}
+}
 </style>
 </head>
 <body>
-<div class="loading"><div class="mark">PS</div><h1><span class="spin">↻</span>PS Radar 미리보기 불러오는 중</h1><p id="status">2.2.6 수정판을 준비하고 있습니다.</p><button class="retry" id="retry" hidden>다시 시도</button></div>
-<script>
-const parts=['payload1.txt','payload2.txt','payload3.txt','payload4.txt','payload5.txt','payload6.txt'];
-async function boot(){
- const status=document.getElementById('status'),retry=document.getElementById('retry');retry.hidden=true;status.className='';status.textContent='2.2.6 수정판을 준비하고 있습니다.';
- try{
-  const chunks=await Promise.all(parts.map((p,i)=>fetch(`${p}?v=${Date.now()}-${i}`,{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error(`${p}: ${r.status}`);return r.text()})));
-  const b64=chunks.join('').replace(/\s+/g,'');
-  const raw=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
-  if(!('DecompressionStream' in window)) throw new Error('이 브라우저는 온라인 미리보기 압축 해제를 지원하지 않습니다. 최신 Chrome 또는 Samsung Internet을 사용해 주세요.');
-  const stream=new Blob([raw]).stream().pipeThrough(new DecompressionStream('gzip'));
-  const html=await new Response(stream).text();
-  if(!html.includes('PS Radar')||!html.includes('2.2.6')||html.length<20000)throw new Error('미리보기 파일 검증에 실패했습니다.');
-  document.open();document.write(html);document.close();
- }catch(err){status.className='error';status.textContent=`미리보기를 열지 못했습니다: ${err.message||err}`;retry.hidden=false;}
+  <div id="app" class="app-shell">
+    <aside class="side-rail" aria-label="주 메뉴">
+      <button class="rail-brand" data-nav="discount" aria-label="PS Radar 할인 홈"><span>PS</span></button>
+      <nav class="rail-nav">
+        <button class="nav-item active" data-nav="discount"><span class="nav-icon">◆</span><b>할인</b></button>
+        <button class="nav-item" data-nav="radar"><span class="nav-icon">◉</span><b>Radar</b></button>
+        <button class="nav-item" data-nav="trend"><span class="nav-icon">▥</span><b>추세</b></button>
+        <button class="nav-item" data-nav="my"><span class="nav-icon">♙</span><b>MY</b></button>
+      </nav>
+      <button class="rail-settings" id="settingsBtn" aria-label="설정">⚙</button>
+    </aside>
+
+    <main class="workspace">
+      <section class="deal-pane panel">
+        <header class="deal-header">
+          <div class="brand-copy-block">
+            <div class="mobile-brand"><span class="mobile-ps">PS</span><strong>PS Radar <em>2.2.7</em></strong></div>
+            <h1>PS Radar <em>2.2.7</em></h1>
+            <p>지금 사야 할 플레이스테이션 할인, 레이더가 찾아드립니다.</p>
+          </div>
+          <div class="header-actions">
+            <button id="refreshBtn" class="refresh-primary" type="button" aria-label="최신 데이터 새로고침" aria-busy="false" title="최신 할인·가격이력·추세 데이터 새로고침">
+              <span class="refresh-icon" aria-hidden="true">↻</span><b class="refresh-label">새로고침</b>
+            </button>
+            <span id="refreshStatus" class="refresh-status" aria-live="polite"></span>
+          </div>
+
+          <div class="deal-summary-row">
+            <div class="deal-count-box">
+              <small>현재 할인 중</small>
+              <strong id="dealCount">0개</strong>
+              <span id="dataStamp" class="data-stamp"></span>
+            </div>
+            <div class="search-inline">
+              <span>⌕</span>
+              <input id="searchInput" type="text" placeholder="게임명 검색..." autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" enterkeyhint="search" />
+              <button id="searchClear" aria-label="검색 초기화">×</button>
+            </div>
+            <button id="filterToggle" class="filter-tool-btn filter-toggle-btn" aria-label="상세 필터" aria-expanded="false"><span>☷</span><b>필터</b><span id="filterChevron">⌄</span></button>
+          </div>
+
+          <div class="filter-strip" id="filterStrip">
+            <button class="chip active" data-filter="all">전체</button>
+            <button class="chip" data-filter="PS5">PS5</button>
+            <button class="chip" data-filter="PS4">PS4</button>
+            <button class="chip" data-filter="korean">한국어</button>
+            <button class="chip" data-filter="70plus">70%+</button>
+            <button class="chip" data-filter="50plus">50%+</button>
+            <button class="chip" data-filter="lowest">역대 최저가</button>
+            <select id="sortSelect" class="chip select-chip" aria-label="정렬">
+              <option value="timing">추천순</option>
+              <option value="discount">할인율 높은 순</option>
+              <option value="price">가격 낮은 순</option>
+              <option value="nearLow">최저가 근접 순</option>
+              <option value="ending">종료 임박 순</option>
+              <option value="title">이름순</option>
+            </select>
+          </div>
+
+          <div id="radarStrip" class="radar-filter-strip" hidden>
+            <button class="radar-chip active" data-radar-mode="best">◎ 핵심 추천</button>
+            <button class="radar-chip" data-radar-mode="low">⌄ 최저가권</button>
+            <button class="radar-chip" data-radar-mode="wait">◷ 더 기다리기</button>
+            <button class="radar-chip" data-radar-mode="fresh">✦ 새 할인</button>
+            <button class="radar-chip" data-radar-mode="deepening">↘ 할인폭 확대</button>
+          </div>
+
+          <div id="filterDrawer" class="filter-drawer" hidden>
+            <div class="filter-drawer-head">
+              <div><b>상세 필터</b><span>원하는 조건을 조합해서 할인 게임을 좁혀보세요.</span></div>
+              <div class="filter-head-actions"><button id="filterReset" type="button">전체 초기화</button><button id="filterCollapse" type="button">접기 ▲</button></div>
+            </div>
+            <div class="filter-grid">
+              <label>플랫폼
+                <select id="platformFilter"><option value="all">전체</option><option value="PS5">PS5</option><option value="PS4">PS4</option></select>
+              </label>
+              <label>최소 할인율
+                <select id="discountMin"><option value="0">전체</option><option value="30">30%+</option><option value="40">40%+</option><option value="50">50%+</option><option value="60">60%+</option><option value="70">70%+</option><option value="80">80%+</option></select>
+              </label>
+              <label>최대 가격
+                <select id="priceMax"><option value="0">전체</option><option value="10000">1만원 이하</option><option value="20000">2만원 이하</option><option value="30000">3만원 이하</option><option value="50000">5만원 이하</option><option value="70000">7만원 이하</option></select>
+              </label>
+              <label>구매 타이밍
+                <select id="timingFilter"><option value="all">전체</option><option value="BUY NOW">BUY NOW</option><option value="GOOD">GOOD</option><option value="WAIT">WAIT</option><option value="WATCH">WATCH</option></select>
+              </label>
+              <label>최저가 상태
+                <select id="lowFilter"><option value="all">전체</option><option value="near">관측 최저가권</option><option value="exact">관측 최저가</option><option value="above">과거보다 비쌈</option></select>
+              </label>
+              <label>데이터 신뢰도
+                <select id="confidenceFilter"><option value="all">전체</option><option value="medium">보통 이상</option><option value="high">높음만</option></select>
+              </label>
+            </div>
+            <label class="check-label"><input id="koOnly" type="checkbox" /> 한국어 확인 게임만</label>
+          </div>
+        </header>
+
+        <div id="sectionContext" class="section-context" hidden></div>
+        <div id="dealList" class="deal-list" aria-live="polite"></div>
+        <button id="loadMore" class="load-more" hidden>더 보기</button>
+      </section>
+
+      <section class="detail-pane panel" id="detailPane">
+        <button id="mobileBack" class="mobile-back" aria-label="할인 목록으로 돌아가기">‹ 목록</button>
+        <div id="detailContent" hidden>
+          <section id="detailHero" class="detail-hero">
+            <div class="hero-shade"></div>
+            <div class="hero-top-actions">
+              <button id="shareBtn" class="hero-action" aria-label="공유">↗</button>
+              <button id="wishBtn" class="hero-action" aria-label="찜하기">♡</button>
+            </div>
+            <div class="hero-copy">
+              <div id="heroTags" class="tag-row"></div>
+              <h2 id="heroTitle"></h2>
+              <p id="heroMaker">PlayStation Store</p>
+              <div class="price-block">
+                <span id="heroDiscount" class="discount-badge"></span>
+                <strong id="heroPrice"></strong>
+                <del id="heroOriginal"></del>
+              </div>
+              <div class="sale-clock"><span>◷</span><span id="saleClockText">할인 종료일 미확인</span></div>
+            </div>
+            <div id="timingBadge" class="timing-badge">
+              <span class="cart-icon">🛒</span>
+              <b>WATCH</b>
+              <small>데이터 확인 중</small>
+            </div>
+          </section>
+
+          <nav class="detail-tabs" aria-label="게임 상세 메뉴">
+            <button class="detail-tab active" data-detail-tab="price">가격 분석</button>
+            <button class="detail-tab" data-detail-tab="game">게임 정보</button>
+            <button class="detail-tab" data-detail-tab="review">평가/리뷰</button>
+            <button class="detail-tab" data-detail-tab="similar">비슷한 게임</button>
+          </nav>
+
+          <section id="priceTab" class="detail-tab-pane active" data-tab-pane="price">
+            <section id="timingCard" class="timing-card">
+              <div class="timing-copy">
+                <p class="eyebrow">● 구매 타이밍 분석</p>
+                <h3 id="timingHeadline">분석 중</h3>
+                <p id="timingReason"></p>
+              </div>
+              <div id="timingScoreRing" class="score-ring"><strong>--</strong><small>구매 타이밍</small></div>
+            </section>
+
+            <div id="metricStrip" class="metric-strip"></div>
+
+            <section class="analysis-card trend-card">
+              <div class="card-head">
+                <h3>⌕ 가격 추세</h3>
+                <span id="trendPeriod">관측 기준</span>
+              </div>
+              <div id="trendChart" class="trend-chart"></div>
+              <div id="compareRows" class="compare-rows"></div>
+              <p id="trendNote" class="chart-note"></p>
+              <span id="confidenceChip" class="confidence-chip"></span>
+            </section>
+          </section>
+
+          <section id="gameTab" class="detail-tab-pane" data-tab-pane="game">
+            <div id="gameInfoContent" class="info-stack"></div>
+          </section>
+          <section id="reviewTab" class="detail-tab-pane" data-tab-pane="review">
+            <div id="reviewContent" class="info-stack"></div>
+          </section>
+          <section id="similarTab" class="detail-tab-pane" data-tab-pane="similar">
+            <div id="similarContent" class="similar-grid"></div>
+          </section>
+
+          <div class="truth-note">※ PS Radar는 확인된 관측값만 사용합니다. 이력이 부족한 게임은 구매 판단을 보수적으로 표시합니다.</div>
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="모바일 주 메뉴">
+      <button class="nav-item active" data-nav="discount"><span>◆</span><b>할인</b></button>
+      <button class="nav-item" data-nav="radar"><span>◉</span><b>Radar</b></button>
+      <button class="nav-item" data-nav="trend"><span>▥</span><b>추세</b></button>
+      <button class="nav-item" data-nav="my"><span>♙</span><b>MY</b></button>
+    </nav>
+
+    <div id="toast" class="toast" hidden></div>
+  </div>
+  <script>
+(()=>{
+'use strict';
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const REMOTE_BASE='https://raw.githubusercontent.com/2062245-del/-/main/ps-radar/data/';
+const DATA_TIMEOUT_MS=10000;
+const LOCAL_HISTORY_KEY='psr2-observed-history-v2';
+const state={deals:[],trends:{},history:{},store:new Map(),filtered:[],selected:null,filter:'all',sort:'timing',platformFilter:'all',minDiscount:0,maxPrice:0,timingFilter:'all',lowFilter:'all',confidenceFilter:'all',koOnly:false,query:'',visible:60,nav:'discount',radarMode:'best',dataSource:'bundle',generatedAt:null,busy:false};
+const wish=new Set(JSON.parse(localStorage.getItem('psr2-wish')||'[]'));
+let localHistory={}; try{localHistory=JSON.parse(localStorage.getItem(LOCAL_HISTORY_KEY)||'{}')||{}}catch{}
+const nf=new Intl.NumberFormat('ko-KR');
+const won=n=>Number.isFinite(Number(n))&&Number(n)>0?`${nf.format(Number(n))}원`:'가격 미확인';
+const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+const esc=s=>String(s??'').replace(/[&<>\"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[m]));
+const cleanStore=value=>{try{const u=new URL(value);u.search='';u.hash='';return u.href.replace(/\/$/,'')}catch{return String(value||'').split('?')[0].replace(/\/$/,'')}};
+const keyFor=g=>cleanStore(g?.store)||g?.productId||g?.id;
+const excluded=/익스펜션\s*패스|시즌\s*패스|season\s*pass|add[- ]?on|추가\s*콘텐츠|dlc\b|코인\b|포인트\b|가상\s*화폐|사운드트랙|soundtrack|아트북|artbook|스킨\b|의상\b|캐릭터\s*팩|아이템\s*팩/i;
+const normalizeSearch=value=>String(value||'').normalize('NFC').toLowerCase().replace(/[^0-9a-z가-힣ㄱ-ㅎㅏ-ㅣ\u1100-\u11ff]+/g,'');
+const searchHaystack=g=>[g?.title,g?.storeTitle,g?.desc,g?.productId,...(g?.genre||[]),...(g?.platform||[])].filter(Boolean).join(' ');
+
+
+function productPlatform(g){
+  const id=String(g?.productId||g?.store||'').toUpperCase();
+  if(/(?:PS5|PPSA)/.test(id))return 'PS5';
+  if(/(?:PS4|CUSA)/.test(id))return 'PS4';
+  return (g?.platform||[]).length===1?g.platform[0]:null;
 }
-document.getElementById('retry').addEventListener('click',boot);boot();
+function displayPlatforms(g){const p=productPlatform(g);return p?[p]:[...(g?.platform||[])];}
+function sameTitleCount(g){const t=normalizeSearch(g?.title);return state.deals.filter(x=>normalizeSearch(x?.title)===t).length;}
+function editionLabel(g){const p=productPlatform(g);return sameTitleCount(g)>1&&p?`${p} 버전`:p||'';}
+function validHistoricalPoint(g,x){
+  const price=Number(x?.price),disc=Number(x?.discount),original=Number(g?.originalPrice);
+  if(!(price>0))return false;
+  if(original>0&&price>original*1.03)return false;
+  if(original>0&&Number.isFinite(disc)&&disc>0){const calc=(1-price/original)*100;if(Math.abs(calc-disc)>8)return false;}
+  return true;
+}
+function resetAllFilters(){
+  state.filter='all';state.platformFilter='all';state.minDiscount=0;state.maxPrice=0;state.timingFilter='all';state.lowFilter='all';state.confidenceFilter='all';state.koOnly=false;state.visible=60;
+  $$('.chip[data-filter]').forEach(x=>x.classList.toggle('active',x.dataset.filter==='all'));
+  const values={platformFilter:'all',discountMin:'0',priceMax:'0',timingFilter:'all',lowFilter:'all',confidenceFilter:'all'};for(const [id,v] of Object.entries(values)){const el=$('#'+id);if(el)el.value=v}const ko=$('#koOnly');if(ko)ko.checked=false;
+}
+function clearDetailForNoResults(){
+  state.selected=null;const content=$('#detailContent');if(content)content.hidden=true;
+  let empty=$('#detailEmpty');if(!empty){empty=document.createElement('div');empty.id='detailEmpty';empty.className='empty-state detail-empty';$('#detailPane').appendChild(empty)}
+  empty.hidden=false;empty.innerHTML='<div class="radar-rings">◎</div><h2>검색 결과가 없습니다</h2><p>검색어나 필터를 바꾸면 분석할 게임을 다시 선택합니다.</p>';
+}
+function hideDetailEmpty(){const e=$('#detailEmpty');if(e)e.hidden=true;}
+
+function toast(msg){const t=$('#toast');t.textContent=msg;t.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>t.hidden=true,2400)}
+function median(arr){const a=arr.filter(Number.isFinite).slice().sort((x,y)=>x-y);if(!a.length)return null;const m=Math.floor(a.length/2);return a.length%2?a[m]:Math.round((a[m-1]+a[m])/2)}
+function daysBetween(a,b){const x=Date.parse(a),y=Date.parse(b);return Number.isFinite(x)&&Number.isFinite(y)?Math.max(0,(y-x)/86400000):null}
+function cleanDeals(items){return (items||[]).filter(g=>{const c=Number(g?.currentPrice),o=Number(g?.originalPrice),d=Number(g?.discountPercent);return g&&g.title&&g.store&&!String(g.priceStatus||'').startsWith('rejected')&&c>0&&o>c&&d>0&&d<100&&!excluded.test(g.title)}).map(g=>({...g,store:cleanStore(g.store),discountPercent:Number(g.discountPercent),currentPrice:Number(g.currentPrice),originalPrice:Number(g.originalPrice),platform:Array.isArray(g.platform)?g.platform:[],genre:Array.isArray(g.genre)?g.genre:[]}));}
+function storeMap(items){const m=new Map();for(const x of items||[]){for(const k of [cleanStore(x.store),x.productId,x.conceptId&&String(x.conceptId)].filter(Boolean))m.set(k,x)}return m}
+function storeInfo(g){return state.store.get(cleanStore(g.store))||state.store.get(g.productId)||null}
+function trendInfo(g){const k=keyFor(g);return state.trends[k]||state.history[k]||state.history[g.store]||{}}
+function currentDay(){return new Date().toISOString().slice(0,10)}
+function recordObservation(g){const k=keyFor(g);if(!k)return;const arr=Array.isArray(localHistory[k])?localHistory[k]:[];const now={at:new Date().toISOString(),day:currentDay(),price:g.currentPrice,discount:g.discountPercent,originalPrice:g.originalPrice};const last=arr.at(-1);if(!last||Number(last.price)!==now.price||Number(last.discount)!==now.discount||last.day!==now.day){arr.push(now);localHistory[k]=arr.slice(-32);try{localStorage.setItem(LOCAL_HISTORY_KEY,JSON.stringify(localHistory))}catch{}}}
+function observations(g){const hist=trendInfo(g),arr=[];if(Array.isArray(hist.timeline))for(const x of hist.timeline){if(x?.active!==false&&Number(x?.price)>0)arr.push({at:x.at,day:String(x.at||'').slice(0,10),price:Number(x.price),discount:Number(x.discount)||0,source:'server'})}if(!arr.length){if(hist.lowestPriceObservedAt&&Number(hist.lowestPrice)>0)arr.push({at:hist.lowestPriceObservedAt,day:String(hist.lowestPriceObservedAt).slice(0,10),price:Number(hist.lowestPrice),discount:Number(hist.highestDiscount)||0,source:'legacy'});if(hist.lastSeenAt&&Number(hist.lastPrice)>0)arr.push({at:hist.lastSeenAt,day:String(hist.lastSeenAt).slice(0,10),price:Number(hist.lastPrice),discount:Number(hist.lastDiscount)||0,source:'legacy'})}for(const x of localHistory[keyFor(g)]||[])arr.push({...x,source:'local'});arr.push({at:new Date().toISOString(),day:currentDay(),price:g.currentPrice,discount:g.discountPercent,source:'current'});const uniq=new Map();for(const x of arr){if(!(Number(x.price)>0))continue;const id=`${String(x.at||x.day).slice(0,16)}|${x.price}|${x.discount}`;uniq.set(id,x)}return [...uniq.values()].filter(x=>x.source==='current'||validHistoricalPoint(g,x)).sort((a,b)=>String(a.at||a.day).localeCompare(String(b.at||b.day))).slice(-64)}
+function saleEndDays(g){const d=daysBetween(new Date().toISOString(),g.saleEndsAt);return Number.isFinite(d)?d:null}
+function analysis(g){
+  const hist=trendInfo(g),serverTrend=hist.trend||{},obs=observations(g);
+  const prices=obs.map(x=>Number(x.price)).filter(Number.isFinite),discounts=obs.map(x=>Number(x.discount)).filter(Number.isFinite);
+  const low=Math.min(g.currentPrice,...prices);
+  const highDisc=Math.max(g.discountPercent,...discounts);
+  const medianSalePrice=Number(serverTrend.medianSalePrice)||median(prices)||g.currentPrice;
+  const medianDiscount=Number(serverTrend.medianDiscount)||median(discounts)||g.discountPercent;
+  const avgGapDays=Number.isFinite(Number(serverTrend.averageGapDays))?Number(serverTrend.averageGapDays):null;
+  const saleCycles=Number(serverTrend.saleCycles)||0;
+  const actualChanges=collapsePriceChanges(obs);
+  const changePoints=Math.max(Number(serverTrend.changePoints)||0,actualChanges.length);
+  const observedRuns=Number(hist.priceObservations||hist.observations)||obs.length;
+  const previousCycleBestPrice=Number(serverTrend.previousCycleBestPrice)||null;
+  const previousCycleBestDiscount=Number(serverTrend.previousCycleBestDiscount)||null;
+  const direction=serverTrend.recentDirection||'insufficient';
+  const verified=g.storeVerified||g.dataQuality==='verified'||g.priceStatus==='verified';
+  const nearLow=g.currentPrice<=low*1.03;
+  const deltaLow=low?((g.currentPrice-low)/low)*100:0;
+  const endDays=saleEndDays(g);
+  const evidence=saleCycles>=3&&changePoints>=5?'높음':saleCycles>=2||changePoints>=3?'보통':'축적 중';
+  let score=0;
+  score+=nearLow?30:clamp(30-deltaLow*1.5,0,30);
+  score+=highDisc?clamp((g.discountPercent/highDisc)*20,0,20):10;
+  score+=medianDiscount?clamp(5+(g.discountPercent-medianDiscount)*0.5,0,10):5;
+  if(avgGapDays===null)score+=4; else if(avgGapDays>=120)score+=10; else if(avgGapDays>=75)score+=8; else if(avgGapDays>=45)score+=6; else score+=2;
+  score+=direction==='weakening'?9:direction==='flat'?7:direction==='improving'?3:5;
+  score+=evidence==='높음'?10:evidence==='보통'?7:3;
+  score+=verified?5:2;
+  score+=endDays!==null&&endDays<=3?5:endDays!==null&&endDays<=7?4:2;
+  score=Math.round(clamp(score,0,100));
+  if(evidence==='축적 중')score=Math.min(score,59);
+  const deeperBefore=(previousCycleBestDiscount&&g.discountPercent<previousCycleBestDiscount-7)||(highDisc&&g.discountPercent<highDisc-10);
+  const priceAboveLow=g.currentPrice>low*1.10;
+  const frequentWeaker=avgGapDays!==null&&avgGapDays<=45&&g.discountPercent<(medianDiscount||g.discountPercent)-5;
+  const improvingButNotBest=direction==='improving'&&g.discountPercent<highDisc-5;
+  const enoughForBuy=evidence!=='축적 중'&&(saleCycles>=2||changePoints>=2);
+  let label='WATCH',tone='watch',headline='할인 추세를 지켜보세요',short='가격 변화 이력을 더 모으는 중입니다.';
+  if(enoughForBuy&&nearLow&&g.discountPercent>=highDisc-5&&score>=78){label='BUY NOW';tone='buy';headline='지금 구매하는 것을 추천합니다';short=avgGapDays?`관측 최저권이며 평균 할인 간격은 약 ${Math.round(avgGapDays)}일입니다.`:'관측 최저권이며 현재 할인폭도 과거 최고 수준에 가깝습니다.'}
+  else if((deeperBefore||priceAboveLow||frequentWeaker||improvingButNotBest)&&evidence!=='축적 중'){label='WAIT';tone='wait';headline='조금 더 기다리는 편이 좋습니다';if(deeperBefore)short=`과거에는 -${highDisc}%까지 할인됐고 현재는 -${g.discountPercent}%입니다.`;else if(improvingButNotBest)short='최근 할인 사이클의 할인폭이 더 깊어지는 추세입니다.';else if(frequentWeaker)short=`평균 약 ${Math.round(avgGapDays)}일 간격으로 세일이 반복되어 다시 기다릴 가치가 있습니다.`;else short=`관측 최저가 ${won(low)}보다 현재 가격이 높습니다.`}
+  else if(enoughForBuy&&nearLow&&score>=64){label='GOOD';tone='good';headline='현재도 충분히 좋은 할인입니다';short='현재 가격은 검증된 관측 최저권이며 구매해도 무리가 적은 구간입니다.'}
+  if(evidence==='축적 중'){label='WATCH';tone='watch';headline='가격 이력을 더 지켜보세요';short='실제 가격 변화 또는 반복 할인 사이클이 더 필요합니다. 현재 할인율만으로 GOOD 판정을 내리지 않습니다.'}
+  return {obs,low,avg:medianSalePrice,medianDiscount,highDisc,nearLow,deltaLow,score,label,tone,headline,short,confidence:evidence,verified,avgGapDays,saleCycles,changePoints,observedRuns,previousCycleBestPrice,previousCycleBestDiscount,direction,endDays};
+}
+function scoreFor(g){return analysis(g).score}
+function dateLabel(s){if(!s)return '미확인';try{return new Intl.DateTimeFormat('ko-KR',{month:'short',day:'numeric'}).format(new Date(s))}catch{return '미확인'}}
+function timeLabel(s){if(!s)return '미확인';try{return new Intl.DateTimeFormat('ko-KR',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}).format(new Date(s))}catch{return String(s).slice(0,16)}}
+function lastCollected(g){return String(g.fetchedAt||g.storeVerifiedAt||state.generatedAt||'').slice(0,10)||'미확인'}
+async function fetchWithTimeout(url,timeout=DATA_TIMEOUT_MS){const ctrl=new AbortController();const t=setTimeout(()=>ctrl.abort(),timeout);try{return await fetch(url,{cache:'no-cache',signal:ctrl.signal})}finally{clearTimeout(t)}}
+async function fetchDataFile(file,{force=false,optional=false}={}){if(navigator.onLine!==false){try{const url=`${REMOTE_BASE}${file}${force?`?v=${Date.now()}`:''}`;const r=await fetchWithTimeout(url);if(r.ok)return {json:await r.json(),source:'live'}}catch(e){console.warn('remote data failed',file,e)}}try{const r=await fetch(`./data/${file}`,{cache:'no-store'});if(r.ok)return {json:await r.json(),source:'bundle'}}catch(e){console.warn('bundle data failed',file,e)}if(optional)return {json:null,source:'none'};throw new Error(`${file} unavailable`)}
+
+function titleMatchesQuery(g,raw){
+  const q=normalizeSearch(raw);if(!q)return true;
+  const title=normalizeSearch([g?.title,g?.storeTitle].filter(Boolean).join(' '));
+  return title.includes(q);
+}
+function filterMatchConfidence(a){
+  if(state.confidenceFilter==='high')return a.confidence==='높음';
+  if(state.confidenceFilter==='medium')return a.confidence==='높음'||a.confidence==='보통';
+  return true;
+}
+function radarMatch(g,a){
+  if(state.radarMode==='best')return (a.label==='BUY NOW'||a.label==='GOOD')&&a.score>=74;
+  if(state.radarMode==='low')return a.nearLow&&g.discountPercent>=40;
+  if(state.radarMode==='wait')return a.label==='WAIT';
+  if(state.radarMode==='fresh'){
+    if(g.radarNewDeal===true)return true;
+    const first=g.radarFirstSeenAt||trendInfo(g)?.firstSeenAt;
+    const age=first?daysBetween(first,new Date().toISOString()):null;
+    return Number.isFinite(age)&&age<=7;
+  }
+  if(state.radarMode==='deepening')return a.direction==='improving'&&a.confidence!=='축적 중';
+  return true;
+}
+function setFilterOpen(open){
+  const drawer=$('#filterDrawer'),toggle=$('#filterToggle'),chev=$('#filterChevron');
+  drawer.hidden=!open;toggle.setAttribute('aria-expanded',open?'true':'false');toggle.classList.toggle('open',open);if(chev)chev.textContent=open?'⌃':'⌄';
+}
+function syncNavModeUI(){
+  const radar=state.nav==='radar';$('#filterStrip').hidden=radar;$('#radarStrip').hidden=!radar;
+}
+function applyFilters(){
+  let arr=[...state.deals];
+  if(state.query){arr=arr.filter(g=>titleMatchesQuery(g,state.query))}
+  if(state.nav==='my')arr=arr.filter(g=>wish.has(keyFor(g)));
+  if(state.nav==='radar')arr=arr.filter(g=>{const a=analysis(g);return radarMatch(g,a)});
+  if(state.nav==='trend')arr=arr.filter(g=>{const a=analysis(g);return a.changePoints>=2||a.saleCycles>=2||a.direction!=='insufficient'});
+  if(state.filter==='PS5'||state.filter==='PS4')arr=arr.filter(g=>displayPlatforms(g).includes(state.filter));
+  if(state.filter==='korean')arr=arr.filter(g=>g.ko===true);
+  if(state.filter==='70plus')arr=arr.filter(g=>g.discountPercent>=70);
+  if(state.filter==='50plus')arr=arr.filter(g=>g.discountPercent>=50);
+  if(state.filter==='notable')arr=arr.filter(g=>g.discountPercent>=50||analysis(g).score>=68);
+  if(state.filter==='lowest')arr=arr.filter(g=>analysis(g).nearLow);
+  if(state.platformFilter!=='all')arr=arr.filter(g=>displayPlatforms(g).includes(state.platformFilter));
+  if(state.minDiscount)arr=arr.filter(g=>g.discountPercent>=state.minDiscount);
+  if(state.maxPrice)arr=arr.filter(g=>g.currentPrice<=state.maxPrice);
+  if(state.timingFilter!=='all')arr=arr.filter(g=>analysis(g).label===state.timingFilter);
+  if(state.lowFilter!=='all')arr=arr.filter(g=>{const a=analysis(g);if(state.lowFilter==='exact')return g.currentPrice<=a.low*1.001;if(state.lowFilter==='near')return a.nearLow;if(state.lowFilter==='above')return g.currentPrice>a.low*1.05;return true});
+  if(state.confidenceFilter!=='all')arr=arr.filter(g=>filterMatchConfidence(analysis(g)));
+  if(state.koOnly)arr=arr.filter(g=>g.ko===true);
+  arr.sort((a,b)=>{
+    if(state.query){const q=normalizeSearch(state.query),at=normalizeSearch(a.title),bt=normalizeSearch(b.title);const ap=at.startsWith(q)?0:1,bp=bt.startsWith(q)?0:1;if(ap!==bp)return ap-bp}
+    if(state.sort==='timing')return scoreFor(b)-scoreFor(a);
+    if(state.sort==='price')return a.currentPrice-b.currentPrice;
+    if(state.sort==='nearLow')return analysis(a).deltaLow-analysis(b).deltaLow||scoreFor(b)-scoreFor(a);
+    if(state.sort==='ending'){const ae=analysis(a).endDays,be=analysis(b).endDays;return (Number.isFinite(ae)?ae:9999)-(Number.isFinite(be)?be:9999)}
+    if(state.sort==='title')return a.title.localeCompare(b.title,'ko');
+    return b.discountPercent-a.discountPercent||a.currentPrice-b.currentPrice;
+  });
+  state.filtered=arr;state.visible=arr.length?Math.min(Math.max(state.visible,1),arr.length):60;
+  if(!arr.length){clearDetailForNoResults();renderList();renderSectionContext();return;}
+  hideDetailEmpty();const selectedVisible=state.selected&&arr.some(g=>keyFor(g)===keyFor(state.selected));
+  if(!selectedVisible&&arr[0]){state.selected=arr[0];recordObservation(state.selected);renderDetail(state.selected);$('#detailPane').scrollTop=0}
+  renderList();renderSectionContext();
+}
+function coverMarkup(g,cls='deal-cover'){const style=g.image?`style="background-image:url('${esc(g.image)}')"`:'';return `<div class="${cls}" ${style}>${g.image?'':`<span class="cover-fallback">${esc(g.title)}</span>`}</div>`}
+function miniTags(g){const s=storeInfo(g);const tags=[...displayPlatforms(g).slice(0,2)];const ed=editionLabel(g);if(ed&&!tags.includes(ed))tags.unshift(ed);if(g.ko)tags.push('한국어');else if((g.genre||[])[0])tags.push(g.genre[0]);if(s?.rating)tags.push(`★${Number(s.rating).toFixed(1)}`);return tags.slice(0,4).map(x=>`<span class="mini-tag">${esc(x)}</span>`).join('')}
+function renderList(){
+  const list=$('#dealList');$('#dealCount').textContent=`${nf.format(state.filtered.length)}개`;
+  const items=state.filtered.slice(0,state.visible);
+  list.innerHTML=items.length?items.map(g=>{const a=analysis(g),k=keyFor(g),sel=state.selected&&keyFor(state.selected)===k;return `<article class="deal-card ${sel?'selected':''}" data-key="${esc(k)}">${coverMarkup(g)}<div class="deal-main"><div class="deal-title">${esc(g.title)}</div><div class="mini-tags">${miniTags(g)}</div><div class="deal-price"><span class="off">-${g.discountPercent}%</span><strong>${won(g.currentPrice)}</strong><del>${won(g.originalPrice)}</del></div></div><div class="deal-verdict"><span class="timing-mini ${a.tone}">${a.label}</span></div><div class="score-dot ${a.tone}" title="구매 타이밍 ${a.score}점">${a.score}</div></article>`}).join(''):`<div class="empty-state"><div class="radar-rings">◎</div><h2>조건에 맞는 할인이 없습니다</h2><p>검색어나 필터를 완화해 보세요.</p><div class="empty-actions"><button id="emptyClearSearch">검색 지우기</button><button id="emptyResetFilters">필터 초기화</button></div></div>`;
+  $('#loadMore').hidden=state.visible>=state.filtered.length;bindList();$('#emptyClearSearch')?.addEventListener('click',()=>{$('#searchInput').value='';state.query='';state.visible=60;applyFilters()});$('#emptyResetFilters')?.addEventListener('click',()=>{resetAllFilters();applyFilters()});
+}
+function bindList(){$$('.deal-card').forEach(el=>el.addEventListener('click',e=>{if(e.target.closest('[data-wish]'))return;const g=state.deals.find(x=>keyFor(x)===el.dataset.key);if(g)selectGame(g)}));$$('[data-wish]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();toggleWish(b.dataset.wish)}))}
+function toggleWish(k){wish.has(k)?wish.delete(k):wish.add(k);localStorage.setItem('psr2-wish',JSON.stringify([...wish]));if(state.selected&&keyFor(state.selected)===k)renderDetail(state.selected);applyFilters();toast(wish.has(k)?'MY에 저장했습니다':'MY에서 제거했습니다')}
+function selectGame(g){state.selected=g;hideDetailEmpty();recordObservation(g);renderDetail(g);renderList();const pane=$('#detailPane');pane.scrollTop=0;activateDetailTab('price');if(innerWidth<600)pane.classList.add('mobile-open')}
+function renderDetail(g){
+  const a=analysis(g),s=storeInfo(g);$('#detailContent').hidden=false;
+  const hero=$('#detailHero');hero.style.backgroundImage=g.image?`url("${g.image.replace(/"/g,'')}")`:'linear-gradient(135deg,#0c3558,#06182b)';
+  $('#heroTitle').textContent=g.title;$('#heroMaker').textContent=s?.publisherName||s?.publisher||'PlayStation Store';
+  $('#heroTags').innerHTML=[...displayPlatforms(g),...(editionLabel(g)?[editionLabel(g)]:[]),...(g.ko?['한국어']:[]),...(g.genre||[]).slice(0,2)].map(x=>`<span class="tag">${esc(x)}</span>`).join('');
+  $('#heroDiscount').textContent=`-${g.discountPercent}%`;$('#heroPrice').textContent=won(g.currentPrice);$('#heroOriginal').textContent=won(g.originalPrice);
+  $('#saleClockText').textContent=g.saleEndsAt?`할인 종료 ${dateLabel(g.saleEndsAt)}${a.endDays!==null?` · 약 ${Math.max(0,Math.ceil(a.endDays))}일 남음`:''}`:'할인 종료일 미확인';
+  const wb=$('#wishBtn');wb.textContent=wish.has(keyFor(g))?'♥':'♡';wb.classList.toggle('active',wish.has(keyFor(g)));
+  $('#timingHeadline').textContent=a.headline;$('#timingReason').textContent=`${a.short} 데이터 신뢰도는 ${a.confidence}입니다.`;
+  const tb=$('#timingBadge');tb.className=`timing-badge ${a.tone}`;tb.innerHTML=`<span class="cart-icon">${a.label==='BUY NOW'?'🛒':a.label==='WAIT'?'◷':'◎'}</span><b>${a.label}</b><small>구매 타이밍 점수 ${a.score}</small>`;
+  $('#timingScoreRing').className=`score-ring ${a.tone}`;$('#timingScoreRing').innerHTML=`<strong>${a.score}</strong><small>구매 타이밍</small>`;
+  renderTrend(g,a);renderCompare(g,a);renderMetrics(g,a);renderGameInfo(g,a,s);renderReview(g,s);renderSimilar(g);
+}
+function collapsePriceChanges(obs){
+  const out=[];
+  for(const x of obs||[]){
+    if(!(Number(x?.price)>0))continue;
+    const last=out.at(-1);
+    if(!last||Number(last.price)!==Number(x.price)||Number(last.discount)!==Number(x.discount))out.push({...x});
+    else{last.at=x.at||last.at;last.day=x.day||last.day;last.source=x.source||last.source}
+  }
+  return out;
+}
+function renderTrend(g,a){
+  const box=$('#trendChart'),changes=collapsePriceChanges(a.obs);
+  $('#trendPeriod').textContent=changes.length>=2?`실제 변동 ${changes.length}회`:`관측 ${Math.max(1,a.observedRuns)}회`;
+  if(changes.length<2){
+    const list=Math.max(Number(g.originalPrice)||0,Number(g.currentPrice)||0);
+    const current=Number(g.currentPrice)||0;
+    const ratio=list>0?clamp((current/list)*100,4,100):100;
+    box.innerHTML=`<div class="trend-baseline">
+      <div class="trend-state-title"><b>아직 실제 가격 변동 이력이 없습니다</b><span>PS Radar가 앞으로 가격이 바뀔 때마다 자동으로 기록합니다.</span></div>
+      <div class="price-reference-row"><label>정상가</label><div class="reference-track"><span class="reference-normal"></span></div><strong>${won(list)}</strong></div>
+      <div class="price-reference-row current"><label>현재가</label><div class="reference-track"><span class="reference-current" style="width:${ratio}%"></span></div><strong>${won(current)}</strong></div>
+      <div class="trend-observation-meta"><span>관측 시작 ${dateLabel(a.obs[0]?.at||a.obs[0]?.day)}</span><span>현재 -${g.discountPercent}%</span><span>변동 감시 중</span></div>
+    </div>`;
+    $('#trendNote').textContent=`동일 가격을 여러 번 관측한 것은 가격 변동으로 부풀리지 않습니다. 실제 가격이 변하면 이 영역에 날짜별 추세가 그려집니다.`;
+    return;
+  }
+  $('#trendNote').textContent=`실제 가격 변화 ${changes.length}개 · 할인 사이클 ${a.saleCycles||1}회 · ${a.direction==='improving'?'최근 할인폭 확대':a.direction==='weakening'?'최근 할인폭 축소':'최근 할인폭 안정'} 추세입니다.`;
+  const w=640,h=230,pL=52,pR=20,pT=22,pB=34;
+  const prices=changes.map(x=>Number(x.price));
+  let min=Math.min(...prices),max=Math.max(...prices,Number(g.originalPrice)||0);
+  if(min===max){min*=.9;max*=1.1}
+  const range=Math.max(1,max-min),chartH=h-pT-pB,chartW=w-pL-pR;
+  const x=i=>pL+chartW*(i/(changes.length-1));
+  const y=v=>pT+chartH*(1-(v-min)/range);
+  const pts=changes.map((o,i)=>`${x(i)},${y(o.price)}`).join(' ');
+  let grid='',labels='';
+  for(let i=0;i<4;i++){
+    const val=max-range*(i/3),gy=y(val);
+    grid+=`<line class="grid" x1="${pL}" y1="${gy}" x2="${w-pR}" y2="${gy}"/><text class="axis-label y" x="${pL-8}" y="${gy+4}" text-anchor="end">${Math.round(val/1000)}k</text>`;
+  }
+  const labelIdx=new Set([0,changes.length-1,Math.floor((changes.length-1)/2)]);
+  [...labelIdx].sort((a,b)=>a-b).forEach(i=>{const d=String(changes[i].day||changes[i].at||'').slice(5,10).replace('-','.');labels+=`<text class="axis-label x" x="${x(i)}" y="${h-8}" text-anchor="${i===0?'start':i===changes.length-1?'end':'middle'}">${d}</text>`});
+  const lowY=y(a.low);
+  box.innerHTML=`<svg class="trend-svg" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">${grid}<line class="low-line" x1="${pL}" y1="${lowY}" x2="${w-pR}" y2="${lowY}"/><polyline class="line" points="${pts}"/>${changes.map((o,i)=>`<circle class="point" cx="${x(i)}" cy="${y(o.price)}" r="5"><title>${String(o.day||o.at).slice(0,10)} ${won(o.price)} (-${o.discount}%)</title></circle>`).join('')}${labels}</svg>`;
+}
+function renderCompare(g,a){
+  $('#confidenceChip').textContent=`데이터 신뢰도 ${a.confidence}`;const previous=a.previousCycleBestPrice||g.originalPrice;const prevDisc=a.previousCycleBestDiscount||0;
+  const rows=[['현재 할인',g.currentPrice,g.discountPercent,'current'],['관측 최저가',a.low,a.highDisc,''],['중앙 할인 가격',a.avg,a.medianDiscount,''],[a.previousCycleBestPrice?'직전 사이클':'정상가',previous,prevDisc,'']];
+  $('#compareRows').innerHTML=rows.map(r=>`<div class="compare-row ${r[3]}"><label>${r[0]}</label><div class="bar-shell"></div><strong>${won(r[1])}</strong><em>${r[2]?`-${Math.max(0,Math.round(r[2]))}%`:''}</em></div>`).join('');
+}
+function renderMetrics(g,a){
+  const gap=a.avgGapDays?`${Math.round(a.avgGapDays)}일`:'축적 중';const diff=a.confidence==='축적 중'?null:(a.low?Math.round(((g.currentPrice/a.low)-1)*100):null);
+  $('#metricStrip').innerHTML=`<div class="metric"><small>현재 할인율</small><b>${g.discountPercent}%</b></div><div class="metric"><small>역대 최대 할인</small><b>${a.highDisc}%</b></div><div class="metric"><small>최저가 대비 차이</small><b class="accent">${diff===null?'데이터 부족':`${diff>0?'+':''}${diff}%`}</b></div><div class="metric"><small>최근 할인 횟수</small><b>${a.saleCycles||1}회</b></div><div class="metric"><small>평균 할인 간격</small><b>${gap}</b></div>`;
+}
+function renderGameInfo(g,a,s){
+  const end=g.saleEndsAt?dateLabel(g.saleEndsAt):'미확인';
+  const plat=displayPlatforms(g).join(' · ')||'미확인',product=g.productId||String(g.store||'').split('/').pop()||'미확인',rating=Number(s?.rating),ratingCount=Number(s?.ratingCount);
+  $('#gameInfoContent').innerHTML=`<div class="info-card"><h3>${esc(g.title)}${editionLabel(g)?` <small>· ${esc(editionLabel(g))}</small>`:''}</h3><p>PS Store 상품 단위를 기준으로 가격과 에디션을 구분합니다.</p></div><div class="info-grid"><div class="info-kv"><small>플랫폼 / 버전</small><b>${esc(plat)}</b></div><div class="info-kv"><small>한국어</small><b>${g.ko?'지원 확인':'미확인'}</b></div><div class="info-kv"><small>할인 종료</small><b>${end}</b></div><div class="info-kv"><small>데이터 상태</small><b>${a.verified?'공식 확인':'부분 확인'}</b></div><div class="info-kv"><small>PS Store 상품 ID</small><b class="product-id">${esc(product)}</b></div><div class="info-kv"><small>Store 평점</small><b>${Number.isFinite(rating)&&rating>0?`${rating.toFixed(2)} / 5${Number.isFinite(ratingCount)&&ratingCount>0?` · ${nf.format(ratingCount)}건`:''}`:'미확인'}</b></div><div class="info-kv"><small>마지막 가격 수집</small><b>${esc(lastCollected(g))}</b></div><div class="info-kv"><small>이력 신뢰도</small><b>${esc(a.confidence)}</b></div></div>`;
+}
+function renderReview(g,s){
+  const rating=s?.rating==null?null:Number(s.rating),count=s?.ratingCount==null?null:Number(s.ratingCount);
+  $('#reviewContent').innerHTML=`<div class="info-card"><h3>PlayStation Store 평가</h3><p>${Number.isFinite(rating)&&rating>0?`현재 사용자 평점은 <b>${rating.toFixed(2)} / 5</b>${Number.isFinite(count)&&count>0?` · 평가 ${nf.format(count)}건`:''}입니다.`:'이 게임의 Store 평점 데이터가 아직 충분하지 않습니다.'}</p></div><div class="info-grid"><div class="info-kv"><small>현재가</small><b>${won(g.currentPrice)}</b></div><div class="info-kv"><small>할인율</small><b>-${g.discountPercent}%</b></div></div>`;
+}
+function renderSimilar(g){
+  const genre=new Set((g.genre||[]).filter(Boolean)),publisher=String(storeInfo(g)?.publisherName||storeInfo(g)?.publisher||'').trim();
+  let arr=state.deals.filter(x=>{if(keyFor(x)===keyFor(g))return false;const gx=(x.genre||[]).filter(Boolean);const genreHit=genre.size>0&&gx.some(v=>genre.has(v));const px=String(storeInfo(x)?.publisherName||storeInfo(x)?.publisher||'').trim();const publisherHit=publisher&&px&&publisher===px;return genreHit||publisherHit});
+  arr.sort((a,b)=>{const ag=(a.genre||[]).filter(v=>genre.has(v)).length,bg=(b.genre||[]).filter(v=>genre.has(v)).length;return bg-ag||scoreFor(b)-scoreFor(a)});arr=arr.slice(0,6);
+  $('#similarContent').innerHTML=arr.length?arr.map(x=>`<article class="similar-card" data-similar="${esc(keyFor(x))}">${coverMarkup(x)}<div><b>${esc(x.title)}</b><span>-${x.discountPercent}% · ${won(x.currentPrice)}</span></div></article>`).join(''):'<div class="info-card"><p>비슷한 할인 게임을 찾지 못했습니다.</p></div>';
+  $$('[data-similar]').forEach(el=>el.addEventListener('click',()=>{const x=state.deals.find(g=>keyFor(g)===el.dataset.similar);if(x){selectGame(x);activateDetailTab('price')}}));
+}
+function activateDetailTab(tab){$$('.detail-tab').forEach(b=>b.classList.toggle('active',b.dataset.detailTab===tab));$$('[data-tab-pane]').forEach(p=>p.classList.toggle('active',p.dataset.tabPane===tab))}
+function renderSectionContext(){
+  const box=$('#sectionContext');
+  if(state.query){box.hidden=false;box.innerHTML=`<strong>검색 “${esc(state.query)}”</strong> · 제목에 포함된 현재 할인 게임 ${nf.format(state.filtered.length)}개`;return}
+  const radarCopy={best:'구매 타이밍 점수가 높은 할인만 추렸습니다.',low:'현재 가격이 관측 최저가권에 들어온 게임입니다.',wait:'과거 할인 패턴상 조금 더 기다릴 가치가 있는 게임입니다.',fresh:'최근 7일 안에 Radar에 새로 포착된 할인입니다.',deepening:'최근 할인 사이클에서 할인폭이 더 깊어지는 게임입니다.'};
+  const copy={discount:['현재 할인','PS Store에서 현재 할인 중인 게임 전체를 필터와 정렬로 탐색합니다.'],radar:['오늘의 Radar',radarCopy[state.radarMode]||radarCopy.best],trend:['가격 추세','가격 변화와 할인 사이클이 충분히 쌓인 게임을 우선 보여줍니다.'],my:['MY','찜한 게임의 현재 할인과 구매 타이밍을 빠르게 확인합니다.']}[state.nav];
+  if(!copy){box.hidden=true;return}box.hidden=state.nav==='discount';box.innerHTML=`<strong>${copy[0]}</strong> · ${copy[1]}`;
+}
+function setRefreshBusy(busy,status=''){
+  const refresh=$('#refreshBtn');if(!refresh)return;refresh.disabled=!!busy;refresh.classList.toggle('refreshing',!!busy);refresh.setAttribute('aria-busy',busy?'true':'false');refresh.setAttribute('aria-label',busy?'최신 데이터 불러오는 중':'최신 데이터 새로고침');const label=refresh.querySelector('.refresh-label');if(label)label.textContent=busy?'동기화 중':'새로고침';const statusEl=$('#refreshStatus');if(statusEl)statusEl.textContent=status||'';
+}
+function navTo(nav){
+  state.nav=nav;$$('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.nav===nav));state.filter='all';state.sort='timing';$('#sortSelect').value=state.sort;$$('.chip[data-filter]').forEach(b=>b.classList.toggle('active',b.dataset.filter==='all'));state.visible=60;syncNavModeUI();applyFilters();
+}
+async function load(force=false){
+  if(state.busy)return;state.busy=true;setRefreshBusy(true,force?'최신 데이터 확인 중':'데이터 불러오는 중');if(force)toast('최신 할인·가격 이력·추세를 동기화합니다');const selectedKey=state.selected&&keyFor(state.selected);
+  try{const [dealsRes,trendsRes,historyRes,storeRes]=await Promise.all([fetchDataFile('deals-auto.json',{force}),fetchDataFile('deal-trends.json',{force,optional:true}),fetchDataFile('deal-history.json',{force,optional:true}),fetchDataFile('store-auto.json',{force,optional:true})]);const deals=dealsRes.json||{};state.deals=cleanDeals(deals.items);state.trends=trendsRes.json?.items||{};state.history=historyRes.json?.items||{};state.store=storeMap(storeRes.json?.items||[]);state.generatedAt=deals.generatedAt||trendsRes.json?.generatedAt||null;state.dataSource=dealsRes.source;const stamp=state.generatedAt?timeLabel(state.generatedAt):'미확인';$('#dataStamp').textContent=state.dataSource==='live'?`LIVE ${stamp}`:`OFFLINE ${stamp}`;state.visible=60;applyFilters();const preferred=(selectedKey&&state.deals.find(x=>keyFor(x)===selectedKey))||state.filtered[0];if(preferred&&(!state.selected||keyFor(preferred)!==keyFor(state.selected)))selectGame(preferred);setRefreshBusy(false,state.dataSource==='live'?`갱신 ${stamp}`:'오프라인');toast(state.dataSource==='live'?`최신 데이터 동기화 완료 · 할인 ${nf.format(state.deals.length)}개`:`온라인 연결 실패 · 내장 데이터 ${nf.format(state.deals.length)}개 사용`)}catch(e){console.error(e);$('#dealList').innerHTML='<div class="empty-state"><h2>데이터를 불러오지 못했습니다</h2><p>네트워크 연결을 확인한 뒤 새로고침해 주세요.</p></div>';setRefreshBusy(false,'갱신 실패');toast('최신 데이터 동기화에 실패했습니다')}finally{state.busy=false;const refresh=$('#refreshBtn');if(refresh)refresh.disabled=false}
+}
+
+$('#loadMore').addEventListener('click',()=>{state.visible+=60;renderList()});
+$$('.chip[data-filter]').forEach(b=>b.addEventListener('click',()=>{state.filter=b.dataset.filter;$$('.chip[data-filter]').forEach(x=>x.classList.toggle('active',x===b));if(state.filter==='korean')state.koOnly=false;applyFilters()}));
+$('#sortSelect').addEventListener('change',e=>{state.sort=e.target.value;applyFilters()});
+$('#platformFilter').addEventListener('change',e=>{state.platformFilter=e.target.value;applyFilters()});
+$('#discountMin').addEventListener('change',e=>{state.minDiscount=Number(e.target.value);applyFilters()});
+$('#priceMax').addEventListener('change',e=>{state.maxPrice=Number(e.target.value);applyFilters()});
+$('#timingFilter').addEventListener('change',e=>{state.timingFilter=e.target.value;applyFilters()});
+$('#lowFilter').addEventListener('change',e=>{state.lowFilter=e.target.value;applyFilters()});
+$('#confidenceFilter').addEventListener('change',e=>{state.confidenceFilter=e.target.value;applyFilters()});
+$('#koOnly').addEventListener('change',e=>{state.koOnly=e.target.checked;applyFilters()});
+$('#filterReset').addEventListener('click',()=>{resetAllFilters();applyFilters();toast('상세 필터를 초기화했습니다')});
+$('#filterToggle').addEventListener('click',()=>setFilterOpen($('#filterDrawer').hidden));
+$('#settingsBtn').addEventListener('click',()=>{setFilterOpen(true);toast('상세 필터를 열었습니다')});
+let searchComposing=false,searchTimer=0;
+const K_L=['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+const K_V=['ㅏ','ㅐ','ㅑ','ㅒ','ㅓ','ㅔ','ㅕ','ㅖ','ㅗ','ㅘ','ㅙ','ㅚ','ㅛ','ㅜ','ㅝ','ㅞ','ㅟ','ㅠ','ㅡ','ㅢ','ㅣ'];
+const K_T=['','ㄱ','ㄲ','ㄳ','ㄴ','ㄵ','ㄶ','ㄷ','ㄹ','ㄺ','ㄻ','ㄼ','ㄽ','ㄾ','ㄿ','ㅀ','ㅁ','ㅂ','ㅄ','ㅅ','ㅆ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+function composeKoreanJamo(value){
+  const chars=Array.from(String(value||''));let out='';
+  for(let i=0;i<chars.length;){
+    const l=K_L.indexOf(chars[i]);const v=(i+1<chars.length)?K_V.indexOf(chars[i+1]):-1;
+    if(l>=0&&v>=0){
+      let t=0,step=2;
+      if(i+2<chars.length){
+        const tc=K_T.indexOf(chars[i+2]);
+        if(tc>0){
+          const followedByVowel=i+3<chars.length&&K_V.includes(chars[i+3]);
+          const canStartNext=K_L.includes(chars[i+2]);
+          if(!(followedByVowel&&canStartNext)){t=tc;step=3;}
+        }
+      }
+      out+=String.fromCharCode(0xAC00+((l*21+v)*28+t));i+=step;continue;
+    }
+    out+=chars[i++];
+  }
+  return out.normalize('NFC');
+}
+const commitSearch=value=>{
+  const input=$('#searchInput');
+  const normalized=composeKoreanJamo(String(value||'')).trim();
+  if(input&&input.value!==normalized)input.value=normalized;
+  state.query=normalized;
+  if(state.query){state.filter='all';$$('.chip[data-filter]').forEach(x=>x.classList.toggle('active',x.dataset.filter==='all'));}
+  state.visible=60;applyFilters();
+};
+const queueSearch=(value,delay=360)=>{clearTimeout(searchTimer);searchTimer=setTimeout(()=>{if(!searchComposing)commitSearch(value)},delay)};
+const searchInput=$('#searchInput');
+searchInput.addEventListener('compositionstart',()=>{searchComposing=true;clearTimeout(searchTimer)});
+searchInput.addEventListener('compositionupdate',()=>{searchComposing=true;clearTimeout(searchTimer)});
+searchInput.addEventListener('compositionend',e=>{searchComposing=false;queueSearch(e.target.value,30)});
+searchInput.addEventListener('beforeinput',e=>{if(e.inputType==='insertCompositionText')searchComposing=true});
+searchInput.addEventListener('input',e=>{if(e.isComposing||searchComposing||e.inputType==='insertCompositionText'){clearTimeout(searchTimer);return}queueSearch(e.target.value,360)});
+searchInput.addEventListener('keydown',e=>{if(e.key==='Enter'){clearTimeout(searchTimer);searchComposing=false;commitSearch(e.target.value);e.target.blur()}});
+searchInput.addEventListener('blur',e=>{clearTimeout(searchTimer);searchComposing=false;commitSearch(e.target.value)});
+$('#searchClear').addEventListener('click',()=>{clearTimeout(searchTimer);searchComposing=false;searchInput.value='';state.query='';state.visible=60;applyFilters();searchInput.focus();toast('전체 할인 목록으로 돌아왔습니다')});
+$('#filterCollapse').addEventListener('click',()=>setFilterOpen(false));
+$$('[data-radar-mode]').forEach(b=>b.addEventListener('click',()=>{state.radarMode=b.dataset.radarMode;$$('[data-radar-mode]').forEach(x=>x.classList.toggle('active',x===b));state.visible=60;applyFilters()}));
+$('#refreshBtn').addEventListener('click',()=>load(true));
+$('#wishBtn').addEventListener('click',()=>state.selected&&toggleWish(keyFor(state.selected)));
+$('#shareBtn').addEventListener('click',async()=>{if(!state.selected)return;const g=state.selected;const text=`${g.title} · -${g.discountPercent}% · ${won(g.currentPrice)}`;try{if(navigator.share)await navigator.share({title:'PS Radar',text,url:g.store});else{await navigator.clipboard.writeText(`${text}\n${g.store}`);toast('게임 링크를 복사했습니다')}}catch{}});
+$$('[data-nav]').forEach(b=>b.addEventListener('click',()=>navTo(b.dataset.nav)));
+$$('.detail-tab').forEach(b=>b.addEventListener('click',()=>activateDetailTab(b.dataset.detailTab)));
+$('#mobileBack').addEventListener('click',()=>$('#detailPane').classList.remove('mobile-open'));
+window.addEventListener('online',()=>toast('온라인 연결이 복구되었습니다. ↻ 버튼으로 최신 할인을 확인하세요.'));
+window.addEventListener('resize',()=>{if(innerWidth>=600)$('#detailPane').classList.remove('mobile-open')});
+syncNavModeUI();setFilterOpen(false);load(false);
+})();
+
 </script>
 </body>
 </html>
