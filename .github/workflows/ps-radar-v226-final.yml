@@ -1,0 +1,189 @@
+name: Build PS Radar 2.2.6 Final APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'ps-radar/preview-v2/**'
+      - 'ps-radar/data/**'
+      - 'ps-radar/android/**'
+      - '.github/workflows/ps-radar-v226-final.yml'
+
+concurrency:
+  group: ps-radar-v226-final
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      ANDROID_HOME: /usr/local/lib/android/sdk
+      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+      PSRADAR_KEYSTORE_B64: ${{ secrets.PSRADAR_KEYSTORE_B64 }}
+      PSRADAR_KEYSTORE_PASSWORD: ${{ secrets.PSRADAR_KEYSTORE_PASSWORD }}
+      PSRADAR_KEY_ALIAS: ${{ secrets.PSRADAR_KEY_ALIAS }}
+      PSRADAR_KEY_PASSWORD: ${{ secrets.PSRADAR_KEY_PASSWORD }}
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v6
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install Android SDK packages
+        shell: bash
+        run: |
+          set -euxo pipefail
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$SDKMANAGER" --licenses >/dev/null 2>&1 || true
+          "$SDKMANAGER" "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+
+      - name: Decode exact 2.2.6 preview payload
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p app/src/main/assets/ps-radar/data app/src/main/java/com/seungho/psradar app/src/main/res/drawable app/src/main/res/values app/src/main/res/xml
+          python3 - <<'PY'
+          import base64, gzip, pathlib
+          root=pathlib.Path('ps-radar/preview-v2')
+          s=''.join((root/f'payload{i}.txt').read_text().strip() for i in range(1,7))
+          html=gzip.decompress(base64.b64decode(s)).decode('utf-8')
+          assert 'PS Radar' in html and '2.2.6' in html
+          assert 'refreshBtn' in html and 'compositionstart' in html and 'compositionend' in html
+          assert len(html) > 20000
+          pathlib.Path('app/src/main/assets/ps-radar/index.html').write_text(html, encoding='utf-8')
+          print('decoded preview bytes', len(html.encode('utf-8')))
+          PY
+          cp ps-radar/data/deals-auto.json app/src/main/assets/ps-radar/data/
+          cp ps-radar/data/deal-history.json app/src/main/assets/ps-radar/data/
+          cp ps-radar/data/deal-trends.json app/src/main/assets/ps-radar/data/
+          cp ps-radar/data/store-auto.json app/src/main/assets/ps-radar/data/
+          cp ps-radar/android/MainActivity.java app/src/main/java/com/seungho/psradar/MainActivity.java
+          cp ps-radar/android/DealWatchWorker.java app/src/main/java/com/seungho/psradar/DealWatchWorker.java
+
+      - name: Generate Android project
+        shell: bash
+        run: |
+          set -euxo pipefail
+          cat > settings.gradle <<'EOF'
+          pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }
+          dependencyResolutionManagement { repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS); repositories { google(); mavenCentral() } }
+          rootProject.name = 'PSRadar226'
+          include ':app'
+          EOF
+          cat > build.gradle <<'EOF'
+          plugins { id 'com.android.application' version '8.7.3' apply false }
+          EOF
+          cat > gradle.properties <<'EOF'
+          org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
+          android.useAndroidX=true
+          android.nonTransitiveRClass=true
+          EOF
+          cat > app/build.gradle <<'EOF'
+          plugins { id 'com.android.application' }
+          android {
+            namespace 'com.seungho.psradar'
+            compileSdk 35
+            defaultConfig { applicationId 'com.seungho.psradar'; minSdk 26; targetSdk 35; versionCode 20206; versionName '2.2.06' }
+            signingConfigs {
+              release {
+                storeFile file(System.getenv('PSRADAR_KEYSTORE_PATH'))
+                storePassword System.getenv('PSRADAR_KEYSTORE_PASSWORD')
+                keyAlias System.getenv('PSRADAR_KEY_ALIAS')
+                keyPassword System.getenv('PSRADAR_KEY_PASSWORD')
+                enableV1Signing true
+                enableV2Signing true
+                enableV3Signing true
+              }
+            }
+            buildTypes { release { minifyEnabled false; signingConfig signingConfigs.release } }
+            compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
+          }
+          dependencies {
+            implementation 'androidx.webkit:webkit:1.12.1'
+            implementation 'androidx.core:core:1.15.0'
+            implementation 'androidx.work:work-runtime:2.10.0'
+          }
+          EOF
+          cat > app/src/main/res/values/styles.xml <<'EOF'
+          <resources><style name="AppTheme" parent="android:style/Theme.Material.NoActionBar"><item name="android:fontFamily">sans</item><item name="android:windowLightStatusBar">false</item><item name="android:statusBarColor">#04111f</item><item name="android:navigationBarColor">#04111f</item><item name="android:windowActionModeOverlay">true</item><item name="android:windowNoTitle">true</item></style></resources>
+          EOF
+          cat > app/src/main/res/drawable/ic_launcher.xml <<'EOF'
+          <vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108"><path android:fillColor="#04111F" android:pathData="M0,0h108v108h-108z"/><path android:fillColor="#1264E6" android:pathData="M54,10a44,44 0,1 0,0 88a44,44 0,1 0,0 -88"/><path android:fillColor="#FFFFFF" android:pathData="M33,31h26c11.6,0 20,7.2 20,18.4c0,11.5 -8.4,18.6 -20,18.6H49v12H33V31zm16,13v11h9c3.6,0 5.8,-2.1 5.8,-5.5S61.6,44 58,44h-9z"/></vector>
+          EOF
+          cat > app/src/main/res/xml/network_security_config.xml <<'EOF'
+          <network-security-config><base-config cleartextTrafficPermitted="false" /></network-security-config>
+          EOF
+          cat > app/src/main/AndroidManifest.xml <<'EOF'
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+            <uses-permission android:name="android.permission.INTERNET"/>
+            <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+            <application android:allowBackup="true" android:label="PS Radar" android:icon="@drawable/ic_launcher" android:roundIcon="@drawable/ic_launcher" android:theme="@style/AppTheme" android:hardwareAccelerated="true" android:networkSecurityConfig="@xml/network_security_config" android:usesCleartextTraffic="false">
+              <activity android:name=".MainActivity" android:exported="true"><intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter></activity>
+            </application>
+          </manifest>
+          EOF
+
+      - name: Restore production signing key
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${PSRADAR_KEYSTORE_B64:-}"
+          test -n "${PSRADAR_KEYSTORE_PASSWORD:-}"
+          test -n "${PSRADAR_KEY_ALIAS:-}"
+          test -n "${PSRADAR_KEY_PASSWORD:-}"
+          mkdir -p .ci-signing
+          echo "$PSRADAR_KEYSTORE_B64" | base64 --decode > "$PWD/.ci-signing/psradar-release.jks"
+          echo "PSRADAR_KEYSTORE_PATH=$PWD/.ci-signing/psradar-release.jks" >> "$GITHUB_ENV"
+
+      - name: Build release APK
+        run: gradle :app:assembleRelease --stacktrace
+
+      - name: Verify install package and update certificate
+        shell: bash
+        run: |
+          set -euxo pipefail
+          APK=app/build/outputs/apk/release/app-release.apk
+          APKSIGNER="$ANDROID_HOME/build-tools/35.0.0/apksigner"
+          AAPT="$ANDROID_HOME/build-tools/35.0.0/aapt"
+          ZIPALIGN="$ANDROID_HOME/build-tools/35.0.0/zipalign"
+          test -s "$APK"
+          "$ZIPALIGN" -c -v 4 "$APK" > zipalign.txt
+          "$APKSIGNER" verify --verbose --print-certs "$APK" | tee apk-signature.txt
+          grep -q 'Verified using v1 scheme (JAR signing): true' apk-signature.txt
+          grep -q 'Verified using v2 scheme (APK Signature Scheme v2): true' apk-signature.txt
+          grep -q 'Verified using v3 scheme (APK Signature Scheme v3): true' apk-signature.txt
+          grep -qi 'CA341A9D6E57542A1EC19CF2ECD748608AF70FE42C344B4AC3C69446113C0BC4' apk-signature.txt
+          "$AAPT" dump badging "$APK" | tee apk-badging.txt
+          grep -q "package: name='com.seungho.psradar' versionCode='20206' versionName='2.2.06'" apk-badging.txt
+          unzip -t "$APK" | tee apk-ziptest.txt
+          unzip -p "$APK" assets/ps-radar/index.html | grep -q 'PS Radar'
+          unzip -p "$APK" assets/ps-radar/index.html | grep -q '2.2.6'
+          unzip -p "$APK" assets/ps-radar/index.html | grep -q 'compositionstart'
+          unzip -p "$APK" assets/ps-radar/index.html | grep -q 'refreshBtn'
+          cp "$APK" PSRadar-2.2.6-FIXED.apk
+          sha256sum PSRadar-2.2.6-FIXED.apk | tee PSRadar-2.2.6-FIXED.sha256
+
+      - name: Upload verified APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: PSRadar-2.2.6-FIXED
+          path: |
+            PSRadar-2.2.6-FIXED.apk
+            PSRadar-2.2.6-FIXED.sha256
+            apk-signature.txt
+            apk-badging.txt
+            apk-ziptest.txt
+            zipalign.txt
+          if-no-files-found: error
+          retention-days: 30
