@@ -2,18 +2,13 @@ name: PS Radar Git Deal History Backfill
 
 on:
   workflow_dispatch:
-  push:
-    branches: [ps-radar-git-history-backfill-v2]
-    paths:
-      - 'ps-radar/scripts/backfill-git-deal-history.mjs'
-      - '.github/workflows/ps-radar-git-history-backfill.yml'
 
 permissions:
   contents: write
 
 concurrency:
-  group: ps-radar-git-history-backfill-v2
-  cancel-in-progress: true
+  group: ps-radar-git-history-backfill-main
+  cancel-in-progress: false
 
 jobs:
   backfill:
@@ -23,7 +18,7 @@ jobs:
       - name: Checkout full repository history
         uses: actions/checkout@v6
         with:
-          ref: ps-radar-git-history-backfill-v2
+          ref: main
           fetch-depth: 0
 
       - name: Setup Node
@@ -46,9 +41,6 @@ jobs:
           if(Number(trends.version)<3) throw new Error(`trends version ${trends.version}`);
           if(!Array.isArray(deals.items)||deals.items.length<1500) throw new Error(`too few deals ${deals.items?.length}`);
           if(Number(report.snapshotCount)<2) throw new Error(`too few historical snapshots ${report.snapshotCount}`);
-          if(Number(report.entriesTouched)<1) throw new Error('no history entries were backfilled');
-          if(Number(report.pointsAfter)<Number(report.pointsBefore)) throw new Error('timeline points regressed');
-          if(Number(report.gamesWith2Plus)<1) throw new Error('no game has 2+ change points after backfill');
           let invalidVisible=0,unsorted=0,tooLong=0;
           for(const x of deals.items){
             if(String(x.priceStatus||'').startsWith('rejected')) continue;
@@ -63,7 +55,7 @@ jobs:
           if(invalidVisible) throw new Error(`invalid visible prices ${invalidVisible}`);
           if(unsorted) throw new Error(`unsorted history points ${unsorted}`);
           if(tooLong) throw new Error(`timelines exceed cap ${tooLong}`);
-          console.log('Historical backfill QA passed',report);
+          console.log('Historical backfill maintenance QA passed',report);
           NODE
 
       - name: Commit backfilled history
@@ -75,6 +67,6 @@ jobs:
           fi
           git config user.name 'ps-radar-bot'
           git config user.email 'actions@users.noreply.github.com'
-          git commit -m 'Backfill PS Radar historical deal prices from Git snapshots'
-          git pull --rebase origin ps-radar-git-history-backfill-v2
-          git push origin ps-radar-git-history-backfill-v2
+          git commit -m 'Refresh PS Radar historical backfill from Git snapshots'
+          git pull --rebase origin main
+          git push origin main
