@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/travelmate-android-v0.5.13.yml'
-      - '.ci/travelmate-v0513/v0.5.13.patch'
+      - '.ci/travelmate-v0513/bundle.tgz.b64'
       - '.ci/travelmate-v0513/TravelMateRegressionTest.java'
   workflow_dispatch:
 
@@ -62,12 +62,17 @@ jobs:
           grep -q "versionName '0.5.12'" build-src/app/build.gradle
           grep -q 'versionCode 18' build-src/app/build.gradle
 
-      - name: Apply v0.5.13 UX and latency patch
+      - name: Apply v0.5.13 UX latency verification bundle
         shell: bash
         run: |
           set -euxo pipefail
-          cd build-src
-          patch -p1 < ../.ci/travelmate-v0513/v0.5.13.patch
+          mkdir -p /tmp/v0513
+          tr -d '\r\n' < .ci/travelmate-v0513/bundle.tgz.b64 | base64 -d > /tmp/v0513/bundle.tgz
+          tar -xzf /tmp/v0513/bundle.tgz -C /tmp/v0513
+          test -s /tmp/v0513/apply.py
+          test -s /tmp/v0513/MainActivity.java
+          test -s /tmp/v0513/TranslationVerification.java
+          python3 /tmp/v0513/apply.py build-src
 
       - name: Translation and verification regression tests
         shell: bash
