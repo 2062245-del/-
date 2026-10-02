@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/travelmate-android-v0.5.13.yml'
-      - '.ci/travelmate-v0513/bundle.tgz.b64'
+      - '.ci/travelmate-v0513/chunks/**'
       - '.ci/travelmate-v0513/TravelMateRegressionTest.java'
   workflow_dispatch:
 
@@ -67,7 +67,10 @@ jobs:
         run: |
           set -euxo pipefail
           mkdir -p /tmp/v0513
-          tr -d '\r\n' < .ci/travelmate-v0513/bundle.tgz.b64 | base64 -d > /tmp/v0513/bundle.tgz
+          cat .ci/travelmate-v0513/chunks/*.b64 | tr -d '\r\n' > /tmp/v0513/bundle.tgz.b64
+          echo 'f8ef2015bec53d2b08412495640e365e978dec15dd04bda03a6c4191512adaec  /tmp/v0513/bundle.tgz.b64' | sha256sum -c -
+          base64 -d /tmp/v0513/bundle.tgz.b64 > /tmp/v0513/bundle.tgz
+          echo '682c18fae3d57e2c0caa8afe4ab13b68045f5df733018032bdc333ab49293b67  /tmp/v0513/bundle.tgz' | sha256sum -c -
           tar -xzf /tmp/v0513/bundle.tgz -C /tmp/v0513
           test -s /tmp/v0513/apply.py
           test -s /tmp/v0513/MainActivity.java
