@@ -1,0 +1,69 @@
+{
+  "generatedAt": "2026-10-02T06:30:08.094Z",
+  "targets": [
+    {
+      "source": "psprices",
+      "url": "https://psprices.com/region-kr/game/4867346/geulan-tuliseumo-7-junggugeogancheja-hangugeo-taegugeo-yeongeo-junggugeobeoncheja",
+      "ok": false,
+      "responses": [
+        {
+          "url": "https://psprices.com/region-kr/game/4867346/geulan-tuliseumo-7-junggugeogancheja-hangugeo-taegugeo-yeongeo-junggugeobeoncheja",
+          "status": 307,
+          "contentType": ""
+        },
+        {
+          "url": "https://psprices.com/region-kr/game/4867346/geulan-tuliseumo-7-junggugeogancheja-hangugeo-taegugeo-yeongeo-junggugeobeoncheja",
+          "status": 403,
+          "contentType": "text/html; charset=UTF-8"
+        },
+        {
+          "url": "https://psprices.com/cdn-cgi/speculation",
+          "status": 200,
+          "contentType": "application/speculationrules+json"
+        },
+        {
+          "url": "https://psprices.com/cdn-cgi/challenge-platform/h/b/orchestrate/chl_page/v1?ray=a441a81dda920c40",
+          "status": 200,
+          "contentType": "application/javascript; charset=UTF-8"
+        },
+        {
+          "url": "https://challenges.cloudflare.com/turnstile/v0/b/d76008a69eab/api.js?onload=zaERg6&render=explicit",
+          "status": 200,
+          "contentType": "application/javascript; charset=UTF-8"
+        },
+        {
+          "url": "https://psprices.com/cdn-cgi/challenge-platform/h/b/fo/3163609824:1790921105:l0U0vg35GbG6243bvlYGCyQVs9Kt-7pivAXxRDe0ONk/a441a81dda920c40/qF7MrouYr5vwXbVSmHXrQjJ4Y6aUIUyGSRkP7MTloNc-1790922608-1.2.1.1-kGIavMjP00IJfhroGh8bZcCoa0nBBWA1iTi_cn.t96zhRD3.bYEmc0foOdV3zUtI",
+          "status": 200,
+          "contentType": "text/plain; charset=UTF-8"
+        },
+        {
+          "url": "blob:https://psprices.com/7c293c9e-3bb1-4707-81ec-60754815b86b",
+          "status": 200,
+          "contentType": "text/javascript"
+        }
+      ],
+      "bodySnippets": [],
+      "scripts": [],
+      "resources": [],
+      "error": "page.goto: Timeout 90000ms exceeded.\nCall log:\n  - navigating to \"https://psprices.com/region-kr/game/4867346/geulan-tuliseumo-7-junggugeogancheja-hangugeo-taegugeo-yeongeo-junggugeobeoncheja\", waiting until \"networkidle\"\n\n    at /home/runner/work/-/-/ps-radar/scripts/probe-historical-sources.mjs:30:28"
+    },
+    {
+      "source": "psdeals",
+      "url": "https://psdeals.net/kr-store/game/2267934/%EA%B7%B8%EB%9E%80-%ED%88%AC%EB%A6%AC%EC%8A%A4%EB%AA%A8-7",
+      "ok": true,
+      "responses": [
+        {
+          "url": "https://psdeals.net/kr-store/game/2267934/%EA%B7%B8%EB%9E%80-%ED%88%AC%EB%A6%AC%EC%8A%A4%EB%AA%A8-7",
+          "status": 403,
+          "contentType": "text/html; charset=UTF-8"
+        }
+      ],
+      "bodySnippets": [],
+      "scripts": [],
+      "resources": [],
+      "httpStatus": 403,
+      "title": "Attention Required! | Cloudflare",
+      "htmlMatches": []
+    }
+  ]
+}
