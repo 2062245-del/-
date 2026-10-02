@@ -1,0 +1,684 @@
+--- a/app/build.gradle
++++ b/app/build.gradle
+@@ -12,8 +12,8 @@
+         applicationId 'com.seungho.barointerpreter'
+         minSdk 24
+         targetSdk 35
+-        versionCode 18
+-        versionName '0.5.12'
++        versionCode 19
++        versionName '0.5.13'
+         ndk {
+             abiFilters 'arm64-v8a'
+         }
+--- a/app/src/main/java/com/seungho/barointerpreter/MainActivity.java
++++ b/app/src/main/java/com/seungho/barointerpreter/MainActivity.java
+@@ -1,6 +1,8 @@
+ package com.seungho.barointerpreter;
+ 
+ import android.Manifest;
++import android.animation.ObjectAnimator;
++import android.animation.ValueAnimator;
+ import android.app.Activity;
+ import android.app.AlertDialog;
+ import android.app.Dialog;
+@@ -44,6 +46,8 @@
+ import android.widget.ArrayAdapter;
+ import android.widget.Button;
+ import android.widget.EditText;
++import android.widget.FrameLayout;
++import android.widget.ImageView;
+ import android.widget.LinearLayout;
+ import android.widget.ScrollView;
+ import android.widget.Spinner;
+@@ -97,7 +101,7 @@
+     private TravelCatalog.Destination destination;
+ 
+     private Spinner leftSpinner, rightSpinner;
+-    private Button leftTalkButton, rightTalkButton, replayButton, packManagerButton;
++    private Button leftTalkButton, rightTalkButton, replayButton, packManagerButton, verifyButton;
+     private Button femaleVoiceButton, maleVoiceButton, neuralDownloadButton;
+     private TextView packTitleView, packSummaryView, activityStatusView, directionView;
+     private TextView heardLangView, resultLangView, resultView, pronunciationView, neuralStatusView, heroCountryView;
+@@ -105,7 +109,8 @@
+ 
+     private TextToSpeech systemTts;
+     private SpeechRecognizer recognizer;
+-    private Translator translator;
++    private final Map<String, Translator> translatorCache = new HashMap<>();
++    private final Set<String> warmedTranslatorPairs = new HashSet<>();
+     private NeuralTtsClient neuralTts;
+     private boolean systemTtsReady = false;
+     private boolean speakingFromLeft = true;
+@@ -122,6 +127,15 @@
+     private long lastToolActionAt = 0L;
+     private long lastSpeechActionAt = 0L;
+     private Dialog activeToolDialog;
++    private Dialog listeningDialog;
++    private View listeningPulseView;
++    private ImageView listeningMicView;
++    private TextView listeningTitleView, listeningTranscriptView;
++    private ObjectAnimator listeningScaleX, listeningScaleY, listeningAlpha;
++    private String lastSourceText = "";
++    private LanguageProfile lastSourceLanguage;
++    private boolean lastTranslationOptimized = false;
++    private int verificationSession = 0;
+ 
+     @Override protected void onCreate(Bundle savedInstanceState) {
+         CrashDiagnostics.install(this);
+@@ -140,6 +154,7 @@
+         updateVoiceButtons();
+         handler.postDelayed(this::refreshNeuralVoiceStatus, 500);
+         handler.postDelayed(() -> { if (neuralTts != null) neuralTts.prewarm(); }, 700);
++        handler.postDelayed(this::prewarmCurrentPair, 1200);
+     }
+ 
+     @Override protected void onResume() {
+@@ -202,14 +217,14 @@
+         LinearLayout voiceTop = row(Gravity.CENTER_VERTICAL);
+         LinearLayout voiceText = col();
+         voiceText.addView(text("고품질 AI 음성", 17, true, INK));
+-        voiceText.addView(text("여성 A / 남성 · 오프라인 Neural 음성 · ONNX Runtime", 15, false, MUTED), topMargin(dp(3)));
++        voiceText.addView(text("여성/남성 선택 · 오프라인 고품질 음성", 13, false, MUTED), topMargin(dp(3)));
+         voiceTop.addView(voiceText, new LinearLayout.LayoutParams(0, -2, 1f));
+         voice.addView(voiceTop);
+         LinearLayout voiceChoice = row(Gravity.CENTER);
+         femaleVoiceButton = compactButton("👩 여성 A", PRIMARY, Color.WHITE);
+         maleVoiceButton = compactButton("👨 남성", SOFT, INK);
+-        voiceChoice.addView(femaleVoiceButton, new LinearLayout.LayoutParams(0, dp(50), 1f));
+-        LinearLayout.LayoutParams maleLp = new LinearLayout.LayoutParams(0, dp(50), 1f);
++        voiceChoice.addView(femaleVoiceButton, new LinearLayout.LayoutParams(0, dp(44), 1f));
++        LinearLayout.LayoutParams maleLp = new LinearLayout.LayoutParams(0, dp(44), 1f);
+         maleLp.setMargins(dp(8), 0, 0, 0);
+         voiceChoice.addView(maleVoiceButton, maleLp);
+         voice.addView(voiceChoice, topMargin(dp(10)));
+@@ -218,7 +233,7 @@
+         voice.addView(neuralDownloadButton, topMargin(dp(9)));
+         root.addView(voice, topMargin(dp(10)));
+ 
+-        root.addView(section("통역", "말하거나 직접 입력하면 바로 번역합니다."), topMargin(dp(20)));
++        root.addView(section("통역", "말하면 중앙 마이크가 반응하고, 번역 뒤에는 역번역으로 확인할 수 있습니다."), topMargin(dp(18)));
+ 
+         LinearLayout pair = row(Gravity.CENTER_VERTICAL);
+         leftSpinner = spinner(); rightSpinner = spinner();
+@@ -233,7 +248,9 @@
+ 
+         leftTalkButton = primaryButton("🎙  한국어 말하기", PRIMARY);
+         root.addView(leftTalkButton, topMargin(dp(12)));
+-        activityStatusView = text("버튼을 누르고 말씀하세요", 15, false, MUTED); activityStatusView.setGravity(Gravity.CENTER);
++        activityStatusView = text("말하기 버튼을 누르면 중앙 마이크가 켜집니다", 14, true, MUTED); activityStatusView.setGravity(Gravity.CENTER);
++        activityStatusView.setPadding(dp(12), dp(7), dp(12), dp(7));
++        activityStatusView.setBackground(rounded(SOFT, dp(999)));
+         root.addView(activityStatusView, topMargin(dp(7)));
+ 
+         LinearLayout heardCard = card();
+@@ -247,6 +264,7 @@
+         root.addView(heardCard, topMargin(dp(12)));
+ 
+         LinearLayout resultCard = card();
++        resultCard.setBackground(gradient(new int[]{Color.WHITE, Color.rgb(248, 250, 255)}, dp(18)));
+         LinearLayout resultHeader = row(Gravity.CENTER_VERTICAL);
+         resultHeader.addView(text("번역", 14, true, MUTED), new LinearLayout.LayoutParams(0, -2, 1f));
+         resultLangView = text("English", 14, true, GREEN); resultHeader.addView(resultLangView); resultCard.addView(resultHeader);
+@@ -261,6 +279,10 @@
+         resultActions.addView(replayButton, new LinearLayout.LayoutParams(0, dp(42), 1f));
+         LinearLayout.LayoutParams bigLp = new LinearLayout.LayoutParams(0, dp(42), 1f); bigLp.setMargins(dp(8), 0, 0, 0); resultActions.addView(showBig, bigLp);
+         resultCard.addView(resultActions, topMargin(dp(5)));
++        verifyButton = compactButton("✓  번역 검증 · 역번역으로 비교", Color.rgb(236, 253, 245), GREEN);
++        verifyButton.setTextSize(14);
++        verifyButton.setEnabled(false);
++        resultCard.addView(verifyButton, topMargin(dp(7)));
+         root.addView(resultCard, topMargin(dp(10)));
+ 
+         rightTalkButton = primaryButton("🎙  영어 말하기", GREEN);
+@@ -324,8 +346,9 @@
+                 LanguageProfile l = currentLeft(), r = currentRight();
+                 boolean changed = lastPairLeft != null && lastPairRight != null && (lastPairLeft != l || lastPairRight != r);
+                 lastPairLeft = l; lastPairRight = r;
+-                if (changed) { cancelRecognitionSession(); stopPlayback(); translationSession++; clearConversationForPairChange(); }
++                if (changed) { cancelRecognitionSession(); stopPlayback(); translationSession++; verificationSession++; clearConversationForPairChange(); trimTranslatorCacheForPair(l, r); }
+                 updateLabels(); updateConversationAvailability();
++                handler.postDelayed(MainActivity.this::prewarmCurrentPair, 140);
+             }
+             @Override public void onNothingSelected(AdapterView<?> parent) {}
+         };
+@@ -339,6 +362,7 @@
+         leftTalkButton.setOnClickListener(v -> { speakingFromLeft = true; updateLabels(); startSpeech(currentLeft()); });
+         rightTalkButton.setOnClickListener(v -> { speakingFromLeft = false; updateLabels(); startSpeech(currentRight()); });
+         replayButton.setOnClickListener(v -> { if (!lastTranslation.isEmpty()) speak(lastTranslation, lastOutputLanguage); });
++        verifyButton.setOnClickListener(v -> verifyLastTranslation());
+         femaleVoiceButton.setOnClickListener(v -> { prefs.edit().putBoolean("female_voice", true).apply(); updateVoiceButtons(); previewVoice(); });
+         maleVoiceButton.setOnClickListener(v -> { prefs.edit().putBoolean("female_voice", false).apply(); updateVoiceButtons(); previewVoice(); });
+         neuralDownloadButton.setOnClickListener(v -> {
+@@ -504,9 +528,176 @@
+         if(!isPairTranslationReady(from,to)){showPackManager();return;} translate(value,from,to);
+     }
+ 
++    private void showListeningOverlay(LanguageProfile language) {
++        hideListeningOverlay();
++        Dialog d = new Dialog(this);
++        d.requestWindowFeature(Window.FEATURE_NO_TITLE);
++
++        LinearLayout shell = col();
++        shell.setPadding(dp(24), dp(24), dp(24), dp(22));
++        shell.setGravity(Gravity.CENTER_HORIZONTAL);
++        shell.setBackground(rounded(Color.WHITE, dp(26)));
++
++        FrameLayout micStage = new FrameLayout(this);
++        LinearLayout.LayoutParams stageLp = new LinearLayout.LayoutParams(dp(154), dp(154));
++        micStage.setLayoutParams(stageLp);
++
++        View pulse = new View(this);
++        pulse.setBackground(rounded(Color.rgb(224, 231, 255), dp(999)));
++        FrameLayout.LayoutParams pulseLp = new FrameLayout.LayoutParams(dp(130), dp(130), Gravity.CENTER);
++        micStage.addView(pulse, pulseLp);
++
++        View inner = new View(this);
++        inner.setBackground(rounded(Color.rgb(238, 242, 255), dp(999)));
++        FrameLayout.LayoutParams innerLp = new FrameLayout.LayoutParams(dp(98), dp(98), Gravity.CENTER);
++        micStage.addView(inner, innerLp);
++
++        ImageView mic = new ImageView(this);
++        mic.setImageResource(android.R.drawable.ic_btn_speak_now);
++        mic.setColorFilter(PRIMARY);
++        mic.setPadding(dp(22), dp(22), dp(22), dp(22));
++        FrameLayout.LayoutParams micLp = new FrameLayout.LayoutParams(dp(82), dp(82), Gravity.CENTER);
++        micStage.addView(mic, micLp);
++        shell.addView(micStage);
++
++        TextView title = text("마이크 준비 중", 21, true, INK);
++        title.setGravity(Gravity.CENTER);
++        shell.addView(title, topMargin(dp(6)));
++
++        TextView languageHint = text(language.flag + "  " + language.nativeName + "로 듣습니다", 13, true, PRIMARY);
++        languageHint.setGravity(Gravity.CENTER);
++        languageHint.setPadding(dp(10), dp(5), dp(10), dp(5));
++        languageHint.setBackground(rounded(Color.rgb(238, 242, 255), dp(999)));
++        shell.addView(languageHint, topMargin(dp(8)));
++
++        TextView transcript = text("말씀해 주세요", 16, false, MUTED);
++        transcript.setGravity(Gravity.CENTER);
++        transcript.setMaxLines(2);
++        transcript.setPadding(0, dp(12), 0, 0);
++        shell.addView(transcript);
++
++        TextView cancelHint = text("화면 밖을 누르면 취소", 12, false, MUTED);
++        cancelHint.setGravity(Gravity.CENTER);
++        shell.addView(cancelHint, topMargin(dp(10)));
++
++        d.setContentView(shell);
++        d.setCanceledOnTouchOutside(true);
++        d.setOnCancelListener(x -> cancelRecognitionSession());
++        d.setOnShowListener(x -> {
++            Window w = d.getWindow();
++            if (w != null) {
++                w.setBackgroundDrawableResource(android.R.color.transparent);
++                w.setDimAmount(0.42f);
++                w.setLayout(dp(310), -2);
++            }
++        });
++        d.show();
++        Window w = d.getWindow();
++        if (w != null) {
++            w.setBackgroundDrawableResource(android.R.color.transparent);
++            w.setDimAmount(0.42f);
++            w.setLayout(dp(310), -2);
++        }
++        listeningDialog = d;
++        listeningPulseView = pulse;
++        listeningMicView = mic;
++        listeningTitleView = title;
++        listeningTranscriptView = transcript;
++    }
++
++    private void updateListeningOverlay(String title, String transcript) {
++        if (listeningTitleView != null) listeningTitleView.setText(title);
++        if (listeningTranscriptView != null && (listeningTranscriptView.getText() == null || listeningTranscriptView.getText().toString().trim().isEmpty() || "말씀해 주세요".contentEquals(listeningTranscriptView.getText()) || "말씀을 인식하고 있어요".contentEquals(listeningTranscriptView.getText()))) {
++            listeningTranscriptView.setText(transcript);
++        }
++    }
++
++    private void startListeningPulse() {
++        stopListeningPulse();
++        if (listeningPulseView == null) return;
++        listeningScaleX = ObjectAnimator.ofFloat(listeningPulseView, View.SCALE_X, 0.92f, 1.18f);
++        listeningScaleY = ObjectAnimator.ofFloat(listeningPulseView, View.SCALE_Y, 0.92f, 1.18f);
++        listeningAlpha = ObjectAnimator.ofFloat(listeningPulseView, View.ALPHA, 0.50f, 0.92f);
++        for (ObjectAnimator a : new ObjectAnimator[]{listeningScaleX, listeningScaleY, listeningAlpha}) {
++            a.setDuration(620L);
++            a.setRepeatCount(ValueAnimator.INFINITE);
++            a.setRepeatMode(ValueAnimator.REVERSE);
++            a.start();
++        }
++    }
++
++    private void updateListeningLevel(float rmsdB) {
++        if (listeningMicView == null) return;
++        float normalized = Math.max(0f, Math.min(1f, (rmsdB + 2f) / 12f));
++        float scale = 1.0f + normalized * 0.13f;
++        listeningMicView.animate().scaleX(scale).scaleY(scale).setDuration(80L).start();
++    }
++
++    private void stopListeningPulse() {
++        ObjectAnimator[] animators = new ObjectAnimator[]{listeningScaleX, listeningScaleY, listeningAlpha};
++        for (ObjectAnimator a : animators) if (a != null) { try { a.cancel(); } catch (Throwable ignored) {} }
++        listeningScaleX = null; listeningScaleY = null; listeningAlpha = null;
++    }
++
++    private void hideListeningOverlay() {
++        stopListeningPulse();
++        if (listeningDialog != null) {
++            Dialog d = listeningDialog;
++            listeningDialog = null;
++            try { d.setOnCancelListener(null); d.dismiss(); } catch (Throwable ignored) {}
++        }
++        listeningPulseView = null;
++        listeningMicView = null;
++        listeningTitleView = null;
++        listeningTranscriptView = null;
++    }
++
++    private String translatorKey(LanguageProfile from, LanguageProfile to) { return from.id + ">" + to.id; }
++
++    private Translator cachedTranslator(LanguageProfile from, LanguageProfile to) {
++        String key = translatorKey(from, to);
++        Translator existing = translatorCache.get(key);
++        if (existing != null) return existing;
++        TranslatorOptions options = new TranslatorOptions.Builder().setSourceLanguage(from.mlCode).setTargetLanguage(to.mlCode).build();
++        Translator created = Translation.getClient(options);
++        translatorCache.put(key, created);
++        return created;
++    }
++
++    private void prewarmCurrentPair() {
++        if (isFinishing() || isDestroyed() || leftSpinner == null || rightSpinner == null) return;
++        LanguageProfile left = currentLeft(), right = currentRight();
++        prewarmTranslationPair(left, right);
++        prewarmTranslationPair(right, left);
++    }
++
++    private void prewarmTranslationPair(LanguageProfile from, LanguageProfile to) {
++        if (from == null || to == null || !isPairTranslationReady(from, to)) return;
++        String key = translatorKey(from, to);
++        if (warmedTranslatorPairs.contains(key)) return;
++        warmedTranslatorPairs.add(key);
++        String sample = "ko".equals(from.id) ? "안녕하세요" : "vi".equals(from.id) ? "xin chào" : "hello";
++        try {
++            cachedTranslator(from, to).translate(sample).addOnFailureListener(e -> warmedTranslatorPairs.remove(key));
++        } catch (Throwable t) {
++            warmedTranslatorPairs.remove(key);
++        }
++    }
++
++    private void trimTranslatorCacheForPair(LanguageProfile left, LanguageProfile right) {
++        if (left == null || right == null) return;
++        String a = translatorKey(left, right), b = translatorKey(right, left);
++        for (String key : new ArrayList<>(translatorCache.keySet())) {
++            if (key.equals(a) || key.equals(b)) continue;
++            Translator t = translatorCache.remove(key);
++            warmedTranslatorPairs.remove(key);
++            if (t != null) try { t.close(); } catch (Throwable ignored) {}
++        }
++    }
++
+     private void startSpeech(LanguageProfile language) {
+         long now = SystemClock.elapsedRealtime();
+-        if (now - lastSpeechActionAt < 650) return;
++        if (now - lastSpeechActionAt < 520) return;
+         lastSpeechActionAt = now;
+ 
+         final boolean fromLeftAtStart = speakingFromLeft;
+@@ -539,6 +730,7 @@
+             sr = SpeechRecognizer.createOnDeviceSpeechRecognizer(this);
+             recognizer = sr;
+             recognitionActive = true;
++            showListeningOverlay(language);
+         } catch (Exception e) {
+             recognitionActive = false;
++            hideListeningOverlay();
+             toast("온디바이스 음성인식을 시작할 수 없습니다.");
+             return;
+         }
+@@ -547,10 +739,25 @@
+ 
+         sr.setRecognitionListener(new RecognitionListener() {
+             private boolean valid() { return session == recognitionSession && recognizer == sr && !isFinishing() && !isDestroyed(); }
+-            @Override public void onReadyForSpeech(Bundle params) { if (valid()) setActivityStatus("● 듣고 있어요 · " + language.koreanName, PRIMARY); }
+-            @Override public void onBeginningOfSpeech() {}
+-            @Override public void onRmsChanged(float rmsdB) {}
++            @Override public void onReadyForSpeech(Bundle params) {
++                if (!valid()) return;
++                setActivityStatus("● 듣는 중 · " + language.koreanName, PRIMARY);
++                updateListeningOverlay("듣는 중", "말씀해 주세요");
++                startListeningPulse();
++            }
++            @Override public void onBeginningOfSpeech() {
++                if (valid()) updateListeningOverlay("듣는 중", "말씀을 인식하고 있어요");
++            }
++            @Override public void onRmsChanged(float rmsdB) { if (valid()) updateListeningLevel(rmsdB); }
+             @Override public void onBufferReceived(byte[] buffer) {}
+-            @Override public void onEndOfSpeech() { if (valid()) setActivityStatus("인식 결과 확인 중…", MUTED); }
++            @Override public void onEndOfSpeech() {
++                if (!valid()) return;
++                setActivityStatus("인식 결과 확인 중…", MUTED);
++                updateListeningOverlay("음성 확인 중", "잠시만 기다려주세요");
++            }
+             @Override public void onEvent(int eventType, Bundle params) {}
+             @Override public void onError(int error) {
+                 if (!valid()) return;
+                 finishRecognizer(session, sr);
+-                setActivityStatus("버튼을 누르고 말씀하세요", MUTED);
++                setActivityStatus("말하기 버튼을 눌러 다시 시도하세요", MUTED);
+                 if (error == SpeechRecognizer.ERROR_LANGUAGE_NOT_SUPPORTED || error == SpeechRecognizer.ERROR_LANGUAGE_UNAVAILABLE) {
+                     speechInstalled.put(language.id, false);
+                     speechState.put(language.id, "다운로드 필요");
+@@ -581,7 +788,11 @@
+                 if (!valid()) return;
+                 ArrayList<String> matches = partial.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+-                if (matches != null && !matches.isEmpty()) heardEdit.setText(matches.get(0));
++                if (matches != null && !matches.isEmpty()) {
++                    String partialText = matches.get(0);
++                    heardEdit.setText(partialText);
++                    if (listeningTranscriptView != null) listeningTranscriptView.setText(partialText);
++                }
+             }
+         });
+         try {
+@@ -593,7 +804,22 @@
+         }
+     }
+ 
+-    private Intent recognitionIntent(LanguageProfile language){Intent i=new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);i.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);i.putExtra(RecognizerIntent.EXTRA_LANGUAGE,language.speechTag);i.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE,language.speechTag);i.putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE,true);i.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS,true);i.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS,3);return i;}
++    private Intent recognitionIntent(LanguageProfile language){
++        Intent i=new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
++        i.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
++        i.putExtra(RecognizerIntent.EXTRA_LANGUAGE,language.speechTag);
++        i.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE,language.speechTag);
++        i.putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE,true);
++        i.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS,true);
++        i.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS,3);
++        // 지나치게 짧게 끊지 않는 범위에서 무음 종료 대기시간을 줄여 체감 지연을 낮춘다.
++        i.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS,250L);
++        i.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS,550L);
++        i.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS,850L);
++        return i;
++    }
+ 
+     private void translate(String value, LanguageProfile from, LanguageProfile to) {
+         if (!isPairTranslationReady(from, to)) { showPackManager(); return; }
+         final int session = ++translationSession;
++        final long startedAt = SystemClock.elapsedRealtime();
++        verificationSession++;
++        lastSourceText = value;
++        lastSourceLanguage = from;
++        lastTranslationOptimized = false;
++        if (verifyButton != null) verifyButton.setEnabled(false);
+         setActivityStatus("번역 중…", MUTED);
+         String optimized = phrasebook.get(phraseKey(from.id, to.id, value));
+         if (optimized != null) {
+-            if (session == translationSession) applyTranslationResult(optimized, to, true);
++            if (session == translationSession) applyTranslationResult(optimized, to, true, startedAt);
+             return;
+         }
+         String curated = TravelTranslationQuality.curated(value, from.id, to.id);
+         if (curated != null) {
+-            if (session == translationSession) applyTranslationResult(curated, to, true);
++            if (session == translationSession) applyTranslationResult(curated, to, true, startedAt);
+             return;
+         }
+-        TranslatorOptions options = new TranslatorOptions.Builder().setSourceLanguage(from.mlCode).setTargetLanguage(to.mlCode).build();
+-        final Translator localTranslator = Translation.getClient(options);
+-        translator = localTranslator;
++        final Translator localTranslator = cachedTranslator(from, to);
+         localTranslator.translate(value)
+                 .addOnSuccessListener(result -> {
+                     if (session != translationSession || isFinishing() || isDestroyed()) return;
+@@ -603,7 +829,7 @@
+                         applyUnsafeTranslationResult(to);
+                         return;
+                     }
+-                    applyTranslationResult(result, to, false);
++                    applyTranslationResult(result, to, false, startedAt);
+                 })
+                 .addOnFailureListener(e -> {
+                     if (session == translationSession && !isFinishing() && !isDestroyed()) {
+@@ -611,11 +837,6 @@
+                         toast("번역하지 못했습니다. 언어팩 상태를 확인해주세요.");
+                     }
+-                })
+-                .addOnCompleteListener(task -> {
+-                    try { localTranslator.close(); } catch (Throwable ignored) {}
+-                    if (translator == localTranslator) translator = null;
+                 });
+     }
+ 
+@@ -628,19 +849,23 @@
+             pronunciationView.setText("");
+             pronunciationView.setVisibility(View.GONE);
+         }
++        if (verifyButton != null) verifyButton.setEnabled(false);
+         setActivityStatus("⚠️ 의미 누락 가능성 · 결과 차단", AMBER);
+         toast("수량·상품명·요청이 누락된 번역 결과를 차단했습니다.");
+     }
+ 
+-    private void applyTranslationResult(String result, LanguageProfile to, boolean optimized) {
++    private void applyTranslationResult(String result, LanguageProfile to, boolean optimized, long startedAt) {
+         lastTranslation = result;
+         lastOutputLanguage = to;
++        lastTranslationOptimized = optimized;
+         resultView.setText(result);
+         resultLangView.setText(to.nativeName);
+         updatePronunciation(result, to);
+-        setActivityStatus(optimized ? "여행 표현 최적화 번역 완료" : "번역 완료", GREEN);
+-        if (activeToolDialog == null || !activeToolDialog.isShowing()) speak(result, to);
++        if (verifyButton != null) verifyButton.setEnabled(true);
++        long elapsed = Math.max(0L, SystemClock.elapsedRealtime() - startedAt);
++        String speed = elapsed < 120 ? "즉시" : elapsed < 1000 ? elapsed + "ms" : String.format(Locale.KOREA, "%.1f초", elapsed / 1000.0);
++        setActivityStatus((optimized ? "여행 표현 최적화 완료" : "번역 완료") + " · " + speed, GREEN);
++        final int speakSession = translationSession;
++        handler.postDelayed(() -> {
++            if (speakSession == translationSession && result.equals(lastTranslation) && (activeToolDialog == null || !activeToolDialog.isShowing())) speak(result, to);
++        }, 90);
+     }
++
++    private void verifyLastTranslation() {
++        String source = lastSourceText == null ? "" : lastSourceText.trim();
++        String translated = lastTranslation == null ? "" : lastTranslation.trim();
++        LanguageProfile sourceLang = lastSourceLanguage;
++        LanguageProfile targetLang = lastOutputLanguage;
++        if (source.isEmpty() || translated.isEmpty() || sourceLang == null || targetLang == null) {
++            toast("먼저 번역을 완료해주세요.");
++            return;
++        }
++        final int session = ++verificationSession;
++        LinearLayout root = dialogRoot();
++        root.setPadding(dp(8), dp(4), dp(8), dp(8));
++        root.addView(text("번역문을 다시 원래 언어로 돌려보고, 숫자·고유명사·부정 표현의 누락 신호를 함께 확인합니다.", 13, false, MUTED));
++        LinearLayout originalCard = verificationCard("원문", source, PRIMARY);
++        root.addView(originalCard, topMargin(dp(10)));
++        LinearLayout translatedCard = verificationCard("번역문", translated, GREEN);
++        root.addView(translatedCard, topMargin(dp(8)));
++        LinearLayout reverseCard = verificationCard("역번역", "확인 중…", CYAN);
++        TextView reverseValue = (TextView) reverseCard.getChildAt(1);
++        root.addView(reverseCard, topMargin(dp(8)));
++        root.addView(text("자동 점검", 14, true, INK), topMargin(dp(12)));
++        TextView checklist = text("역번역이 끝나면 누락 가능성을 표시합니다.", 13, false, MUTED);
++        checklist.setLineSpacing(dp(3), 1f);
++        root.addView(checklist, topMargin(dp(5)));
++        TextView caution = text("※ 역번역은 빠른 확인용 보조 수단입니다. 같은 번역 엔진을 이용하므로 100% 정확성 판정은 아닙니다. 필요하면 ‘외부 비교’로 다른 번역기에서도 확인할 수 있습니다.", 12, false, MUTED);
++        caution.setLineSpacing(dp(2), 1f);
++        root.addView(caution, topMargin(dp(12)));
++        AlertDialog d = new AlertDialog.Builder(this).setTitle("✓ 번역 검증").setView(root).setNegativeButton("닫기", null).setNeutralButton("외부 비교", null).setPositiveButton("번역문 복사", null).create();
++        trackToolDialog(d);
++        d.setOnShowListener(x -> {
++            d.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
++                ClipboardManager cm=(ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE);
++                if(cm!=null){cm.setPrimaryClip(ClipData.newPlainText("여행메이트 번역",translated));toast("번역문을 복사했습니다.");}
++            });
++            d.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(v -> openExternalTranslationComparison(source, sourceLang, targetLang));
++        });
++        d.show();
++        String curatedReverse = TravelTranslationQuality.curated(translated, targetLang.id, sourceLang.id);
++        if (curatedReverse != null) { renderVerificationResult(session, d, source, translated, curatedReverse, reverseValue, checklist); return; }
++        try {
++            cachedTranslator(targetLang, sourceLang).translate(translated).addOnSuccessListener(reverse -> renderVerificationResult(session, d, source, translated, reverse, reverseValue, checklist)).addOnFailureListener(e -> renderVerificationResult(session, d, source, translated, "", reverseValue, checklist));
++        } catch (Throwable t) { renderVerificationResult(session, d, source, translated, "", reverseValue, checklist); }
++    }
++
++    private LinearLayout verificationCard(String label, String value, int accent) {
++        LinearLayout card = col();
++        card.setPadding(dp(12), dp(10), dp(12), dp(10));
++        card.setBackground(roundedStroke(Color.WHITE, LINE, dp(14), 1));
++        TextView l = text(label, 12, true, accent);
++        TextView v = text(value, 16, true, INK);
++        v.setTextIsSelectable(true);
++        v.setLineSpacing(dp(2), 1f);
++        card.addView(l);
++        card.addView(v, topMargin(dp(4)));
++        return card;
++    }
++
++    private void renderVerificationResult(int session, Dialog d, String source, String translated, String reverse, TextView reverseValue, TextView checklist) {
++        if (session != verificationSession || d == null || !d.isShowing() || isFinishing() || isDestroyed()) return;
++        String shown = reverse == null || reverse.trim().isEmpty() ? "역번역을 만들지 못했습니다." : reverse.trim();
++        reverseValue.setText(shown);
++        TranslationVerification.Report report = TranslationVerification.inspect(source, translated, reverse);
++        checklist.setText(report.summary());
++        checklist.setTextColor(report.caution ? AMBER : GREEN);
++    }
++
++    private void openExternalTranslationComparison(String source, LanguageProfile from, LanguageProfile to) {
++        try {
++            Uri url = Uri.parse("https://translate.google.com/").buildUpon().appendQueryParameter("sl", from.id).appendQueryParameter("tl", to.id).appendQueryParameter("text", source).appendQueryParameter("op", "translate").build();
++            startActivity(new Intent(Intent.ACTION_VIEW, url));
++        } catch (Throwable t) { toast("외부 번역기를 열지 못했습니다."); }
++    }
+ 
+     private void updatePronunciation(String result, LanguageProfile language) {
+@@ -1374,7 +1619,7 @@
+-    private void updatePackSummary(){int tr=0,sp=0;for(LanguageProfile l:langs){if(Boolean.TRUE.equals(translationReady.get(l.id)))tr++;if(Boolean.TRUE.equals(speechInstalled.get(l.id))||speechState.getOrDefault(l.id,"").equals("말하기로 확인"))sp++;}if(packTitleView!=null){packTitleView.setText(tr==langs.size()?"번역팩 준비 완료":"오프라인 준비 필요");packTitleView.setTextColor(tr==langs.size()?GREEN:AMBER);packSummaryView.setText("번역 "+tr+"/"+langs.size()+" · 음성인식 "+sp+"/"+langs.size()+" · AI 음성 내장");}}
++    private void updatePackSummary(){int tr=0,sp=0;for(LanguageProfile l:langs){if(Boolean.TRUE.equals(translationReady.get(l.id)))tr++;if(Boolean.TRUE.equals(speechInstalled.get(l.id))||speechState.getOrDefault(l.id,"").equals("말하기로 확인"))sp++;}if(packTitleView!=null){packTitleView.setText(tr==langs.size()?"번역팩 준비 완료":"오프라인 준비 필요");packTitleView.setTextColor(tr==langs.size()?GREEN:AMBER);packSummaryView.setText("번역 "+tr+"/"+langs.size()+" · 음성인식 "+sp+"/"+langs.size()+" · AI 음성 내장");}if(leftSpinner!=null&&rightSpinner!=null&&isPairTranslationReady(currentLeft(),currentRight()))handler.postDelayed(this::prewarmCurrentPair,120);}
+@@ -1423,16 +1668,27 @@
+     private void clearConversation(){
+         heardEdit.setText("");
+         lastTranslation="";
++        lastSourceText="";
++        lastSourceLanguage=null;
++        lastOutputLanguage=null;
++        lastTranslationOptimized=false;
++        verificationSession++;
+         resultView.setText("번역 결과가 여기에 표시됩니다.");
+         if(pronunciationView!=null){pronunciationView.setText("");pronunciationView.setVisibility(View.GONE);}
+-        setActivityStatus("버튼을 누르고 말씀하세요",MUTED);
++        if(verifyButton!=null)verifyButton.setEnabled(false);
++        setActivityStatus("말하기 버튼을 누르면 중앙 마이크가 켜집니다",MUTED);
+     }
+     private void clearConversationForPairChange(){clearConversation();speakingFromLeft=true;}
+     private void setActivityStatus(String s,int color){if(activityStatusView!=null){activityStatusView.setText(s);activityStatusView.setTextColor(color);}}
+     private void closeTranslator(){
+         translationSession++;
+-        Translator local = translator;
+-        translator = null;
+-        if(local!=null){ try { local.close(); } catch(Throwable ignored){} }
++        verificationSession++;
++        for(Translator local:new ArrayList<>(translatorCache.values())){
++            if(local!=null){try{local.close();}catch(Throwable ignored){}}
++        }
++        translatorCache.clear();
++        warmedTranslatorPairs.clear();
+     }
+     private void finishRecognizer(int session, SpeechRecognizer sr){
+         if(session != recognitionSession || recognizer != sr) return;
+         recognitionActive = false;
+         recognizer = null;
++        hideListeningOverlay();
+         try { sr.cancel(); } catch(Throwable ignored){}
+         try { sr.destroy(); } catch(Throwable ignored){}
+     }
+@@ -1440,6 +1696,7 @@
+         recognitionSession++;
+         recognitionActive = false;
++        hideListeningOverlay();
+         SpeechRecognizer local = recognizer;
+         recognizer = null;
+         if(local!=null){
+--- a/app/src/main/java/com/seungho/barointerpreter/TranslationVerification.java
++++ b/app/src/main/java/com/seungho/barointerpreter/TranslationVerification.java
+@@ -0,0 +1,115 @@
++package com.seungho.barointerpreter;
++
++import java.util.ArrayList;
++import java.util.HashSet;
++import java.util.List;
++import java.util.Locale;
++import java.util.Set;
++import java.util.regex.Matcher;
++import java.util.regex.Pattern;
++
++public final class TranslationVerification {
++    private TranslationVerification() {}
++
++    public static final class Report {
++        public final boolean caution;
++        public final List<String> lines;
++        Report(boolean caution, List<String> lines) { this.caution = caution; this.lines = lines; }
++        public String summary() {
++            StringBuilder b = new StringBuilder();
++            for (String line : lines) { if (b.length() > 0) b.append('\n'); b.append(line); }
++            return b.toString();
++        }
++    }
++
++    public static Report inspect(String source, String translated, String reverse) {
++        String s = clean(source), t = clean(translated), r = clean(reverse);
++        List<String> lines = new ArrayList<>();
++        boolean caution = false;
++        if (s.isEmpty() || t.isEmpty()) { lines.add("⚠ 원문 또는 번역문이 비어 있습니다."); return new Report(true, lines); }
++        Set<String> sourceNumbers = digitTokens(s);
++        if (!sourceNumbers.isEmpty()) {
++            Set<String> reverseNumbers = digitTokens(r);
++            if (reverseNumbers.containsAll(sourceNumbers)) lines.add("✓ 숫자/수량 표기가 역번역에도 유지됨");
++            else { lines.add("⚠ 숫자/수량 일부가 역번역에서 달라짐"); caution = true; }
++        } else lines.add("✓ 숫자 표기 누락 신호 없음");
++        Set<String> latin = latinTokens(s);
++        if (!latin.isEmpty()) {
++            String lowT = t.toLowerCase(Locale.ROOT), lowR = r.toLowerCase(Locale.ROOT);
++            boolean missing = false;
++            for (String token : latin) if (!lowT.contains(token) && !lowR.contains(token)) { missing = true; break; }
++            if (missing) { lines.add("⚠ 상품명·고유명사처럼 보이는 영문 토큰을 다시 확인하세요"); caution = true; }
++            else lines.add("✓ 영문 상품명·고유명사 보존 신호 양호");
++        }
++        if (hasKoreanNegation(s)) {
++            if (hasKoreanNegation(r)) lines.add("✓ 부정/제외 의미가 역번역에도 보임");
++            else { lines.add("⚠ ‘안/없음/빼기’ 같은 부정 의미가 약해졌을 수 있음"); caution = true; }
++        }
++        if (!r.isEmpty()) {
++            int sourceLetters = semanticLength(s), reverseLetters = semanticLength(r);
++            if (sourceLetters >= 8 && reverseLetters * 100 < sourceLetters * 45) { lines.add("⚠ 역번역이 원문보다 지나치게 짧습니다. 핵심 내용 누락 여부를 확인하세요"); caution = true; }
++            else lines.add("✓ 역번역 길이 급감 신호 없음");
++        } else { lines.add("⚠ 역번역 결과를 만들지 못했습니다."); caution = true; }
++        if (!caution) lines.add("원문과 역번역의 뜻이 비슷한지 마지막으로 직접 비교하세요.");
++        return new Report(caution, lines);
++    }
++
++    private static Set<String> digitTokens(String text) {
++        Set<String> out = new HashSet<>();
++        Matcher m = Pattern.compile("\\d+(?:[.,]\\d+)?").matcher(text);
++        while (m.find()) out.add(m.group().replace(",", ""));
++        return out;
++    }
++
++    private static Set<String> latinTokens(String text) {
++        Set<String> out = new HashSet<>();
++        Matcher m = Pattern.compile("[A-Za-z][A-Za-z0-9-]{1,}").matcher(text);
++        while (m.find()) out.add(m.group().toLowerCase(Locale.ROOT));
++        return out;
++    }
++
++    private static boolean hasKoreanNegation(String text) {
++        return text.contains("안 ") || text.contains("안돼") || text.contains("안 돼") || text.contains("못 ") || text.contains("없") || text.contains("빼") || text.contains("제외") || text.contains("말고") || text.contains("않");
++    }
++
++    private static int semanticLength(String text) { return text.replaceAll("[\\s\\p{Punct}]", "").length(); }
++    private static String clean(String s) { return s == null ? "" : s.trim(); }
++}
