@@ -3,7 +3,7 @@ name: PS Radar Git Deal History Backfill
 on:
   workflow_dispatch:
   push:
-    branches: [ps-radar-git-history-backfill]
+    branches: [ps-radar-git-history-backfill-v2]
     paths:
       - 'ps-radar/scripts/backfill-git-deal-history.mjs'
       - '.github/workflows/ps-radar-git-history-backfill.yml'
@@ -12,7 +12,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: ps-radar-git-history-backfill
+  group: ps-radar-git-history-backfill-v2
   cancel-in-progress: true
 
 jobs:
@@ -23,7 +23,7 @@ jobs:
       - name: Checkout full repository history
         uses: actions/checkout@v6
         with:
-          ref: ps-radar-git-history-backfill
+          ref: ps-radar-git-history-backfill-v2
           fetch-depth: 0
 
       - name: Setup Node
@@ -42,7 +42,6 @@ jobs:
           const history=JSON.parse(fs.readFileSync('ps-radar/data/deal-history.json','utf8'));
           const trends=JSON.parse(fs.readFileSync('ps-radar/data/deal-trends.json','utf8'));
           const report=JSON.parse(fs.readFileSync('ps-radar/data/git-history-backfill-report.json','utf8'));
-
           if(Number(history.version)<3) throw new Error(`history version ${history.version}`);
           if(Number(trends.version)<3) throw new Error(`trends version ${trends.version}`);
           if(!Array.isArray(deals.items)||deals.items.length<1500) throw new Error(`too few deals ${deals.items?.length}`);
@@ -50,8 +49,7 @@ jobs:
           if(Number(report.entriesTouched)<1) throw new Error('no history entries were backfilled');
           if(Number(report.pointsAfter)<Number(report.pointsBefore)) throw new Error('timeline points regressed');
           if(Number(report.gamesWith2Plus)<1) throw new Error('no game has 2+ change points after backfill');
-
-          let invalidVisible=0, unsorted=0, tooLong=0;
+          let invalidVisible=0,unsorted=0,tooLong=0;
           for(const x of deals.items){
             if(String(x.priceStatus||'').startsWith('rejected')) continue;
             const c=Number(x.currentPrice),o=Number(x.originalPrice),d=Number(x.discountPercent);
@@ -65,8 +63,7 @@ jobs:
           if(invalidVisible) throw new Error(`invalid visible prices ${invalidVisible}`);
           if(unsorted) throw new Error(`unsorted history points ${unsorted}`);
           if(tooLong) throw new Error(`timelines exceed cap ${tooLong}`);
-
-          console.log('Historical backfill QA passed', report);
+          console.log('Historical backfill QA passed',report);
           NODE
 
       - name: Commit backfilled history
@@ -79,5 +76,5 @@ jobs:
           git config user.name 'ps-radar-bot'
           git config user.email 'actions@users.noreply.github.com'
           git commit -m 'Backfill PS Radar historical deal prices from Git snapshots'
-          git pull --rebase origin ps-radar-git-history-backfill
-          git push origin ps-radar-git-history-backfill
+          git pull --rebase origin ps-radar-git-history-backfill-v2
+          git push origin ps-radar-git-history-backfill-v2
