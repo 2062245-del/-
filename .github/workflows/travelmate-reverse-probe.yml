@@ -6,6 +6,9 @@ on:
       - '.github/workflows/travelmate-reverse-probe.yml'
       - '.ci/travelmate-reverse-probe/**'
   workflow_dispatch:
+concurrency:
+  group: travelmate-reverse-probe
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
@@ -24,7 +27,7 @@ jobs:
       - name: Extract isolated diagnostic project
         run: |
           base64 -d .ci/travelmate-reverse-probe/project.tgz.b64 > /tmp/probe.tgz
-          echo '3d866a1a26c34c9c5d30ca56fdeca1db71a76b8d38007e913fca3fee91daa620  /tmp/probe.tgz' | sha256sum -c -
+          echo 'acbba6c5b381c42d6feb84c04aae6e48369cfa132deb43077caf24a3b08a2f4e  /tmp/probe.tgz' | sha256sum -c -
           mkdir probe
           tar -xzf /tmp/probe.tgz -C probe
       - name: Enable hardware acceleration
