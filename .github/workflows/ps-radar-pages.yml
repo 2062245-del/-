@@ -1,11 +1,12 @@
-name: PS Radar Pages
+name: PS Radar Online Preview
 
 on:
   workflow_dispatch:
   push:
     branches: [main]
     paths:
-      - 'ps-radar/**'
+      - 'ps-radar-preview/**'
+      - 'ps-radar/data/**'
       - '.github/workflows/ps-radar-pages.yml'
 
 permissions:
@@ -30,43 +31,18 @@ jobs:
           ref: main
           path: root
 
-      - name: Validate PS Radar static site
+      - name: Validate PS Radar preview
         shell: bash
         run: |
           set -euo pipefail
-          test -s root/ps-radar/index.html
-          test -s root/ps-radar/app.js
-          test -s root/ps-radar/styles.css
-          test -s root/ps-radar/ui-v13.css
-          test -s root/ps-radar/ui-v13.js
-          test -s root/ps-radar/catalog-v14.js
-          test -s root/ps-radar/stability-v15.js
-          test -s root/ps-radar/sw.js
-          test -s root/ps-radar/data/games.json
-          test -s root/ps-radar/data/discovery.json
-          test -s root/ps-radar/data/catalog-auto.json
-          test -s root/ps-radar/data/store.json
-          test -s root/ps-radar/data/store-auto.json
-          test -s root/ps-radar/data/upcoming.json
-          grep -qi 'PS Radar' root/ps-radar/index.html
-          grep -q 'PlayStation 혜택을 한눈에' root/ps-radar/index.html
-          grep -q 'data-page="upcoming"' root/ps-radar/index.html
-          grep -q 'catalog-v14.js' root/ps-radar/index.html
-          grep -q 'stability-v15.js' root/ps-radar/index.html
-          node --check root/ps-radar/app.js
-          node --check root/ps-radar/ui-v13.js
-          node --check root/ps-radar/catalog-v14.js
-          node --check root/ps-radar/stability-v15.js
-          node --check root/ps-radar/sw.js
-          cd root
-          node ps-radar/scripts/qa-static.mjs
-
-      - name: Run browser menu smoke test
-        shell: bash
-        run: |
-          set -euo pipefail
-          cd root
-          node ps-radar/scripts/qa-browser-smoke.mjs
+          test -s root/ps-radar-preview/index.html
+          grep -q 'PS Radar 2.2.5 Preview' root/ps-radar-preview/index.html
+          grep -q 'id="refreshBtn"' root/ps-radar-preview/index.html
+          grep -q 'raw.githubusercontent.com/2062245-del/-/main/ps-radar/data/' root/ps-radar-preview/index.html
+          test -s root/ps-radar/data/deals-auto.json
+          test -s root/ps-radar/data/deal-history.json
+          test -s root/ps-radar/data/deal-trends.json
+          echo 'PS Radar online preview validation passed'
 
       - name: Build Pages artifact
         shell: bash
@@ -76,13 +52,7 @@ jobs:
           mkdir -p site
           cp -a root/. site/
           rm -rf site/.git site/.github
-          touch site/.nojekyll site/ps-radar/.nojekyll
-          test -s site/index.html
-          test -s site/ps-radar/index.html
-          test -s site/ps-radar/data/catalog-auto.json
-          test -s site/ps-radar/data/store-auto.json
-          grep -q '유통기한 조사' site/index.html
-          grep -qi 'PS Radar' site/ps-radar/index.html
+          touch site/.nojekyll site/ps-radar-preview/.nojekyll
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
