@@ -1,0 +1,47 @@
+name: Package verified TravelMate v0.5.24 downloads
+on:
+  pull_request:
+    branches: [travelmate-v0513-a-build]
+    paths: ['.github/workflows/travelmate-release-delivery.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  package:
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        variant: [Personal, Share]
+    steps:
+      - uses: actions/download-artifact@v5
+        with:
+          name: TravelMate-v0.5.24-${{ matrix.variant }}-arm64
+          path: delivery
+          run-id: 37078816861
+          github-token: ${{ github.token }}
+      - name: Verify existing release file integrity
+        working-directory: delivery
+        run: |
+          set -euo pipefail
+          sha256sum -c TravelMate-v0.5.24-${{ matrix.variant }}-arm64.sha256
+          grep -q 'TOTAL PASS=54' translation-tests.txt
+          grep -q 'CHINESE VOICE PASS=67' chinese-tests.txt
+          grep -q 'VOICE AND LANGUAGE PASS=22' language-tests.txt
+          grep -qi '7d411eb878d63e9b30e5a75c65ce1206d195b45a3e5f794955bd78f625b87b85' apk-signature.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TravelMate-v0.5.24-${{ matrix.variant }}-APK
+          path: |
+            delivery/*.apk
+            delivery/*.sha256
+            delivery/*.txt
+          compression-level: 9
+          if-no-files-found: error
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TravelMate-v0.5.24-${{ matrix.variant }}-AndroidStudio
+          path: delivery/*_source.zip
+          compression-level: 9
+          if-no-files-found: error
+          retention-days: 30
