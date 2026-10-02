@@ -1,0 +1,54 @@
+name: Check TravelMate v0.5.22 languages
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'android/languages-v0522/**'
+      - '.github/workflows/travelmate-languages-check.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: travelmate-languages-check
+  cancel-in-progress: true
+jobs:
+  compile:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      ANDROID_HOME: /usr/local/lib/android/sdk
+      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+      - name: Restore verified 0.5.21 source and apply languages
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/baseline build-src /tmp/languages
+          curl -fL -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/2062245-del/-/actions/artifacts/11231792965/zip -o /tmp/baseline.zip
+          unzip -q /tmp/baseline.zip -d /tmp/baseline
+          unzip -q /tmp/baseline/TravelMate_Android_v0.5.21-A_source.zip -d build-src
+          base64 -d android/languages-v0522/native.tgz.b64 > /tmp/languages.tgz
+          echo '37f5299f428c21d94b986733ac74df3aae61daedfecb13eb02376125dfd4c5c1  /tmp/languages.tgz' | sha256sum -c -
+          tar -xzf /tmp/languages.tgz -C /tmp/languages
+          cp /tmp/languages/*.java build-src/app/src/main/java/com/seungho/barointerpreter/
+          cp /tmp/languages/build.gradle build-src/app/build.gradle
+      - name: Install SDK
+        shell: bash
+        run: |
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$SDKMANAGER" --licenses >/dev/null 2>&1 || true
+          "$SDKMANAGER" "platforms;android-35" "build-tools;35.0.0"
+      - name: Compile Android sources without packaging an APK
+        working-directory: build-src
+        run: gradle --no-daemon :app:compileReleaseJavaWithJavac
