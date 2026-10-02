@@ -39,7 +39,7 @@ jobs:
           unzip -q /tmp/baseline.zip -d /tmp/baseline
           unzip -q /tmp/baseline/TravelMate_Android_v0.5.21-A_source.zip -d build-src
           base64 -d android/languages-v0522/native.tgz.b64 > /tmp/languages.tgz
-          echo '37f5299f428c21d94b986733ac74df3aae61daedfecb13eb02376125dfd4c5c1  /tmp/languages.tgz' | sha256sum -c -
+          echo '1c5bd7476c55f35396fb2198afafca02bbe100ebc91edf506e36e2458a4b5b00  /tmp/languages.tgz' | sha256sum -c -
           tar -xzf /tmp/languages.tgz -C /tmp/languages
           cp /tmp/languages/*.java build-src/app/src/main/java/com/seungho/barointerpreter/
           cp /tmp/languages/build.gradle build-src/app/build.gradle
