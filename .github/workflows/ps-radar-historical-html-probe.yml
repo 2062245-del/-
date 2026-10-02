@@ -1,0 +1,35 @@
+name: PS Radar Historical HTML Probe
+
+on:
+  push:
+    branches: [ps-radar-historical-probe]
+    paths:
+      - 'ps-radar/scripts/probe-historical-html.mjs'
+      - '.github/workflows/ps-radar-historical-html-probe.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ps-radar-historical-probe
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Probe source HTML
+        run: node ps-radar/scripts/probe-historical-html.mjs
+      - name: Commit probe report
+        run: |
+          git add ps-radar/data/historical-html-probe.json
+          if git diff --cached --quiet; then exit 0; fi
+          git config user.name 'ps-radar-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git commit -m 'Record PS Radar historical HTML probe'
+          git pull --rebase origin ps-radar-historical-probe
+          git push origin ps-radar-historical-probe
