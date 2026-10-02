@@ -27,7 +27,7 @@ jobs:
       - name: Extract isolated diagnostic project
         run: |
           base64 -d .ci/travelmate-reverse-probe/project.tgz.b64 > /tmp/probe.tgz
-          echo 'acbba6c5b381c42d6feb84c04aae6e48369cfa132deb43077caf24a3b08a2f4e  /tmp/probe.tgz' | sha256sum -c -
+          echo '409e8ee25d576e0c6fe774b5e22f9d1ebf070d6783b228d4e48c355f949a95a5  /tmp/probe.tgz' | sha256sum -c -
           mkdir probe
           tar -xzf /tmp/probe.tgz -C probe
       - name: Enable hardware acceleration
