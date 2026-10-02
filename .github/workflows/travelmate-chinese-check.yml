@@ -34,7 +34,7 @@ jobs:
         run: |
           set -euo pipefail
           base64 -d android/chinese-v0524/native.tgz.b64 > /tmp/chinese.tgz
-          echo 'd1fcdcbb8737496edb99854902a84adc41f365123d2d5f0a4660a3236be83b50  /tmp/chinese.tgz' | sha256sum -c -
+          echo '8c51e8bfefee0a8e1d8cf215b819b92ccbf6cb48c22f5b61d0b1edf1fb057552  /tmp/chinese.tgz' | sha256sum -c -
           mkdir /tmp/chinese
           tar -xzf /tmp/chinese.tgz -C /tmp/chinese
           PKG=build-src/app/src/main/java/com/seungho/barointerpreter
