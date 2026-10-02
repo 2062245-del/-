@@ -4,7 +4,7 @@ const DEALS_FILE = 'ps-radar/data/deals-auto.json';
 const HISTORY_FILE = 'ps-radar/data/deal-history.json';
 const TRENDS_FILE = 'ps-radar/data/deal-trends.json';
 const PRICE_TOLERANCE = Number(process.env.PSRADAR_PRICE_TOLERANCE || 2.5);
-const MAX_TIMELINE = Number(process.env.PSRADAR_MAX_TIMELINE || 64);
+const MAX_TIMELINE = Number(process.env.PSRADAR_MAX_TIMELINE || 96);
 
 const cleanUrl = value => {
   try {
@@ -45,7 +45,8 @@ function normalizeTimeline(value){
     ...(Number.isFinite(Number(x.price))?{price:Number(x.price)}:{}),
     ...(Number.isFinite(Number(x.originalPrice))?{originalPrice:Number(x.originalPrice)}:{}),
     ...(Number.isFinite(Number(x.discount))?{discount:Number(x.discount)}:{}),
-    ...(x.saleEndsAt?{saleEndsAt:String(x.saleEndsAt)}:{})
+    ...(x.saleEndsAt?{saleEndsAt:String(x.saleEndsAt)}:{}),
+    ...(x.source?{source:String(x.source)}:{})
   })).slice(-MAX_TIMELINE) : [];
 }
 function pushChanged(timeline, snap){
@@ -129,7 +130,7 @@ for (const item of deals.items) {
   if (validPrice(item)) {
     const current=Number(item.currentPrice), discount=Number(item.discountPercent), original=Number(item.originalPrice);
     const before=timeline.length;
-    timeline=pushChanged(timeline,{at:observedAt,active:true,price:current,originalPrice:original,discount,...(item.saleEndsAt?{saleEndsAt:item.saleEndsAt}:{})});
+    timeline=pushChanged(timeline,{at:observedAt,active:true,price:current,originalPrice:original,discount,source:'ps-store-live',...(item.saleEndsAt?{saleEndsAt:item.saleEndsAt}:{})});
     if(timeline.length!==before || JSON.stringify(timeline.at(-1))!==JSON.stringify(normalizeTimeline(prev?.timeline).at(-1))) timelineChanges++;
     entry.lastPrice=current; entry.lastDiscount=discount; entry.lastOriginalPrice=original;
     entry.lowestPrice=Number.isFinite(Number(prev?.lowestPrice)) ? Math.min(Number(prev.lowestPrice),current) : current;
@@ -158,23 +159,24 @@ for (const [key, oldEntry] of Object.entries(history.items)) {
   if(liveKeys.has(key)) continue;
   let timeline=normalizeTimeline(oldEntry.timeline);
   if(oldEntry.active!==false){
-    timeline=pushChanged(timeline,{at:observedAt,active:false});
+    timeline=pushChanged(timeline,{at:observedAt,active:false,source:'ps-store-live'});
     history.items[key]={...oldEntry,active:false,lastEndedAt:observedAt,timeline,trend:cycleStats(timeline)};
     timelineChanges++;
   }
 }
 
-history.version=2; history.generatedAt=observedAt; history.initializedBaseline=history.initializedBaseline||!hadHistory;
+const schemaVersion=Math.max(2,Number(history.version||2),history.gitHistoryBackfill?3:2);
+history.version=schemaVersion; history.generatedAt=observedAt; history.initializedBaseline=history.initializedBaseline||!hadHistory;
 history.itemCount=Object.keys(history.items).length; history.activeCount=liveKeys.size; history.validPriceCount=tracked;
 history.newDealCount=newDeals; history.lowCount=lows; history.timelineChangeCount=timelineChanges;
 const trendItems={};
 for(const key of liveKeys){
   const e=history.items[key]; if(!e)continue;
-  trendItems[key]={firstSeenAt:e.firstSeenAt,lastSeenAt:e.lastSeenAt,observations:e.observations,priceObservations:e.priceObservations||0,lowestPrice:e.lowestPrice??null,lowestPriceObservedAt:e.lowestPriceObservedAt??null,highestDiscount:e.highestDiscount??0,lastPrice:e.lastPrice??null,lastDiscount:e.lastDiscount??0,lastOriginalPrice:e.lastOriginalPrice??null,timeline:e.timeline||[],trend:e.trend||cycleStats(e.timeline||[])};
+  trendItems[key]={firstSeenAt:e.firstSeenAt,lastSeenAt:e.lastSeenAt,observations:e.observations,priceObservations:e.priceObservations||0,lowestPrice:e.lowestPrice??null,lowestPriceObservedAt:e.lowestPriceObservedAt??null,highestDiscount:e.highestDiscount??0,lastPrice:e.lastPrice??null,lastDiscount:e.lastDiscount??0,lastOriginalPrice:e.lastOriginalPrice??null,timeline:e.timeline||[],trend:e.trend||cycleStats(e.timeline||[]),historyBackfill:e.historyBackfill||null};
 }
-const trends={version:2,generatedAt:observedAt,source:'PS Radar compact deal trends',itemCount:Object.keys(trendItems).length,items:trendItems};
-deals.health={...(deals.health||{}),dealHistoryVersion:2,observedHistoryCount:history.itemCount,observedActiveCount:history.activeCount,observedValidPriceCount:tracked,observedNewDealCount:newDeals,observedLowCount:lows,timelineChangeCount:timelineChanges};
+const trends={version:schemaVersion,generatedAt:observedAt,source:schemaVersion>=3?'PS Radar compact deal trends + historical backfill':'PS Radar compact deal trends',itemCount:Object.keys(trendItems).length,items:trendItems};
+deals.health={...(deals.health||{}),dealHistoryVersion:schemaVersion,observedHistoryCount:history.itemCount,observedActiveCount:history.activeCount,observedValidPriceCount:tracked,observedNewDealCount:newDeals,observedLowCount:lows,timelineChangeCount:timelineChanges};
 await fs.writeFile(HISTORY_FILE,JSON.stringify(history,null,2)+'\n');
 await fs.writeFile(TRENDS_FILE,JSON.stringify(trends)+'\n');
 await fs.writeFile(DEALS_FILE,JSON.stringify(deals,null,2)+'\n');
-console.log('PS Radar observed history v2 updated',{history:history.itemCount,active:history.activeCount,validPrices:tracked,newDeals,lows,timelineChanges,trends:trends.itemCount});
+console.log(`PS Radar observed history v${schemaVersion} updated`,{history:history.itemCount,active:history.activeCount,validPrices:tracked,newDeals,lows,timelineChanges,trends:trends.itemCount,backfill:!!history.gitHistoryBackfill});
