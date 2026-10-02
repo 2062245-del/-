@@ -1,4 +1,4 @@
-name: Build TravelMate v0.5.14 A
+name: Build TravelMate v0.5.15 A
 
 on:
   pull_request:
@@ -86,14 +86,15 @@ jobs:
           p = Path('build-src/app/build.gradle')
           s = p.read_text()
           assert 'versionCode 19' in s
-          p.write_text(s.replace('versionCode 19', 'versionCode 21').replace("versionName '0.5.13'", "versionName '0.5.14'"))
+          p.write_text(s.replace('versionCode 19', 'versionCode 22').replace("versionName '0.5.13'", "versionName '0.5.15'"))
           PY
-          base64 -d .ci/travelmate-v0513-a/hotfix-v0514.tgz.b64 > /tmp/hotfix-v0514.tgz
-          echo 'd7458403b87b0a8f15e6f81c9d1c8796b3f8b338d63b43961f67177fdfb583ad  /tmp/hotfix-v0514.tgz' | sha256sum -c -
-          mkdir -p /tmp/hotfix-v0514
-          tar -xzf /tmp/hotfix-v0514.tgz -C /tmp/hotfix-v0514
-          cp /tmp/hotfix-v0514/TravelTranslationQuality.java build-src/app/src/main/java/com/seungho/barointerpreter/
-          cp /tmp/hotfix-v0514/TranslationVerification.java build-src/app/src/main/java/com/seungho/barointerpreter/
+          base64 -d .ci/travelmate-v0513-a/hotfix-v0515.tgz.b64 > /tmp/hotfix-v0515.tgz
+          echo '6a6f4261ac2cab4c16de527e055cd412522e1b1a26888eecadf775c042ecd9e7  /tmp/hotfix-v0515.tgz' | sha256sum -c -
+          mkdir -p /tmp/hotfix-v0515
+          tar -xzf /tmp/hotfix-v0515.tgz -C /tmp/hotfix-v0515
+          cp /tmp/hotfix-v0515/TravelTranslationQuality.java build-src/app/src/main/java/com/seungho/barointerpreter/
+          cp /tmp/hotfix-v0515/TranslationVerification.java build-src/app/src/main/java/com/seungho/barointerpreter/
+          cp /tmp/hotfix-v0515/TravelOrderTranslator.java build-src/app/src/main/java/com/seungho/barointerpreter/
 
       - name: Translation and verification regression tests
         shell: bash
@@ -103,10 +104,11 @@ jobs:
           mkdir -p "$PKG"
           cp build-src/app/src/main/java/com/seungho/barointerpreter/TravelTranslationQuality.java "$PKG/"
           cp build-src/app/src/main/java/com/seungho/barointerpreter/TranslationVerification.java "$PKG/"
-          cp /tmp/hotfix-v0514/TravelMateRegressionTest.java "$PKG/"
-          javac -encoding UTF-8 "$PKG/TravelTranslationQuality.java" "$PKG/TranslationVerification.java" "$PKG/TravelMateRegressionTest.java"
+          cp build-src/app/src/main/java/com/seungho/barointerpreter/TravelOrderTranslator.java "$PKG/"
+          cp /tmp/hotfix-v0515/TravelMateRegressionTest.java "$PKG/"
+          javac -encoding UTF-8 "$PKG/TravelTranslationQuality.java" "$PKG/TranslationVerification.java" "$PKG/TravelOrderTranslator.java" "$PKG/TravelMateRegressionTest.java"
           java -cp /tmp/qtest com.seungho.barointerpreter.TravelMateRegressionTest | tee travelmate-regression-test.txt
-          grep -q 'TOTAL PASS=24' travelmate-regression-test.txt
+          grep -q 'TOTAL PASS=54' travelmate-regression-test.txt
 
       - name: Prepare signing
         shell: bash
@@ -125,8 +127,8 @@ jobs:
           set -euxo pipefail
           MAIN=build-src/app/src/main/java/com/seungho/barointerpreter/MainActivity.java
           VERIFY=build-src/app/src/main/java/com/seungho/barointerpreter/TranslationVerification.java
-          grep -q 'versionCode 21' build-src/app/build.gradle
-          grep -q "versionName '0.5.14'" build-src/app/build.gradle
+          grep -q 'versionCode 22' build-src/app/build.gradle
+          grep -q "versionName '0.5.15'" build-src/app/build.gradle
           grep -q 'showListeningOverlay' "$MAIN"
           grep -q 'startListeningPulse' "$MAIN"
           grep -q 'onRmsChanged' "$MAIN"
@@ -160,19 +162,19 @@ jobs:
           grep -qi '7d411eb878d63e9b30e5a75c65ce1206d195b45a3e5f794955bd78f625b87b85' apk-signature.txt
           "$AAPT" dump badging "$APK" | head -n 25 | tee apk-badging.txt
           grep -q "name='com.seungho.barointerpreter'" apk-badging.txt
-          grep -q "versionCode='21'" apk-badging.txt
-          grep -q "versionName='0.5.14'" apk-badging.txt
-          cp "$APK" TravelMate-v0.5.14-A-arm64.apk
-          (cd build-src && zip -qr ../TravelMate_Android_v0.5.14-A_source.zip . -x 'app/build/*' '.gradle/*')
-          sha256sum TravelMate-v0.5.14-A-arm64.apk > TravelMate-v0.5.14-A-arm64.sha256
+          grep -q "versionCode='22'" apk-badging.txt
+          grep -q "versionName='0.5.15'" apk-badging.txt
+          cp "$APK" TravelMate-v0.5.15-A-arm64.apk
+          (cd build-src && zip -qr ../TravelMate_Android_v0.5.15-A_source.zip . -x 'app/build/*' '.gradle/*')
+          sha256sum TravelMate-v0.5.15-A-arm64.apk > TravelMate-v0.5.15-A-arm64.sha256
 
       - uses: actions/upload-artifact@v4
         with:
-          name: TravelMate-v0.5.14-A-arm64
+          name: TravelMate-v0.5.15-A-arm64
           path: |
-            TravelMate-v0.5.14-A-arm64.apk
-            TravelMate-v0.5.14-A-arm64.sha256
-            TravelMate_Android_v0.5.14-A_source.zip
+            TravelMate-v0.5.15-A-arm64.apk
+            TravelMate-v0.5.15-A-arm64.sha256
+            TravelMate_Android_v0.5.15-A_source.zip
             travelmate-regression-test.txt
             apk-signature.txt
             apk-badging.txt
