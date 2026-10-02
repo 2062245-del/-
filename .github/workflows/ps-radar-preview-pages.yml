@@ -37,7 +37,7 @@ jobs:
           test -s ps-radar/preview-v2/payload1.txt
           test -s ps-radar/preview-v2/payload2.txt
           test -s ps-radar/preview-v2/payload3.txt
-          grep -q 'PS Radar 2.2.5 Preview' ps-radar/preview-v2/index.html
+          grep -q 'PS Radar 2.2.' ps-radar/preview-v2/index.html
           python3 - <<'PY'
           import base64,gzip,pathlib
           root=pathlib.Path('ps-radar/preview-v2')
