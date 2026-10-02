@@ -1,0 +1,75 @@
+name: TravelMate v0.5.24 Chinese offline voice compile checks
+on:
+  pull_request:
+    branches: [travelmate-v0513-a-build]
+    paths: ['android/chinese-v0524/**', '.github/workflows/travelmate-chinese-check.yml']
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: travelmate-chinese-check
+  cancel-in-progress: true
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      ANDROID_HOME: /usr/local/lib/android/sdk
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
+        with: {distribution: temurin, java-version: '17'}
+      - uses: gradle/actions/setup-gradle@v4
+        with: {gradle-version: '8.11.1'}
+      - name: Restore verified shared v0.5.23 project
+        run: |
+          set -euo pipefail
+          mkdir /tmp/shared23 build-src
+          curl --fail --location --silent --show-error -H "Authorization: Bearer $GH_TOKEN" -H 'Accept: application/vnd.github+json' 'https://api.github.com/repos/2062245-del/-/actions/artifacts/11236001804/zip' -o /tmp/shared23.zip
+          echo 'b749b94bf78784a4b27807e9ca1b9ee6db0465575948f166ce46a41348f1d24b  /tmp/shared23.zip' | sha256sum -c -
+          unzip -q /tmp/shared23.zip -d /tmp/shared23
+          unzip -q /tmp/shared23/TravelMate_Android_v0.5.23-Share_source.zip -d build-src
+      - name: Apply Chinese voice changes and pinned runtime
+        run: |
+          set -euo pipefail
+          base64 -d android/chinese-v0524/native.tgz.b64 > /tmp/chinese.tgz
+          echo '56425f4dec069e560bc46cda17d8890e765c629b8e0c0ea76bf2f950d9a29b77  /tmp/chinese.tgz' | sha256sum -c -
+          mkdir /tmp/chinese
+          tar -xzf /tmp/chinese.tgz -C /tmp/chinese
+          PKG=build-src/app/src/main/java/com/seungho/barointerpreter
+          cp /tmp/chinese/MainActivity.java /tmp/chinese/ChineseTtsClient.java /tmp/chinese/ChineseTtsEngine.java /tmp/chinese/ChineseTtsService.java /tmp/chinese/ChineseVoicePack.java /tmp/chinese/ChineseVoiceFiles.java /tmp/chinese/NeuralTtsClient.java "$PKG/"
+          cp /tmp/chinese/AndroidManifest.xml build-src/app/src/main/
+          cp /tmp/chinese/build.gradle build-src/app/
+          mkdir -p build-src/app/libs
+          curl --fail --location --silent --show-error 'https://github.com/k2-fsa/sherpa-onnx/releases/download/v1.13.8/sherpa-onnx-static-link-onnxruntime-1.13.8.aar' -o build-src/app/libs/sherpa-onnx-static-1.13.8.aar
+          echo 'b22c3fc1b6a45666d28892bb2f7694beeb77a8362d7ebd77c1a5431ec9435471  build-src/app/libs/sherpa-onnx-static-1.13.8.aar' | sha256sum -c -
+      - name: Existing language and new integrity tests
+        run: |
+          set -euo pipefail
+          PKG=/tmp/test/com/seungho/barointerpreter
+          mkdir -p "$PKG/supertonic"
+          cp /tmp/chinese/ChineseVoicePack.java /tmp/chinese/ChineseVoiceFiles.java /tmp/chinese/ChineseVoiceRegressionTest.java /tmp/chinese/SpeechLanguageTags.java /tmp/chinese/LanguageVoiceRegressionTest.java "$PKG/"
+          cp /tmp/chinese/UnicodeProcessor.java "$PKG/supertonic/"
+          javac -encoding UTF-8 "$PKG/"*.java "$PKG/supertonic/"*.java
+          java -cp /tmp/test com.seungho.barointerpreter.ChineseVoiceRegressionTest | tee chinese-tests.txt
+          java -cp /tmp/test com.seungho.barointerpreter.LanguageVoiceRegressionTest | tee language-tests.txt
+          grep -q 'CHINESE VOICE PASS=67' chinese-tests.txt
+          grep -q 'VOICE AND LANGUAGE PASS=22' language-tests.txt
+      - name: Android compile and native library merge
+        working-directory: build-src
+        run: |
+          set -euo pipefail
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null 2>&1 || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" 'platforms;android-35' 'build-tools;35.0.0'
+          gradle --no-daemon :app:compileReleaseJavaWithJavac :app:processReleaseMainManifest :app:mergeReleaseNativeLibs
+          test -s app/build/intermediates/merged_native_libs/release/mergeReleaseNativeLibs/out/lib/arm64-v8a/libsherpa-onnx-jni.so
+          test -s app/build/intermediates/merged_native_libs/release/mergeReleaseNativeLibs/out/lib/arm64-v8a/libonnxruntime.so
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: TravelMate-v0.5.24-voice-checks
+          path: |
+            chinese-tests.txt
+            language-tests.txt
+          retention-days: 14
