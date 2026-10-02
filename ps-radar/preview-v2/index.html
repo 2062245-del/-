@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#04111f" />
+  <title>PS Radar 2.2.5 Preview</title>
+  <link rel="stylesheet" href="./psr2.css" />
+</head>
+<body>
+  <div id="app" class="app-shell">
+    <aside class="side-rail" aria-label="주 메뉴">
+      <button class="rail-brand" data-nav="discount" aria-label="PS Radar 할인 홈"><span>PS</span></button>
+      <nav class="rail-nav">
+        <button class="nav-item active" data-nav="discount"><span class="nav-icon">◆</span><b>할인</b></button>
+        <button class="nav-item" data-nav="radar"><span class="nav-icon">◉</span><b>Radar</b></button>
+        <button class="nav-item" data-nav="trend"><span class="nav-icon">▥</span><b>추세</b></button>
+        <button class="nav-item" data-nav="my"><span class="nav-icon">♙</span><b>MY</b></button>
+      </nav>
+      <button class="rail-settings" id="settingsBtn" aria-label="설정">⚙</button>
+    </aside>
+
+    <main class="workspace">
+      <section class="deal-pane panel">
+        <header class="deal-header">
+          <div class="brand-top-row">
+            <div class="brand-copy-block">
+              <div class="mobile-brand"><span class="mobile-ps">PS</span><strong>PS Radar <em>2.2.5</em></strong></div>
+              <h1>PS Radar <em>2.2.5</em></h1>
+              <p>지금 사야 할 플레이스테이션 할인, 레이더가 찾아드립니다.</p>
+            </div>
+            <div class="top-action-group">
+              <button id="refreshBtn" class="top-refresh-btn" type="button" aria-label="최신 할인 데이터 새로고침" aria-busy="false">
+                <span class="refresh-icon" aria-hidden="true">↻</span>
+                <span class="refresh-copy"><b>새로고침</b><small id="refreshStatus">최신 데이터</small></span>
+              </button>
+            </div>
+          </div>
+
+          <div class="deal-summary-row">
+            <div class="deal-count-box">
+              <small>현재 할인 중</small>
+              <strong id="dealCount">0개</strong>
+              <span id="dataStamp" class="data-stamp"></span>
+            </div>
+            <div class="search-inline">
+              <span>⌕</span>
+              <input id="searchInput" type="search" placeholder="게임명 검색..." autocomplete="off" />
+              <button id="searchClear" aria-label="검색 초기화">×</button>
+            </div>
+            <button id="filterToggle" class="filter-tool-btn filter-toggle-btn" aria-label="상세 필터" aria-expanded="false"><span>☷</span><b>필터</b><span id="filterChevron">⌄</span></button>
+          </div>
+
+          <div class="filter-strip" id="filterStrip">
+            <button class="chip active" data-filter="all">전체</button>
+            <button class="chip" data-filter="PS5">PS5</button>
+            <button class="chip" data-filter="PS4">PS4</button>
+            <button class="chip" data-filter="korean">한국어</button>
+            <button class="chip" data-filter="70plus">70%+</button>
+            <button class="chip" data-filter="50plus">50%+</button>
+            <button class="chip" data-filter="lowest">역대 최저가</button>
+            <select id="sortSelect" class="chip select-chip" aria-label="정렬">
+              <option value="timing">추천순</option>
+              <option value="discount">할인율 높은 순</option>
+              <option value="price">가격 낮은 순</option>
+              <option value="nearLow">최저가 근접 순</option>
+              <option value="ending">종료 임박 순</option>
+              <option value="title">이름순</option>
+            </select>
+          </div>
+
+          <div id="radarStrip" class="radar-filter-strip" hidden>
+            <button class="radar-chip active" data-radar-mode="best">◎ 핵심 추천</button>
+            <button class="radar-chip" data-radar-mode="low">⌄ 최저가권</button>
+            <button class="radar-chip" data-radar-mode="wait">◷ 더 기다리기</button>
+            <button class="radar-chip" data-radar-mode="fresh">✦ 새 할인</button>
+            <button class="radar-chip" data-radar-mode="deepening">↘ 할인폭 확대</button>
+          </div>
+
+          <div id="filterDrawer" class="filter-drawer" hidden>
+            <div class="filter-drawer-head">
+              <div><b>상세 필터</b><span>원하는 조건을 조합해서 할인 게임을 좁혀보세요.</span></div>
+              <div class="filter-head-actions"><button id="filterReset" type="button">전체 초기화</button><button id="filterCollapse" type="button">접기 ▲</button></div>
+            </div>
+            <div class="filter-grid">
+              <label>플랫폼
+                <select id="platformFilter"><option value="all">전체</option><option value="PS5">PS5</option><option value="PS4">PS4</option></select>
+              </label>
+              <label>최소 할인율
+                <select id="discountMin"><option value="0">전체</option><option value="30">30%+</option><option value="40">40%+</option><option value="50">50%+</option><option value="60">60%+</option><option value="70">70%+</option><option value="80">80%+</option></select>
+              </label>
+              <label>최대 가격
+                <select id="priceMax"><option value="0">전체</option><option value="10000">1만원 이하</option><option value="20000">2만원 이하</option><option value="30000">3만원 이하</option><option value="50000">5만원 이하</option><option value="70000">7만원 이하</option></select>
+              </label>
+              <label>구매 타이밍
+                <select id="timingFilter"><option value="all">전체</option><option value="BUY NOW">BUY NOW</option><option value="GOOD">GOOD</option><option value="WAIT">WAIT</option><option value="WATCH">WATCH</option></select>
+              </label>
+              <label>최저가 상태
+                <select id="lowFilter"><option value="all">전체</option><option value="near">관측 최저가권</option><option value="exact">관측 최저가</option><option value="above">과거보다 비쌈</option></select>
+              </label>
+              <label>데이터 신뢰도
+                <select id="confidenceFilter"><option value="all">전체</option><option value="medium">보통 이상</option><option value="high">높음만</option></select>
+              </label>
+            </div>
+            <label class="check-label"><input id="koOnly" type="checkbox" /> 한국어 확인 게임만</label>
+          </div>
+        </header>
+
+        <div id="sectionContext" class="section-context" hidden></div>
+        <div id="dealList" class="deal-list" aria-live="polite"></div>
+        <button id="loadMore" class="load-more" hidden>더 보기</button>
+      </section>
+
+      <section class="detail-pane panel" id="detailPane">
+        <button id="mobileBack" class="mobile-back" aria-label="할인 목록으로 돌아가기">‹ 목록</button>
+        <div id="detailContent" hidden>
+          <section id="detailHero" class="detail-hero">
+            <div class="hero-shade"></div>
+            <div class="hero-top-actions">
+              <button id="shareBtn" class="hero-action" aria-label="공유">↗</button>
+              <button id="wishBtn" class="hero-action" aria-label="찜하기">♡</button>
+            </div>
+            <div class="hero-copy">
+              <div id="heroTags" class="tag-row"></div>
+              <h2 id="heroTitle"></h2>
+              <p id="heroMaker">PlayStation Store</p>
+              <div class="price-block">
+                <span id="heroDiscount" class="discount-badge"></span>
+                <strong id="heroPrice"></strong>
+                <del id="heroOriginal"></del>
+              </div>
+              <div class="sale-clock"><span>◷</span><span id="saleClockText">할인 종료일 미확인</span></div>
+            </div>
+            <div id="timingBadge" class="timing-badge">
+              <span class="cart-icon">🛒</span>
+              <b>WATCH</b>
+              <small>데이터 확인 중</small>
+            </div>
+          </section>
+
+          <nav class="detail-tabs" aria-label="게임 상세 메뉴">
+            <button class="detail-tab active" data-detail-tab="price">가격 분석</button>
+            <button class="detail-tab" data-detail-tab="game">게임 정보</button>
+            <button class="detail-tab" data-detail-tab="review">평가/리뷰</button>
+            <button class="detail-tab" data-detail-tab="similar">비슷한 게임</button>
+          </nav>
+
+          <section id="priceTab" class="detail-tab-pane active" data-tab-pane="price">
+            <section id="timingCard" class="timing-card">
+              <div class="timing-copy">
+                <p class="eyebrow">● 구매 타이밍 분석</p>
+                <h3 id="timingHeadline">분석 중</h3>
+                <p id="timingReason"></p>
+              </div>
+              <div id="timingScoreRing" class="score-ring"><strong>--</strong><small>구매 타이밍</small></div>
+            </section>
+
+            <div id="metricStrip" class="metric-strip"></div>
+
+            <section class="analysis-card trend-card">
+              <div class="card-head">
+                <h3>⌕ 가격 추세</h3>
+                <span id="trendPeriod">관측 기준</span>
+              </div>
+              <div id="trendChart" class="trend-chart"></div>
+              <div id="compareRows" class="compare-rows"></div>
+              <p id="trendNote" class="chart-note"></p>
+              <span id="confidenceChip" class="confidence-chip"></span>
+            </section>
+          </section>
+
+          <section id="gameTab" class="detail-tab-pane" data-tab-pane="game">
+            <div id="gameInfoContent" class="info-stack"></div>
+          </section>
+          <section id="reviewTab" class="detail-tab-pane" data-tab-pane="review">
+            <div id="reviewContent" class="info-stack"></div>
+          </section>
+          <section id="similarTab" class="detail-tab-pane" data-tab-pane="similar">
+            <div id="similarContent" class="similar-grid"></div>
+          </section>
+
+          <div class="truth-note">※ PS Radar는 확인된 관측값만 사용합니다. 이력이 부족한 게임은 구매 판단을 보수적으로 표시합니다.</div>
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="모바일 주 메뉴">
+      <button class="nav-item active" data-nav="discount"><span>◆</span><b>할인</b></button>
+      <button class="nav-item" data-nav="radar"><span>◉</span><b>Radar</b></button>
+      <button class="nav-item" data-nav="trend"><span>▥</span><b>추세</b></button>
+      <button class="nav-item" data-nav="my"><span>♙</span><b>MY</b></button>
+    </nav>
+
+    <div id="toast" class="toast" hidden></div>
+  </div>
+  <script src="./psr2.js" defer></script>
+</body>
+</html>
