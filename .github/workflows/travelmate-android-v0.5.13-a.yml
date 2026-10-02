@@ -89,7 +89,7 @@ jobs:
           p.write_text(s.replace('versionCode 19', 'versionCode 21').replace("versionName '0.5.13'", "versionName '0.5.14'"))
           PY
           base64 -d .ci/travelmate-v0513-a/hotfix-v0514.tgz.b64 > /tmp/hotfix-v0514.tgz
-          echo '1364f23c06ee579fd3cdff3f053104c6e76385fffd309d93edbb85d1001ca9eb  /tmp/hotfix-v0514.tgz' | sha256sum -c -
+          echo 'd7458403b87b0a8f15e6f81c9d1c8796b3f8b338d63b43961f67177fdfb583ad  /tmp/hotfix-v0514.tgz' | sha256sum -c -
           mkdir -p /tmp/hotfix-v0514
           tar -xzf /tmp/hotfix-v0514.tgz -C /tmp/hotfix-v0514
           cp /tmp/hotfix-v0514/TravelTranslationQuality.java build-src/app/src/main/java/com/seungho/barointerpreter/
