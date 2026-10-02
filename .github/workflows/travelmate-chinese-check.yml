@@ -34,16 +34,17 @@ jobs:
         run: |
           set -euo pipefail
           base64 -d android/chinese-v0524/native.tgz.b64 > /tmp/chinese.tgz
-          echo '56425f4dec069e560bc46cda17d8890e765c629b8e0c0ea76bf2f950d9a29b77  /tmp/chinese.tgz' | sha256sum -c -
+          echo 'd1fcdcbb8737496edb99854902a84adc41f365123d2d5f0a4660a3236be83b50  /tmp/chinese.tgz' | sha256sum -c -
           mkdir /tmp/chinese
           tar -xzf /tmp/chinese.tgz -C /tmp/chinese
           PKG=build-src/app/src/main/java/com/seungho/barointerpreter
-          cp /tmp/chinese/MainActivity.java /tmp/chinese/ChineseTtsClient.java /tmp/chinese/ChineseTtsEngine.java /tmp/chinese/ChineseTtsService.java /tmp/chinese/ChineseVoicePack.java /tmp/chinese/ChineseVoiceFiles.java /tmp/chinese/NeuralTtsClient.java "$PKG/"
+          cp /tmp/chinese/MainActivity.java /tmp/chinese/ChineseTtsClient.java /tmp/chinese/ChineseTtsEngine.java /tmp/chinese/ChineseTtsService.java /tmp/chinese/ChineseVoicePack.java /tmp/chinese/ChineseVoiceFiles.java /tmp/chinese/NeuralTtsClient.java /tmp/chinese/NeuralTtsEngine.java "$PKG/"
           cp /tmp/chinese/AndroidManifest.xml build-src/app/src/main/
           cp /tmp/chinese/build.gradle build-src/app/
           mkdir -p build-src/app/libs
-          curl --fail --location --silent --show-error 'https://github.com/k2-fsa/sherpa-onnx/releases/download/v1.13.8/sherpa-onnx-static-link-onnxruntime-1.13.8.aar' -o build-src/app/libs/sherpa-onnx-static-1.13.8.aar
-          echo 'b22c3fc1b6a45666d28892bb2f7694beeb77a8362d7ebd77c1a5431ec9435471  build-src/app/libs/sherpa-onnx-static-1.13.8.aar' | sha256sum -c -
+          curl --fail --location --silent --show-error 'https://github.com/k2-fsa/sherpa-onnx/releases/download/v1.13.8/sherpa-onnx-static-link-onnxruntime-1.13.8.aar' -o /tmp/sherpa-upstream.aar
+          echo 'b22c3fc1b6a45666d28892bb2f7694beeb77a8362d7ebd77c1a5431ec9435471  /tmp/sherpa-upstream.aar' | sha256sum -c -
+          python3 /tmp/chinese/prepare-runtime.py /tmp/sherpa-upstream.aar build-src/app/libs/sherpa-onnx-static-1.13.8.aar
       - name: Existing language and new integrity tests
         run: |
           set -euo pipefail
