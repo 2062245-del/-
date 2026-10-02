@@ -54,11 +54,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          rm -rf site
-          mkdir -p site
-          cp -a . site/
-          rm -rf site/.git site/.github
-          touch site/.nojekyll site/ps-radar/preview-v2/.nojekyll
+          rm -rf "$RUNNER_TEMP/psradar-preview-site"
+          mkdir -p "$RUNNER_TEMP/psradar-preview-site"
+          cp -a . "$RUNNER_TEMP/psradar-preview-site/"
+          rm -rf "$RUNNER_TEMP/psradar-preview-site/.git" "$RUNNER_TEMP/psradar-preview-site/.github"
+          touch "$RUNNER_TEMP/psradar-preview-site/.nojekyll" "$RUNNER_TEMP/psradar-preview-site/ps-radar/preview-v2/.nojekyll"
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
@@ -66,7 +66,7 @@ jobs:
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
         with:
-          path: site
+          path: ${{ runner.temp }}/psradar-preview-site
 
       - name: Deploy preview
         id: deployment
