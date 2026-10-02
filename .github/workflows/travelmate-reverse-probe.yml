@@ -41,8 +41,7 @@ jobs:
           disable-animations: true
           script: |
             adb logcat -c
-            cd probe
-            gradle --no-daemon -Pandroid.useAndroidX=true :app:connectedDebugAndroidTest || result=$?; adb logcat -d -s TravelMateProbe:I > ../reverse-engine-output.txt; exit ${result:-0}
+            gradle --no-daemon -p probe -Pandroid.useAndroidX=true :app:connectedDebugAndroidTest || result=$?; adb logcat -d -s TravelMateProbe:I > reverse-engine-output.txt; exit ${result:-0}
       - name: Collect actual engine output
         if: always()
         run: test -f reverse-engine-output.txt || timeout 10s adb logcat -d -s TravelMateProbe:I > reverse-engine-output.txt || true
