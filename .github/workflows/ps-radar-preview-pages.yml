@@ -29,26 +29,28 @@ jobs:
         with:
           ref: main
 
-      - name: Validate preview payload
+      - name: Validate preview build
         shell: bash
         run: |
           set -euo pipefail
           test -s ps-radar/preview-v2/index.html
-          for i in 1 2 3 4 5 6; do test -s "ps-radar/preview-v2/payload${i}.txt"; done
-          grep -q 'PS Radar 2.2.6 Preview' ps-radar/preview-v2/index.html
           python3 - <<'PY'
-          import base64,gzip,pathlib
-          root=pathlib.Path('ps-radar/preview-v2')
-          s=''.join((root/f'payload{i}.txt').read_text().strip() for i in (1,2,3,4,5,6))
-          html=gzip.decompress(base64.b64decode(s)).decode('utf-8')
-          assert 'PS Radar' in html
-          assert '2.2.6' in html
-          assert 'refreshBtn' in html
-          assert 'refreshStatus' in html
-          assert 'compositionstart' in html
-          assert 'compositionend' in html
-          assert len(html)>20000
-          print('preview payload OK',len(html))
+          from pathlib import Path
+          html=Path('ps-radar/preview-v2/index.html').read_text(encoding='utf-8')
+          checks={
+            'app title':'PS Radar' in html,
+            '2.2.7 version':'2.2.7' in html,
+            'refresh':'refreshBtn' in html,
+            'composition start':'compositionstart' in html,
+            'composition end':'compositionend' in html,
+            'Samsung IME fallback':'composeKoreanJamo' in html,
+            'text search input':'enterkeyhint="search"' in html,
+            'Fold wide search':'grid-column:1/-1' in html,
+            'full build':len(html)>20000,
+          }
+          bad=[k for k,v in checks.items() if not v]
+          if bad: raise SystemExit('preview validation failed: '+', '.join(bad))
+          print('preview build OK',len(html),checks)
           PY
 
       - name: Build Pages artifact
