@@ -42,7 +42,7 @@ jobs:
           script: |
             adb logcat -c
             cd probe
-            gradle --no-daemon :app:connectedDebugAndroidTest
+            gradle --no-daemon -Pandroid.useAndroidX=true :app:connectedDebugAndroidTest
       - name: Collect actual engine output
         if: always()
         run: adb logcat -d -s TravelMateProbe:I '*:S' > reverse-engine-output.txt || true
