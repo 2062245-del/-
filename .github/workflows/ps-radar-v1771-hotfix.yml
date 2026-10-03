@@ -1,11 +1,6 @@
 name: Build PS Radar v17.7.1 Hotfix APK
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'ps-radar/**'
-      - '.github/workflows/ps-radar-v1771-hotfix.yml'
   workflow_dispatch:
 
 concurrency:
