@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#04111f" />
-  <title>PS Radar 2.2.9</title>
+  <title>PS Radar 2.3.0</title>
   <style>
 :root{
   --bg:#020913;--rail:#04111f;--panel:#06182b;--panel2:#08223a;--panel3:#0a2945;
@@ -201,6 +201,12 @@ button,input,select{font:inherit}button{color:inherit}.app-shell{height:calc(100
 
 /* === v2.2.9 official game info === */
 .store-desc-card{margin-top:12px}.store-desc-card summary{cursor:pointer;font-weight:800;font-size:15px;color:#eaf7ff;list-style:none}.store-desc-card summary::-webkit-details-marker{display:none}.store-desc-card summary:after{content:'  ▾';color:#39b9ff}.store-desc-card[open] summary:after{content:'  ▴'}.store-desc-card p{margin-top:12px;line-height:1.65;white-space:pre-line;color:#a9bdd0}
+
+/* 2.3.0 Radar Intelligence */
+.radar-dashboard{padding:4px 0 20px}.ri-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:10px 0 16px}.ri-heading h2{font-size:21px;margin:0}.ri-heading p,.ri-note{color:var(--muted);font-size:12px;line-height:1.6;margin:7px 0}.ri-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:16px}.ri-stat{padding:13px;border:1px solid var(--line);border-radius:12px;background:var(--panel2)}.ri-stat strong{display:block;font-size:22px;color:var(--cyan);margin-top:5px}.ri-stat span{font-size:11px;color:var(--muted)}.ri-sections{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.ri-section{min-width:0;padding:13px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(140deg,#09243b,#051525)}.ri-section header{display:flex;justify-content:space-between;align-items:center;gap:8px}.ri-section h3{font-size:14px;margin:0}.ri-section header span{color:var(--cyan);font-size:12px}.ri-description{color:var(--muted);font-size:11px;line-height:1.5;min-height:33px}.ri-game{display:flex;align-items:center;gap:9px;width:100%;text-align:left;border:1px solid transparent;border-top-color:var(--line);background:transparent;padding:11px 0;cursor:pointer}.ri-game:hover,.ri-game:focus-visible{background:#0c304b;border-color:var(--cyan);border-radius:7px}.ri-game .deal-cover{width:44px;height:55px;flex:0 0 44px;border-radius:5px}.ri-game-copy{min-width:0;flex:1}.ri-game-copy b{display:block;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ri-game-copy strong{display:block;font-size:13px;color:var(--text);margin-top:4px}.ri-game-copy small{display:block;font-size:10px;color:var(--muted);line-height:1.5;margin-top:4px}.ri-show{width:100%;border:1px solid var(--line);border-radius:8px;background:#0a2a44;padding:8px;font-size:11px;cursor:pointer}.ri-empty{padding:14px 0;color:var(--muted);font-size:12px;line-height:1.6}
+@media(max-width:1000px){.ri-sections{grid-template-columns:1fr}}
+@media(max-width:599px){.ri-heading h2{font-size:19px}.ri-stat{padding:10px}.ri-stat strong{font-size:20px}.ri-section{padding:12px}}
+
 </style>
 </head>
 <body>
@@ -220,8 +226,8 @@ button,input,select{font:inherit}button{color:inherit}.app-shell{height:calc(100
       <section class="deal-pane panel">
         <header class="deal-header">
           <div class="brand-copy-block">
-            <div class="mobile-brand"><span class="mobile-ps">PS</span><strong>PS Radar <em>2.2.9</em></strong></div>
-            <h1>PS Radar <em>2.2.9</em></h1>
+            <div class="mobile-brand"><span class="mobile-ps">PS</span><strong>PS Radar <em>2.3.0</em></strong></div>
+            <h1>PS Radar <em>2.3.0</em></h1>
             <p>지금 사야 할 플레이스테이션 할인, 레이더가 찾아드립니다.</p>
           </div>
           <div class="header-actions">
@@ -264,7 +270,8 @@ button,input,select{font:inherit}button{color:inherit}.app-shell{height:calc(100
           </div>
 
           <div id="radarStrip" class="radar-filter-strip" hidden>
-            <button class="radar-chip active" data-radar-mode="best">◎ 핵심 추천</button>
+            <button class="radar-chip active" data-radar-mode="dashboard">◉ 대시보드</button>
+            <button class="radar-chip" data-radar-mode="best">◎ 핵심 추천</button>
             <button class="radar-chip" data-radar-mode="low">⌄ 최저가권</button>
             <button class="radar-chip" data-radar-mode="wait">◷ 더 기다리기</button>
             <button class="radar-chip" data-radar-mode="fresh">✦ 새 할인</button>
@@ -394,7 +401,7 @@ const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const REMOTE_BASE='https://raw.githubusercontent.com/2062245-del/-/main/ps-radar/data/';
 const DATA_TIMEOUT_MS=10000;
 const LOCAL_HISTORY_KEY='psr2-observed-history-v2';
-const state={deals:[],trends:{},history:{},store:new Map(),meta:new Map(),filtered:[],selected:null,filter:'all',sort:'timing',platformFilter:'all',minDiscount:0,maxPrice:0,timingFilter:'all',lowFilter:'all',confidenceFilter:'all',koOnly:false,query:'',visible:60,nav:'discount',radarMode:'best',dataSource:'bundle',generatedAt:null,busy:false};
+const state={deals:[],trends:{},history:{},store:new Map(),meta:new Map(),filtered:[],selected:null,filter:'all',sort:'timing',platformFilter:'all',minDiscount:0,maxPrice:0,timingFilter:'all',lowFilter:'all',confidenceFilter:'all',koOnly:false,query:'',visible:60,nav:'discount',radarMode:'dashboard',dataSource:'bundle',generatedAt:null,busy:false};
 const wish=new Set(JSON.parse(localStorage.getItem('psr2-wish')||'[]'));
 let localHistory={}; try{localHistory=JSON.parse(localStorage.getItem(LOCAL_HISTORY_KEY)||'{}')||{}}catch{}
 const nf=new Intl.NumberFormat('ko-KR');
@@ -510,6 +517,7 @@ function filterMatchConfidence(a){
   return true;
 }
 function radarMatch(g,a){
+  if(['ending','returning','trusted'].includes(state.radarMode))return radarSignals(g,a)[state.radarMode];
   if(state.radarMode==='best')return (a.label==='BUY NOW'||a.label==='GOOD')&&a.score>=74;
   if(state.radarMode==='low')return a.nearLow&&g.discountPercent>=40;
   if(state.radarMode==='wait')return a.label==='WAIT';
@@ -533,7 +541,7 @@ function applyFilters(){
   let arr=[...state.deals];
   if(state.query){arr=arr.filter(g=>titleMatchesQuery(g,state.query))}
   if(state.nav==='my')arr=arr.filter(g=>wish.has(keyFor(g)));
-  if(state.nav==='radar')arr=arr.filter(g=>{const a=analysis(g);return radarMatch(g,a)});
+  if(state.nav==='radar'&&state.radarMode!=='dashboard')arr=arr.filter(g=>{const a=analysis(g);return radarMatch(g,a)});
   if(state.nav==='trend')arr=arr.filter(g=>{const a=analysis(g);return a.changePoints>=2||a.saleCycles>=2||a.direction!=='insufficient'});
   if(state.filter==='PS5'||state.filter==='PS4')arr=arr.filter(g=>displayPlatforms(g).includes(state.filter));
   if(state.filter==='korean')arr=arr.filter(g=>g.ko===true);
@@ -565,8 +573,46 @@ function applyFilters(){
 }
 function coverMarkup(g,cls='deal-cover'){const style=g.image?`style="background-image:url('${esc(g.image)}')"`:'';return `<div class="${cls}" ${style}>${g.image?'':`<span class="cover-fallback">${esc(g.title)}</span>`}</div>`}
 function miniTags(g){const s=storeInfo(g);const tags=[...displayPlatforms(g).slice(0,2)];const ed=editionLabel(g);if(ed&&!tags.includes(ed))tags.unshift(ed);if(g.ko)tags.push('한국어');else if((g.genre||[])[0])tags.push(g.genre[0]);if(s?.rating)tags.push(`★${Number(s.rating).toFixed(1)}`);return tags.slice(0,4).map(x=>`<span class="mini-tag">${esc(x)}</span>`).join('')}
+
+function radarSignals(g,a){
+  const end=Date.parse(g.saleEndsAt),now=Date.now();
+  const t=trendInfo(g),timeline=Array.isArray(t.timeline)?t.timeline:[];
+  const past=timeline.filter(x=>x.active!==false&&validHistoricalPoint(g,x)&&Date.parse(x.at)<now&&Number(x.price)>0);
+  const previous=past.filter(x=>Number(x.price)!==g.currentPrice).at(-1);
+  let gap=null;
+  for(let i=timeline.length-1;i>0;i--){const curr=timeline[i],prev=timeline[i-1];if(curr.active===true&&prev.active===false){const d=daysBetween(prev.at,curr.at);if(d!==null&&Date.parse(curr.at)<=now&&now-Date.parse(curr.at)<=7*86400000)gap=d;break;}}
+  return {
+    best:(a.label==='BUY NOW'||a.label==='GOOD')&&a.confidence!=='축적 중',
+    low:a.confidence!=='축적 중'&&g.currentPrice<=a.low,
+    deepening:a.direction==='improving'&&a.confidence!=='축적 중'&&a.previousCycleBestDiscount!==null&&g.discountPercent>a.previousCycleBestDiscount,
+    ending:Number.isFinite(end)&&end>now&&end-now<=3*86400000,
+    returning:gap!==null&&gap>=60,
+    wait:a.label==='WAIT',trusted:a.confidence==='높음',
+    previous,gap,end
+  };
+}
+function renderRadarDashboard(){
+  const rows=state.filtered.map(g=>{const a=analysis(g);return {g,a,s:radarSignals(g,a)}});
+  const sections=[
+    ['best','지금 사기 좋은 게임','이력이 충분한 BUY NOW · GOOD 판정','구매 근거'],
+    ['low','관측 최저가 도달','이력이 충분하고 현재 가격이 관측 최저가와 같거나 낮음','관측 최저'],
+    ['deepening','할인폭이 더 커진 게임','직전 할인 사이클보다 할인율이 높아진 게임','할인폭 확대'],
+    ['ending','할인 종료 임박','종료 시각이 확인된 할인 중 72시간 이내','종료까지'],
+    ['returning','오랜만에 다시 할인','관측된 비할인 구간 60일 이상 · 최근 7일 내 재할인','재할인'],
+    ['wait','지금은 기다릴 게임','이전 가격과 할인 패턴상 대기가 유리한 게임','대기 근거'],
+    ['trusted','데이터 충분 · 신뢰도 높음','할인 사이클 3회 이상 · 가격 변화점 5개 이상','높은 신뢰도']
+  ];
+  const groups=sections.map(([id,title,desc])=>({id,title,desc,items:rows.filter(r=>r.s[id]).sort((x,y)=>id==='ending'?x.s.end-y.s.end:y.a.score-x.a.score)}));
+  const reason=(r,id)=>id==='ending'?Math.ceil((r.s.end-Date.now())/3600000)+'시간 이내 · '+dateLabel(r.g.saleEndsAt):id==='deepening'?'-'+r.a.previousCycleBestDiscount+'% → -'+r.g.discountPercent+'%':id==='returning'?'관측 비할인 구간 '+Math.round(r.s.gap)+'일':id==='trusted'?'할인 '+r.a.saleCycles+'회 · 변화점 '+r.a.changePoints+'개':id==='low'?'관측 최저 '+won(r.a.low)+' · 신뢰도 '+r.a.confidence:r.a.short;
+  $('#dealList').innerHTML='<div class="radar-dashboard"><div class="ri-heading"><div><h2>Radar Intelligence</h2><p>현재 조건의 '+nf.format(rows.length)+'개 할인에서 구매 신호를 찾았습니다.</p></div></div><div class="ri-summary">'+[['구매 추천',groups[0].items.length],['관측 최저가',groups[1].items.length],['이력 축적 중',rows.filter(r=>r.a.confidence==='축적 중').length]].map(([label,n])=>'<div class="ri-stat"><span>'+label+'</span><strong>'+nf.format(n)+'</strong></div>').join('')+'</div><div class="ri-sections">'+groups.map(group=>'<section class="ri-section"><header><h3>'+group.title+'</h3><span>'+nf.format(group.items.length)+'개</span></header><p class="ri-description">'+group.desc+'</p>'+(group.items.length?group.items.slice(0,3).map(r=>'<button type="button" class="ri-game" data-ri-game="'+esc(keyFor(r.g))+'">'+coverMarkup(r.g)+'<span class="ri-game-copy"><b>'+esc(r.g.title)+'</b><strong>'+won(r.g.currentPrice)+' · -'+r.g.discountPercent+'%</strong><small>'+esc(reason(r,group.id))+'</small></span></button>').join(''):'<div class="ri-empty">확인된 조건을 충족하는 게임이 없습니다.</div>')+(group.items.length>3?'<button class="ri-show" data-ri-group="'+group.id+'">전체 '+nf.format(group.items.length)+'개 보기</button>':'')+'</section>').join('')+'</div><p class="ri-note">관측 최저가는 PS Radar가 확보한 이력 범위 기준입니다. 한 게임이 여러 신호에 포함될 수 있습니다. 미확인 종료일과 부족한 이력은 추천 근거에서 제외합니다.<br>'+ (state.dataSource==='live'?'수집 시각 ':'오프라인 데이터 · 수집 시각 ')+esc(timeLabel(state.generatedAt))+'</p></div>';
+  $('#loadMore').hidden=true;
+  $('[data-ri-game]').forEach(b=>b.addEventListener('click',()=>{const g=state.deals.find(x=>keyFor(x)===b.dataset.riGame);if(g)selectGame(g)}));
+  $('[data-ri-group]').forEach(b=>b.addEventListener('click',()=>{state.radarMode=b.dataset.riGroup;state.visible=60;applyFilters();$('#dealList').scrollTop=0;}));
+}
+
 function renderList(){
   const list=$('#dealList');$('#dealCount').textContent=`${nf.format(state.filtered.length)}개`;
+  if(state.nav==='radar'&&state.radarMode==='dashboard'){renderRadarDashboard();return;}
   const items=state.filtered.slice(0,state.visible);
   list.innerHTML=items.length?items.map(g=>{const a=analysis(g),k=keyFor(g),sel=state.selected&&keyFor(state.selected)===k;return `<article class="deal-card ${sel?'selected':''}" data-key="${esc(k)}">${coverMarkup(g)}<div class="deal-main"><div class="deal-title">${esc(g.title)}</div><div class="mini-tags">${miniTags(g)}</div><div class="deal-price"><span class="off">-${g.discountPercent}%</span><strong>${won(g.currentPrice)}</strong><del>${won(g.originalPrice)}</del></div></div><div class="deal-verdict"><span class="timing-mini ${a.tone}">${a.label}</span></div><div class="score-dot ${a.tone}" title="구매 타이밍 ${a.score}점">${a.score}</div></article>`}).join(''):`<div class="empty-state"><div class="radar-rings">◎</div><h2>조건에 맞는 할인이 없습니다</h2><p>검색어나 필터를 완화해 보세요.</p><div class="empty-actions"><button id="emptyClearSearch">검색 지우기</button><button id="emptyResetFilters">필터 초기화</button></div></div>`;
   $('#loadMore').hidden=state.visible>=state.filtered.length;bindList();$('#emptyClearSearch')?.addEventListener('click',()=>{$('#searchInput').value='';state.query='';state.visible=60;applyFilters()});$('#emptyResetFilters')?.addEventListener('click',()=>{resetAllFilters();applyFilters()});
@@ -697,7 +743,7 @@ function renderSectionContext(){
   const box=$('#sectionContext');
   if(state.query){box.hidden=false;box.innerHTML=`<strong>검색 “${esc(state.query)}”</strong> · 제목에 포함된 현재 할인 게임 ${nf.format(state.filtered.length)}개`;return}
   const radarCopy={best:'구매 타이밍 점수가 높은 할인만 추렸습니다.',low:'현재 가격이 관측 최저가권에 들어온 게임입니다.',wait:'과거 할인 패턴상 조금 더 기다릴 가치가 있는 게임입니다.',fresh:'최근 7일 안에 Radar에 새로 포착된 할인입니다.',deepening:'최근 할인 사이클에서 할인폭이 더 깊어지는 게임입니다.'};
-  const copy={discount:['현재 할인','PS Store에서 현재 할인 중인 게임 전체를 필터와 정렬로 탐색합니다.'],radar:['오늘의 Radar',radarCopy[state.radarMode]||radarCopy.best],trend:['가격 추세','가격 변화와 할인 사이클이 충분히 쌓인 게임을 우선 보여줍니다.'],my:['MY','찜한 게임의 현재 할인과 구매 타이밍을 빠르게 확인합니다.']}[state.nav];
+  const copy={discount:['현재 할인','PS Store에서 현재 할인 중인 게임 전체를 필터와 정렬로 탐색합니다.'],radar:['오늘의 Radar',state.radarMode==='dashboard'?'가격 이력에 근거한 구매 신호를 한눈에 확인하세요.':(radarCopy[state.radarMode]||radarCopy.best)],trend:['가격 추세','가격 변화와 할인 사이클이 충분히 쌓인 게임을 우선 보여줍니다.'],my:['MY','찜한 게임의 현재 할인과 구매 타이밍을 빠르게 확인합니다.']}[state.nav];
   if(!copy){box.hidden=true;return}box.hidden=state.nav==='discount';box.innerHTML=`<strong>${copy[0]}</strong> · ${copy[1]}`;
 }
 function setRefreshBusy(busy,status=''){
