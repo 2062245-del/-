@@ -1,0 +1,55 @@
+name: PS Radar 2.2.8 Game Metadata
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'ps-radar/scripts/build-deal-meta-v228.mjs'
+      - '.github/workflows/ps-radar-v228-meta.yml'
+      - 'ps-radar/data/deals-auto.json'
+      - 'ps-radar/data/deal-release-v180.json'
+      - 'ps-radar/data/store-auto.json'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ps-radar-v228-meta
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+      - name: Build unified deal metadata
+        run: node ps-radar/scripts/build-deal-meta-v228.mjs
+      - name: Validate metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const fs=require('fs');
+          const p='ps-radar/data/deal-meta-v228.json';
+          const j=JSON.parse(fs.readFileSync(p,'utf8'));
+          if(!j.health?.safeToMerge) throw new Error('metadata not safe');
+          if((j.health.itemCount||0)<2000) throw new Error('metadata item count too small');
+          if((j.health.releaseDateCount||0)<1500) throw new Error('release date coverage too small');
+          console.log('metadata OK',j.health);
+          NODE
+      - name: Commit metadata snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "$(git status --porcelain -- ps-radar/data/deal-meta-v228.json)" ]; then exit 0; fi
+          git config user.name 'PS Radar Automation'
+          git config user.email 'actions@users.noreply.github.com'
+          git add ps-radar/data/deal-meta-v228.json
+          git commit -m 'Refresh PS Radar 2.2.8 game metadata'
+          git push origin HEAD:main
