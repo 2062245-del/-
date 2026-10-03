@@ -34,25 +34,22 @@ jobs:
         run: |
           set -euo pipefail
           test -s ps-radar/preview-v2/index.html
-          test -s ps-radar/data/deal-meta-v228.json
           test -s ps-radar/data/game-info-v229.json
           python3 - <<'PY'
           from pathlib import Path
           import json
           html=Path('ps-radar/preview-v2/index.html').read_text(encoding='utf-8')
-          meta=json.loads(Path('ps-radar/data/deal-meta-v228.json').read_text(encoding='utf-8'))
           info=json.loads(Path('ps-radar/data/game-info-v229.json').read_text(encoding='utf-8'))
           checks={
             'app title':'PS Radar' in html,
-            'supported version':('2.2.8' in html or '2.2.9' in html),
+            '2.2.9 version':'2.2.9' in html,
             'refresh':'refreshBtn' in html,
             'Samsung IME fallback':'composeKoreanJamo' in html,
             'text search input':'enterkeyhint="search"' in html,
             'Fold wide search':'grid-column:1/-1' in html,
             'observed history labels':'관측 최대 할인' in html and '역대 최대 할인' not in html,
-            'metadata fetch':('deal-meta-v228.json' in html or 'game-info-v229.json' in html),
-            'expanded game info':'게임정보 갱신' in html and '가격 이력 범위' in html,
-            'fallback metadata safe':meta.get('health',{}).get('safeToMerge') is True,
+            'official metadata fetch':'game-info-v229.json' in html,
+            'expanded game info':'게임정보 갱신' in html and 'PS Store 공식 설명 보기' in html,
             'official game info safe':info.get('health',{}).get('safeToMerge') is True,
             'official game info count':info.get('health',{}).get('itemCount',0)>=1700,
             'genre coverage':info.get('health',{}).get('genreCount',0)>=1700,
