@@ -10,9 +10,12 @@ const browser=await chromium.launch({headless:true});
 const context=await browser.newContext({locale:'ko-KR',timezoneId:'Asia/Seoul'});
 const page=await context.newPage();
 await page.goto('https://store.playstation.com/ko-kr/pages/browse',{waitUntil:'domcontentloaded',timeout:90000});
+await page.waitForSelector('.psw-product-tile',{timeout:60000});
 await page.getByRole('button',{name:'정렬 및 필터 옵션',exact:false}).click();
+const platformButton=page.getByRole('button',{name:/플랫폼에 대한 필터링/});
+if(!await page.getByRole('checkbox',{name:'PS5',exact:true}).isVisible())await platformButton.click();
 await page.getByRole('checkbox',{name:'PS5',exact:true}).check();
-await page.waitForFunction(()=>document.body.innerText.includes('총 ')&&document.querySelectorAll('.psw-product-tile').length>0,{timeout:60000});
+await page.waitForFunction(()=>document.body.innerText.includes('총 ')&&document.querySelectorAll('.psw-product-tile').length>0,null,{timeout:60000});
 const discovered=new Map();let total=0,pages=0;
 while(true){
  const data=await page.evaluate(()=>{
@@ -52,7 +55,7 @@ async function processConcept(row){
  if(!qualified&&!future)return;
  const editions=await callOfficial('editions',row.conceptId,2);const es=editions.data?.editionSelectionsRetrieveByConceptId||[];
  for(const e of es){
-  if(!e.id.includes('PPSA')||excluded.test(e.name||''))continue;
+  if(!/(PPSA|CUSA)/.test(e.id)||excluded.test(e.name||''))continue;
   const p=(await callOfficial('productPrice',e.id,2)).data?.productRetrieve;if(!p)continue;
   const price=actualPurchasePrice(p);if(!(price.currentPrice>0))continue;
   const m=await details(e.id);const kind=m.topCategory==='GAME'&&['FULL_GAME','GAME_BUNDLE'].includes(m.classification)?'base':m.topCategory==='GAME'&&m.classification==='PREMIUM_EDITION'?'edition':m.topCategory==='ADD_ON'&&m.classification==='LEVEL'?'expansion':null;
@@ -62,7 +65,7 @@ async function processConcept(row){
   const isFuture=Date.parse(date)>Date.now();if(isFuture&&!(qualified||publisherAllow.test(m.publisher||'')))continue;
   const cart=p.webctas?.some(x=>x.type==='ADD_TO_CART'&&x.price&&!x.price.isTiedToSubscription);
   if(!isFuture&&(!qualified||pre||!cart))continue;
-  const item={id:'store-'+e.id,productId:e.id,conceptId:row.conceptId,catalogGroupId:'concept:'+row.conceptId,title:e.name.replace(/\s*\([^)]*(한국어|영어|중국어|일본어)[^)]*\)\s*$/,'').trim(),groupTitle:row.title,image:row.image,store:'https://store.playstation.com/ko-kr/product/'+e.id,platform:m.platforms?.includes('PS5')?m.platforms:['PS5'],genre:m.genres||[],ko:/한국어/.test(e.name),kind,edition:e.edition?.name||m.edition||null,publisher:m.publisher||null,releaseDate:date,rating,ratingCount:count,...price,saleEndsAt:price.saleEndsAt?new Date(Number(price.saleEndsAt)||price.saleEndsAt).toISOString():null,fetchedAt:now,upcoming:isFuture,releasedConfirmed:!isFuture&&cart&&!pre,releaseEvidence:!isFuture?'official-add-to-cart-and-release-date':'official-future-release-date',source:'playstation-store-official-graphql'};
+  const item={id:'store-'+e.id,productId:e.id,conceptId:row.conceptId,catalogGroupId:'concept:'+row.conceptId,title:e.name.replace(/\s*\([^)]*(한국어|영어|중국어|일본어)[^)]*\)\s*$/,'').trim(),groupTitle:row.title,image:row.image,store:'https://store.playstation.com/ko-kr/product/'+e.id,platform:m.platforms?.length?m.platforms:[e.id.includes('PPSA')?'PS5':'PS4'],comparisonOnly:!e.id.includes('PPSA'),genre:m.genres||[],ko:/한국어/.test(e.name),kind,edition:e.edition?.name||m.edition||null,publisher:m.publisher||null,releaseDate:date,rating,ratingCount:count,...price,saleEndsAt:price.saleEndsAt?new Date(Number(price.saleEndsAt)||price.saleEndsAt).toISOString():null,fetchedAt:now,upcoming:isFuture,releasedConfirmed:!isFuture&&cart&&!pre,releaseEvidence:!isFuture?'official-add-to-cart-and-release-date':'official-future-release-date',source:'playstation-store-official-graphql'};
   (isFuture?upcoming:products).push(item);
  }
 }
