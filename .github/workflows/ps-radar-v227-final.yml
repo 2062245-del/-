@@ -2,10 +2,6 @@ name: Build PS Radar 2.2.7 Final APK
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/ps-radar-v227-final.yml'
 
 concurrency:
   group: ps-radar-v227-final
