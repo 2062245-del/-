@@ -42,7 +42,7 @@ async function callOfficial(opKey,value,maxAttempts=5){
   const cfg=OPS[opKey]; let last;
   for(let attempt=0;attempt<maxAttempts;attempt++){
     try{
-      const r=await fetch(endpoint(opKey,value),{headers:STORE_HEADERS});
+      const r=await fetch(endpoint(opKey,value),{headers:STORE_HEADERS,signal:AbortSignal.timeout(25000)});
       if(r.status===429||r.status>=500){last=new Error(`${cfg.op} HTTP ${r.status}`);await sleep(900*(attempt+1));continue;}
       if(!r.ok){
         const snippet=(await r.text().catch(()=>'' )).slice(0,500).replace(/\s+/g,' ');
