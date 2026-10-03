@@ -17,12 +17,13 @@ const ps5=page.locator('[id="targetPlatforms:PS5"]');
 if(!await ps5.isVisible())await platformButton.click();
 await ps5.click();
 await page.waitForFunction(()=>document.querySelector('[id="targetPlatforms:PS5"]')?.getAttribute('aria-pressed')==='true');
-await page.waitForFunction(()=>document.body.innerText.includes('총 ')&&document.querySelectorAll('.psw-product-tile').length>0,null,{timeout:60000});
+await page.waitForTimeout(1200);
+await page.waitForFunction(()=>/\d[\d,]*개의\s*결과/.test(document.body.innerText)&&document.querySelectorAll('.psw-product-tile').length>0,null,{timeout:60000});
 const discovered=new Map();let total=0,pages=0;
 while(true){
  const data=await page.evaluate(()=>{
   const rows=[...document.querySelectorAll('.psw-product-tile')].map(tile=>{const a=tile.querySelector('a[href*="/concept/"]');if(!a)return null;const img=tile.querySelector('img');return {conceptId:a.href.split('/').pop(),title:a.textContent.trim(),store:a.href,image:img?.currentSrc||img?.src||null,listingText:tile.innerText};}).filter(Boolean);
-  const match=document.body.innerText.match(/총\s*([\d,]+)개의\s*결과/);return {rows,total:match?Number(match[1].replaceAll(',','')):0};
+  const match=document.body.innerText.match(/(?:총\s*|\/)([\d,]+)개의\s*결과/);return {rows,total:match?Number(match[1].replaceAll(',','')):0};
  });
  if(!data.rows.length)throw new Error('Empty listing page; previous dataset preserved');
  total=data.total||total;pages++;for(const x of data.rows)discovered.set(x.conceptId,x);
@@ -34,7 +35,7 @@ while(true){
  if(pages>500)throw new Error('Pagination limit exceeded');
 }
 await browser.close();
-if(discovered.size<total*.95)throw new Error(`Incomplete scan ${discovered.size}/${total}`);
+if(!(total>0)||discovered.size<total*.95)throw new Error(`Incomplete scan ${discovered.size}/${total}`);
 await fs.writeFile(root+'store-discovery-v232.json',JSON.stringify({generatedAt:now,health:{safeToMerge:true,itemCount:discovered.size,total,pages},items:[...discovered.values()]},null,2)+'\n');
 const pool=[...discovered.values()],products=[],upcoming=[],links={},failures=[];let cursor=0;
 const excluded=/(체험판|demo\b|trial\b|시즌\s*패스|season\s*pass|사운드트랙|soundtrack|스킨|skin\b|의상|costume|코인|coins?\b|포인트|points?\b|아바타|avatar)/i;
