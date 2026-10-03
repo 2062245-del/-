@@ -1,0 +1,53 @@
+name: PS Radar 2.2.9 Game Info Probe
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'ps-radar/scripts/enrich-deal-game-info-v229.mjs'
+      - '.github/workflows/ps-radar-v229-game-info-probe.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+      - name: Validate script
+        run: node --check ps-radar/scripts/enrich-deal-game-info-v229.mjs
+      - name: Probe Gran Turismo 7 official metadata
+        env:
+          GAME_INFO_MATCH: '그란 투리스모 7'
+          GAME_INFO_LIMIT: '4'
+          GAME_INFO_CONCURRENCY: '2'
+          GAME_INFO_OUT: 'ps-radar/data/game-info-v229-probe.json'
+        run: node ps-radar/scripts/enrich-deal-game-info-v229.mjs
+      - name: Validate GT7 enrichment
+        shell: bash
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const fs=require('fs');
+          const j=JSON.parse(fs.readFileSync('ps-radar/data/game-info-v229-probe.json','utf8'));
+          if(!j.health?.safeToMerge) throw new Error('probe unsafe');
+          const rows=j.items||[];
+          const gt=rows.find(x=>/그란 투리스모 7/.test(x.title));
+          if(!gt) throw new Error('GT7 missing');
+          const required={releaseDate:gt.releaseDate,genre:gt.genres?.length,contentRating:gt.contentRating,edition:gt.edition,description:gt.longDescription||gt.shortDescription};
+          console.log('GT7_METADATA',JSON.stringify(gt,null,2));
+          console.log('GT7_REQUIRED',required);
+          if(!required.releaseDate||!required.genre||!required.contentRating||!required.edition||!required.description) throw new Error('critical GT7 metadata still missing');
+          NODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ps-radar-v229-game-info-probe
+          path: ps-radar/data/game-info-v229-probe.json
+          retention-days: 3
