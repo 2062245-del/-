@@ -35,29 +35,36 @@ jobs:
           set -euo pipefail
           test -s ps-radar/preview-v2/index.html
           test -s ps-radar/data/deal-meta-v228.json
+          test -s ps-radar/data/game-info-v229.json
           python3 - <<'PY'
           from pathlib import Path
           import json
           html=Path('ps-radar/preview-v2/index.html').read_text(encoding='utf-8')
           meta=json.loads(Path('ps-radar/data/deal-meta-v228.json').read_text(encoding='utf-8'))
+          info=json.loads(Path('ps-radar/data/game-info-v229.json').read_text(encoding='utf-8'))
           checks={
             'app title':'PS Radar' in html,
-            '2.2.8 version':'2.2.8' in html,
+            'supported version':('2.2.8' in html or '2.2.9' in html),
             'refresh':'refreshBtn' in html,
             'Samsung IME fallback':'composeKoreanJamo' in html,
             'text search input':'enterkeyhint="search"' in html,
             'Fold wide search':'grid-column:1/-1' in html,
             'observed history labels':'관측 최대 할인' in html and '역대 최대 할인' not in html,
-            'metadata fetch':'deal-meta-v228.json' in html,
+            'metadata fetch':('deal-meta-v228.json' in html or 'game-info-v229.json' in html),
             'expanded game info':'게임정보 갱신' in html and '가격 이력 범위' in html,
-            'metadata safe':meta.get('health',{}).get('safeToMerge') is True,
-            'metadata count':meta.get('health',{}).get('itemCount',0)>=2000,
-            'release coverage':meta.get('health',{}).get('releaseDateCount',0)>=1500,
+            'fallback metadata safe':meta.get('health',{}).get('safeToMerge') is True,
+            'official game info safe':info.get('health',{}).get('safeToMerge') is True,
+            'official game info count':info.get('health',{}).get('itemCount',0)>=1700,
+            'genre coverage':info.get('health',{}).get('genreCount',0)>=1700,
+            'publisher coverage':info.get('health',{}).get('publisherCount',0)>=1700,
+            'rating coverage':info.get('health',{}).get('ratingCount',0)>=1700,
+            'content rating coverage':info.get('health',{}).get('contentRatingCount',0)>=1700,
+            'description coverage':info.get('health',{}).get('descriptionCount',0)>=1700,
             'full build':len(html)>20000,
           }
           bad=[k for k,v in checks.items() if not v]
           if bad: raise SystemExit('preview validation failed: '+', '.join(bad))
-          print('preview build OK',len(html),checks,meta.get('health'))
+          print('preview build OK',len(html),checks,info.get('health'))
           PY
 
       - name: Build Pages artifact
