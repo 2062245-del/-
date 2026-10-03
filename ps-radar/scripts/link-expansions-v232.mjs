@@ -24,9 +24,9 @@ await Promise.all(Array.from({length:5},async()=>{while(true){const i=cursor++;i
   const level=p.storeDisplayClassification==='LEVEL';
   const pack=p.storeDisplayClassification==='ADD_ON_PACK'&&/(확장팩|확장\s*콘텐츠|스토리\s*DLC|캠페인|(?:새로운|신규|추가).{0,45}(?:스토리|지역|퀘스트|미션|레이스|보스))/i.test(description);
   if(!level&&!pack){pending.push({productId:pid,parent:base.conceptId,title:p.name,classification:p.storeDisplayClassification});continue;}
-  const price=actualPurchasePrice((await callOfficial('productPrice',pid,2)).data?.productRetrieve);if(!(price.currentPrice>0))continue;
+  const liveProduct=(await callOfficial('productPrice',pid,2)).data?.productRetrieve;const price=actualPurchasePrice(liveProduct);if(!(price.currentPrice>0))continue;
   const releaseDate=p.releaseDate;if(!Number.isFinite(Date.parse(releaseDate)))continue;
-  const future=Date.parse(releaseDate)>Date.now();
+  const future=Date.parse(releaseDate)>Date.now();const cart=liveProduct?.webctas?.some(x=>x.type==='ADD_TO_CART'&&x.price&&!x.price.isTiedToSubscription);const preorder=liveProduct?.webctas?.some(x=>/PRE.?ORDER/i.test(x.type||''));if(!future&&(!cart||preorder))continue;
   const item={...base,id:'store-'+pid,productId:pid,title:p.name.replace(/\s*\([^)]*(한국어|영어|중국어|일본어)[^)]*\)\s*$/,'').trim(),store:'https://store.playstation.com/ko-kr/product/'+pid,image:p.media?.find(x=>x.role==='EDITION_KEY_ART')?.url||tile.boxArt?.url||base.image,platform:p.platforms||['PS5'],kind:'expansion',edition:null,releaseDate,upcoming:future,releasedConfirmed:!future,rating:Number(p.starRating?.averageRating)||null,ratingCount:Number(p.starRating?.totalRatingsCount)||0,selectionEvidence:'qualified-parent-game',expansionEvidence:level?'official-LEVEL':'official-ADD_ON_PACK-gameplay-description',...price,saleEndsAt:price.saleEndsAt?new Date(Number(price.saleEndsAt)||price.saleEndsAt).toISOString():null,fetchedAt:new Date().toISOString()};
   additions.push(item);data.links[base.conceptId]=[...new Set([...(data.links[base.conceptId]||[]),pid])];
  }
