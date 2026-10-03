@@ -1,4 +1,4 @@
-name: Deploy PS Radar 2.2.8 Preview
+name: Deploy PS Radar 2.2.9 Preview
 
 on:
   push:
@@ -18,7 +18,7 @@ jobs:
         with:
           ref: main
 
-      - name: Patch current approved preview to 2.2.8
+      - name: Patch current approved preview to 2.2.9
         shell: bash
         run: |
           set -euo pipefail
@@ -27,36 +27,14 @@ jobs:
           import re
           p=Path('ps-radar/preview-v2/index.html')
           s=p.read_text(encoding='utf-8')
-          assert 'PS Radar 2.2.7' in s or 'PS Radar 2.2.8' in s
-          s=s.replace('PS Radar 2.2.7','PS Radar 2.2.8').replace('>2.2.7<','>2.2.8<')
-          s=s.replace('>역대 최저가<','>관측 최저가<').replace('>최저가 근접 순<','>관측 최저가 근접 순<')
-          s=s.replace('역대 최대 할인','관측 최대 할인').replace('최저가 대비 차이','관측 최저가 대비')
+          assert 'PS Radar 2.2.8' in s or 'PS Radar 2.2.9' in s
+          s=s.replace('PS Radar 2.2.8','PS Radar 2.2.9').replace('>2.2.8<','>2.2.9<')
+          s=s.replace('deal-meta-v228.json','game-info-v229.json')
 
-          old="const state={deals:[],trends:{},history:{},store:new Map(),filtered:[],selected:null"
-          if old in s:s=s.replace(old,"const state={deals:[],trends:{},history:{},store:new Map(),meta:new Map(),filtered:[],selected:null",1)
-          assert 'meta:new Map()' in s
-
-          marker="function storeInfo(g){return state.store.get(cleanStore(g.store))||state.store.get(g.productId)||null}"
-          if 'function metaMap(items)' not in s:
-            assert marker in s
-            s=s.replace(marker,marker+"\nfunction metaMap(items){const m=new Map();for(const x of items||[]){for(const k of [x.id,x.productId,cleanStore(x.store)].filter(Boolean))m.set(String(k),x)}return m}\nfunction metaInfo(g){return state.meta.get(String(g.id||''))||state.meta.get(String(g.productId||''))||state.meta.get(cleanStore(g.store))||null}",1)
-
-          old_load="const [dealsRes,trendsRes,historyRes,storeRes]=await Promise.all([fetchDataFile('deals-auto.json',{force}),fetchDataFile('deal-trends.json',{force,optional:true}),fetchDataFile('deal-history.json',{force,optional:true}),fetchDataFile('store-auto.json',{force,optional:true})]);"
-          new_load="const [dealsRes,trendsRes,historyRes,storeRes,metaRes]=await Promise.all([fetchDataFile('deals-auto.json',{force}),fetchDataFile('deal-trends.json',{force,optional:true}),fetchDataFile('deal-history.json',{force,optional:true}),fetchDataFile('store-auto.json',{force,optional:true}),fetchDataFile('deal-meta-v228.json',{force,optional:true})]);"
-          if old_load in s:s=s.replace(old_load,new_load,1)
-          if "state.store=storeMap(storeRes.json?.items||[]);state.generatedAt=" in s:
-            s=s.replace("state.store=storeMap(storeRes.json?.items||[]);state.generatedAt=","state.store=storeMap(storeRes.json?.items||[]);state.meta=metaMap(metaRes.json?.items||[]);state.generatedAt=",1)
-          assert 'deal-meta-v228.json' in s and 'state.meta=metaMap' in s
-
-          s=s.replace("toast('최신 할인·가격 이력·추세를 동기화합니다')","toast('최신 할인·가격 이력·추세·게임 정보를 동기화합니다')")
-          s=s.replace("const a=analysis(g),s=storeInfo(g);$('#detailContent').hidden=false;","const a=analysis(g),s=storeInfo(g),m=metaInfo(g);$('#detailContent').hidden=false;",1)
-          s=s.replace("$('#heroMaker').textContent=s?.publisherName||s?.publisher||'PlayStation Store';","$('#heroMaker').textContent=m?.publisher||s?.publisherName||s?.publisher||'PlayStation Store';",1)
-          s=s.replace("...(g.genre||[]).slice(0,2)","...((m?.genres?.length?m.genres:g.genre)||[]).slice(0,2)",1)
-          s=s.replace('renderGameInfo(g,a,s);renderReview(g,s);renderSimilar(g);','renderGameInfo(g,a,s,m);renderReview(g,s);renderSimilar(g);',1)
-
-          pat=re.compile(r"function renderGameInfo\(g,a,s\)\{.*?\n\}\nfunction renderReview",re.S)
+          pat=re.compile(r"function renderGameInfo\(g,a,s,m\)\{.*?\n\}\nfunction renderReview",re.S)
           repl=r'''function renderGameInfo(g,a,s,m){
-            const end=g.saleEndsAt?dateLabel(g.saleEndsAt):'미확인';
+            const endSource=m?.saleEndsAt||g.saleEndsAt;
+            const end=endSource?dateLabel(endSource):'미확인';
             const platforms=(m?.platforms?.length?m.platforms:displayPlatforms(g));
             const plat=platforms.join(' · ')||'미확인';
             const product=m?.productId||g.productId||String(g.store||'').split('/').pop()||'미확인';
@@ -65,35 +43,48 @@ jobs:
             const genres=(m?.genres||[]).filter(Boolean).join(' · ')||'미확인';
             const edition=m?.edition||editionLabel(g)||'기본 / 미확인';
             const publisher=m?.publisher||s?.publisherName||s?.publisher||'미확인';
-            const productType=m?.productType||'게임';
-            const lang=m?.screenLanguages||s?.screenLanguages||'미확인';
+            const typeMap={GAME:'게임',FULL_GAME:'게임',BUNDLE:'게임 번들',ADD_ON:'추가 콘텐츠',AVATAR:'아바타'};
+            const productType=typeMap[String(m?.productType||'').toUpperCase()]||m?.productType||'게임';
+            const langRaw=m?.screenLanguages??s?.screenLanguages;
+            const lang=Array.isArray(langRaw)?(langRaw.join(' · ')||'미확인'):(langRaw||'미확인');
             const ko=(m?.ko===true||g.ko===true)?'지원 확인':'미확인';
             const cr=String(m?.contentRating||'');
             const ratingMap={SKOREA_ALL:'전체 이용가',SKOREA_12:'12세 이용가',SKOREA_15:'15세 이용가',SKOREA_18:'청소년 이용불가'};
             const age=ratingMap[cr]||cr||'미확인';
             const metaDate=m?.fetchedAt?new Date(m.fetchedAt).toLocaleDateString('ko-KR'):'미확인';
+            const descText=m?.longDescription||m?.shortDescription||m?.description||'';
             const features=[];
-            if(m?.plusIncluded)features.push(`PS Plus ${m.plusTier||''}`.trim());
-            if(m?.psPlusOnlineRequired===true)features.push('온라인 PS Plus 필요');
-            if(m?.onlinePlayers)features.push(`온라인 최대 ${m.onlinePlayers}명`);
-            if(m?.offlinePlayers)features.push(`오프라인 ${m.offlinePlayers}명`);
-            if(m?.vr2===true)features.push('PS VR2');
-            if(m?.dualSense===true)features.push('DualSense 기능');
-            for(const f of m?.features||[])if(f&&!features.includes(f))features.push(f);
-            const featureHtml=features.length?`<div class="info-card"><h3>플레이 기능</h3><div class="tag-row">${features.slice(0,8).map(x=>`<span class="tag">${esc(x)}</span>`).join('')}</div></div>`:'';
-            const desc=m?.description?`<div class="info-card"><h3>PS Store 설명</h3><p>${esc(m.description)}</p></div>`:'';
-            $('#gameInfoContent').innerHTML=`<div class="info-card"><h3>${esc(g.title)}${edition?` <small>· ${esc(edition)}</small>`:''}</h3><p>공식 PlayStation Store 상품 정보와 PS Radar 메타데이터를 합쳐 표시합니다. 확인되지 않은 정보는 추정하지 않습니다.</p></div><div class="info-grid"><div class="info-kv"><small>출시일</small><b>${esc(release)}</b></div><div class="info-kv"><small>플랫폼</small><b>${esc(plat)}</b></div><div class="info-kv"><small>에디션</small><b>${esc(edition)}</b></div><div class="info-kv"><small>상품 유형</small><b>${esc(productType)}</b></div><div class="info-kv"><small>장르</small><b>${esc(genres)}</b></div><div class="info-kv"><small>퍼블리셔</small><b>${esc(publisher)}</b></div><div class="info-kv"><small>한국어</small><b>${esc(ko)}</b></div><div class="info-kv"><small>스크린 언어</small><b>${esc(lang)}</b></div><div class="info-kv"><small>이용등급</small><b>${esc(age)}</b></div><div class="info-kv"><small>Store 평점</small><b>${Number.isFinite(rating)&&rating>0?`${rating.toFixed(2)} / 5${Number.isFinite(ratingCount)&&ratingCount>0?` · ${nf.format(ratingCount)}건`:''}`:'미확인'}</b></div><div class="info-kv"><small>할인 종료</small><b>${esc(end)}</b></div><div class="info-kv"><small>PS Store 상품 ID</small><b class="product-id">${esc(product)}</b></div><div class="info-kv"><small>게임정보 갱신</small><b>${esc(metaDate)}</b></div><div class="info-kv"><small>가격정보 수집</small><b>${esc(lastCollected(g))}</b></div><div class="info-kv"><small>가격 이력 범위</small><b>PS Radar 관측 기준</b></div><div class="info-kv"><small>이력 신뢰도</small><b>${esc(a.confidence)}</b></div></div>${featureHtml}${desc}`;
+            const accessibilityMap={
+              THREE_D_AUDIO:'3D 오디오',VOLUME_CONTROLS:'볼륨 조절',CONTROLLER_REMAPPING:'버튼 재배치',
+              ADJUSTABLE_DIFFICULTY:'난이도 조절',PRACTICE_MODE:'연습 모드',GAME_PAUSING:'일시정지',
+              TEXT_CHAT_TRANSCRIPTION:'텍스트 채팅 변환',PLAYABLE_WITHOUT_ADAPTIVE_TRIGGER_EFFECT:'적응형 트리거 설정 가능'
+            };
+            for(const f of m?.features||[]){
+              const parts=String(f).split(':');const code=parts[1],val=parts[2];
+              if(val==='TRUE'&&accessibilityMap[code]&&!features.includes(accessibilityMap[code]))features.push(accessibilityMap[code]);
+            }
+            if(/PlayStation.?VR2|PS.?VR2/i.test(descText)&&!features.includes('PS VR2'))features.push('PS VR2');
+            if(/DualSense|적응형 트리거/i.test(descText)&&!features.includes('DualSense 기능'))features.push('DualSense 기능');
+            if(/4K/i.test(descText)&&!features.includes('4K'))features.push('4K');
+            if(/3D Audio|3D 오디오/i.test(descText)&&!features.includes('3D 오디오'))features.push('3D 오디오');
+            const featureHtml=features.length?`<div class="info-card"><h3>플레이 기능</h3><div class="tag-row">${features.slice(0,10).map(x=>`<span class="tag">${esc(x)}</span>`).join('')}</div></div>`:'';
+            const desc=descText?`<details class="info-card store-desc-card"><summary>PS Store 공식 설명 보기</summary><p>${esc(descText)}</p></details>`:'';
+            const recentLow=m?.lowestRecentPriceText?`<div class="info-kv"><small>최근 가격 참고</small><b>${esc(m.lowestRecentPriceText)}</b></div>`:'';
+            $('#gameInfoContent').innerHTML=`<div class="info-card"><h3>${esc(g.title)}${edition?` <small>· ${esc(edition)}</small>`:''}</h3><p>공식 PlayStation Store 상품 정보를 우선 사용합니다. 확인되지 않은 정보는 추정하지 않습니다.</p></div><div class="info-grid"><div class="info-kv"><small>출시일</small><b>${esc(release)}</b></div><div class="info-kv"><small>플랫폼</small><b>${esc(plat)}</b></div><div class="info-kv"><small>에디션</small><b>${esc(edition)}</b></div><div class="info-kv"><small>상품 유형</small><b>${esc(productType)}</b></div><div class="info-kv"><small>장르</small><b>${esc(genres)}</b></div><div class="info-kv"><small>퍼블리셔</small><b>${esc(publisher)}</b></div><div class="info-kv"><small>한국어</small><b>${esc(ko)}</b></div><div class="info-kv"><small>스크린 언어</small><b>${esc(lang)}</b></div><div class="info-kv"><small>이용등급</small><b>${esc(age)}</b></div><div class="info-kv"><small>Store 평점</small><b>${Number.isFinite(rating)&&rating>0?`${rating.toFixed(2)} / 5${Number.isFinite(ratingCount)&&ratingCount>0?` · ${nf.format(ratingCount)}건`:''}`:'미확인'}</b></div><div class="info-kv"><small>할인 종료</small><b>${esc(end)}</b></div><div class="info-kv"><small>PS Store 상품 ID</small><b class="product-id">${esc(product)}</b></div>${recentLow}<div class="info-kv"><small>게임정보 갱신</small><b>${esc(metaDate)}</b></div><div class="info-kv"><small>가격정보 수집</small><b>${esc(lastCollected(g))}</b></div><div class="info-kv"><small>가격 이력 범위</small><b>PS Radar 관측 기준</b></div><div class="info-kv"><small>이력 신뢰도</small><b>${esc(a.confidence)}</b></div></div>${featureHtml}${desc}`;
           }
           function renderReview'''
-          if 'function renderGameInfo(g,a,s,m)' not in s:
-            s,n=pat.subn(repl,s,count=1)
-            assert n==1, f'renderGameInfo replacement failed {n}'
-          assert 'renderGameInfo(g,a,s,m)' in s
-          assert 'PS Radar 2.2.8' in s and 'deal-meta-v228.json' in s
-          assert '출시일' in s and 'PS Radar 관측 기준' in s
-          assert '역대 최대 할인' not in s and '역대 최저가' not in s
+          s,n=pat.subn(repl,s,count=1)
+          assert n==1, f'renderGameInfo replacement failed {n}'
+
+          css='''\n/* === v2.2.9 official game info === */\n.store-desc-card{margin-top:12px}.store-desc-card summary{cursor:pointer;font-weight:800;font-size:15px;color:#eaf7ff;list-style:none}.store-desc-card summary::-webkit-details-marker{display:none}.store-desc-card summary:after{content:'  ▾';color:#39b9ff}.store-desc-card[open] summary:after{content:'  ▴'}.store-desc-card p{margin-top:12px;line-height:1.65;white-space:pre-line;color:#a9bdd0}\n'''
+          if 'v2.2.9 official game info' not in s:s=s.replace('</style>',css+'</style>',1)
+
+          assert 'PS Radar 2.2.9' in s
+          assert 'game-info-v229.json' in s
+          assert 'PS Store 공식 설명 보기' in s
+          assert '드라이빙/레이싱' not in s  # data-driven, never hard-coded
           p.write_text(s,encoding='utf-8')
-          print('PS Radar 2.2.8 preview patched',len(s.encode('utf-8')))
+          print('PS Radar 2.2.9 preview patched',len(s.encode('utf-8')))
           PY
 
           python3 - <<'PY'
@@ -101,13 +92,13 @@ jobs:
           import re
           s=Path('ps-radar/preview-v2/index.html').read_text(encoding='utf-8')
           scripts=re.findall(r'<script>(.*?)</script>',s,re.S)
-          Path('/tmp/psradar-v228.js').write_text(scripts[-1],encoding='utf-8')
+          Path('/tmp/psradar-v229.js').write_text(scripts[-1],encoding='utf-8')
           PY
-          node --check /tmp/psradar-v228.js
-          grep -q 'PS Radar 2.2.8' ps-radar/preview-v2/index.html
-          grep -q 'deal-meta-v228.json' ps-radar/preview-v2/index.html
+          node --check /tmp/psradar-v229.js
+          grep -q 'PS Radar 2.2.9' ps-radar/preview-v2/index.html
+          grep -q 'game-info-v229.json' ps-radar/preview-v2/index.html
+          grep -q 'PS Store 공식 설명 보기' ps-radar/preview-v2/index.html
           grep -q '관측 최대 할인' ps-radar/preview-v2/index.html
-          grep -q '게임정보 갱신' ps-radar/preview-v2/index.html
 
       - name: Commit preview
         shell: bash
@@ -117,5 +108,6 @@ jobs:
           git config user.email 'actions@users.noreply.github.com'
           git add ps-radar/preview-v2/index.html
           git diff --cached --quiet && exit 0
-          git commit -m 'Deploy PS Radar 2.2.8 observed history and expanded game info preview'
+          git commit -m 'Deploy PS Radar 2.2.9 official game info preview'
+          git pull --rebase origin main
           git push origin HEAD:main
