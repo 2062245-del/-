@@ -1,4 +1,4 @@
-name: Deploy PS Radar 2.2.7 Preview Hotfix
+name: Deploy PS Radar 2.2.8 Preview
 
 on:
   push:
@@ -18,87 +18,82 @@ jobs:
         with:
           ref: main
 
-      - name: Build 2.2.7 standalone preview from verified 2.2.6 payload
+      - name: Patch current approved preview to 2.2.8
         shell: bash
         run: |
           set -euo pipefail
           python3 - <<'PY'
           from pathlib import Path
-          import base64,gzip,re
-          root=Path('ps-radar/preview-v2')
-          b64=''.join((root/f'payload{i}.txt').read_text().strip() for i in range(1,7))
-          html=gzip.decompress(base64.b64decode(b64)).decode('utf-8')
-          assert 'PS Radar' in html and '2.2.6' in html and 'compositionstart' in html
+          import re
+          p=Path('ps-radar/preview-v2/index.html')
+          s=p.read_text(encoding='utf-8')
+          assert 'PS Radar 2.2.7' in s or 'PS Radar 2.2.8' in s
+          s=s.replace('PS Radar 2.2.7','PS Radar 2.2.8').replace('>2.2.7<','>2.2.8<')
+          s=s.replace('>역대 최저가<','>관측 최저가<').replace('>최저가 근접 순<','>관측 최저가 근접 순<')
+          s=s.replace('역대 최대 할인','관측 최대 할인').replace('최저가 대비 차이','관측 최저가 대비')
 
-          html=html.replace('PS Radar 2.2.6','PS Radar 2.2.7').replace('>2.2.6<','>2.2.7<')
-          html=html.replace('<input id="searchInput" type="search" placeholder="게임명 검색..." autocomplete="off" />',
-                            '<input id="searchInput" type="text" placeholder="게임명 검색..." autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" enterkeyhint="search" />')
+          old="const state={deals:[],trends:{},history:{},store:new Map(),filtered:[],selected:null"
+          if old in s:s=s.replace(old,"const state={deals:[],trends:{},history:{},store:new Map(),meta:new Map(),filtered:[],selected:null",1)
+          assert 'meta:new Map()' in s
 
-          css=r'''
-          /* === v2.2.7 Fold search + Korean IME hardening === */
-          @media(min-width:600px) and (max-width:900px){
-            .deal-summary-row{display:grid!important;grid-template-columns:minmax(0,1fr) 86px!important;grid-template-rows:auto auto!important;gap:8px!important;margin-top:12px!important;align-items:center!important}
-            .deal-count-box{grid-column:1!important;grid-row:1!important;width:auto!important;height:48px!important}
-            .filter-toggle-btn{grid-column:2!important;grid-row:1!important;width:86px!important;height:48px!important;justify-content:center!important;gap:5px!important;font-size:13px!important}
-            .search-inline{grid-column:1/-1!important;grid-row:2!important;width:auto!important;height:52px!important;padding:0 13px!important;border-radius:12px!important}
-            .search-inline input{font-size:15px!important;min-width:0!important;width:100%!important}
-            .search-inline>span{font-size:21px!important}
-            .filter-strip{margin-top:10px!important}
+          marker="function storeInfo(g){return state.store.get(cleanStore(g.store))||state.store.get(g.productId)||null}"
+          if 'function metaMap(items)' not in s:
+            assert marker in s
+            s=s.replace(marker,marker+"\nfunction metaMap(items){const m=new Map();for(const x of items||[]){for(const k of [x.id,x.productId,cleanStore(x.store)].filter(Boolean))m.set(String(k),x)}return m}\nfunction metaInfo(g){return state.meta.get(String(g.id||''))||state.meta.get(String(g.productId||''))||state.meta.get(cleanStore(g.store))||null}",1)
+
+          old_load="const [dealsRes,trendsRes,historyRes,storeRes]=await Promise.all([fetchDataFile('deals-auto.json',{force}),fetchDataFile('deal-trends.json',{force,optional:true}),fetchDataFile('deal-history.json',{force,optional:true}),fetchDataFile('store-auto.json',{force,optional:true})]);"
+          new_load="const [dealsRes,trendsRes,historyRes,storeRes,metaRes]=await Promise.all([fetchDataFile('deals-auto.json',{force}),fetchDataFile('deal-trends.json',{force,optional:true}),fetchDataFile('deal-history.json',{force,optional:true}),fetchDataFile('store-auto.json',{force,optional:true}),fetchDataFile('deal-meta-v228.json',{force,optional:true})]);"
+          if old_load in s:s=s.replace(old_load,new_load,1)
+          if "state.store=storeMap(storeRes.json?.items||[]);state.generatedAt=" in s:
+            s=s.replace("state.store=storeMap(storeRes.json?.items||[]);state.generatedAt=","state.store=storeMap(storeRes.json?.items||[]);state.meta=metaMap(metaRes.json?.items||[]);state.generatedAt=",1)
+          assert 'deal-meta-v228.json' in s and 'state.meta=metaMap' in s
+
+          s=s.replace("toast('최신 할인·가격 이력·추세를 동기화합니다')","toast('최신 할인·가격 이력·추세·게임 정보를 동기화합니다')")
+          s=s.replace("const a=analysis(g),s=storeInfo(g);$('#detailContent').hidden=false;","const a=analysis(g),s=storeInfo(g),m=metaInfo(g);$('#detailContent').hidden=false;",1)
+          s=s.replace("$('#heroMaker').textContent=s?.publisherName||s?.publisher||'PlayStation Store';","$('#heroMaker').textContent=m?.publisher||s?.publisherName||s?.publisher||'PlayStation Store';",1)
+          s=s.replace("...(g.genre||[]).slice(0,2)","...((m?.genres?.length?m.genres:g.genre)||[]).slice(0,2)",1)
+          s=s.replace('renderGameInfo(g,a,s);renderReview(g,s);renderSimilar(g);','renderGameInfo(g,a,s,m);renderReview(g,s);renderSimilar(g);',1)
+
+          pat=re.compile(r"function renderGameInfo\(g,a,s\)\{.*?\n\}\nfunction renderReview",re.S)
+          repl=r'''function renderGameInfo(g,a,s,m){
+            const end=g.saleEndsAt?dateLabel(g.saleEndsAt):'미확인';
+            const platforms=(m?.platforms?.length?m.platforms:displayPlatforms(g));
+            const plat=platforms.join(' · ')||'미확인';
+            const product=m?.productId||g.productId||String(g.store||'').split('/').pop()||'미확인';
+            const rating=Number(m?.rating??s?.rating),ratingCount=Number(m?.ratingCount??s?.ratingCount);
+            const release=m?.releaseDate?new Date(m.releaseDate).toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric'}):'미확인';
+            const genres=(m?.genres||[]).filter(Boolean).join(' · ')||'미확인';
+            const edition=m?.edition||editionLabel(g)||'기본 / 미확인';
+            const publisher=m?.publisher||s?.publisherName||s?.publisher||'미확인';
+            const productType=m?.productType||'게임';
+            const lang=m?.screenLanguages||s?.screenLanguages||'미확인';
+            const ko=(m?.ko===true||g.ko===true)?'지원 확인':'미확인';
+            const cr=String(m?.contentRating||'');
+            const ratingMap={SKOREA_ALL:'전체 이용가',SKOREA_12:'12세 이용가',SKOREA_15:'15세 이용가',SKOREA_18:'청소년 이용불가'};
+            const age=ratingMap[cr]||cr||'미확인';
+            const metaDate=m?.fetchedAt?new Date(m.fetchedAt).toLocaleDateString('ko-KR'):'미확인';
+            const features=[];
+            if(m?.plusIncluded)features.push(`PS Plus ${m.plusTier||''}`.trim());
+            if(m?.psPlusOnlineRequired===true)features.push('온라인 PS Plus 필요');
+            if(m?.onlinePlayers)features.push(`온라인 최대 ${m.onlinePlayers}명`);
+            if(m?.offlinePlayers)features.push(`오프라인 ${m.offlinePlayers}명`);
+            if(m?.vr2===true)features.push('PS VR2');
+            if(m?.dualSense===true)features.push('DualSense 기능');
+            for(const f of m?.features||[])if(f&&!features.includes(f))features.push(f);
+            const featureHtml=features.length?`<div class="info-card"><h3>플레이 기능</h3><div class="tag-row">${features.slice(0,8).map(x=>`<span class="tag">${esc(x)}</span>`).join('')}</div></div>`:'';
+            const desc=m?.description?`<div class="info-card"><h3>PS Store 설명</h3><p>${esc(m.description)}</p></div>`:'';
+            $('#gameInfoContent').innerHTML=`<div class="info-card"><h3>${esc(g.title)}${edition?` <small>· ${esc(edition)}</small>`:''}</h3><p>공식 PlayStation Store 상품 정보와 PS Radar 메타데이터를 합쳐 표시합니다. 확인되지 않은 정보는 추정하지 않습니다.</p></div><div class="info-grid"><div class="info-kv"><small>출시일</small><b>${esc(release)}</b></div><div class="info-kv"><small>플랫폼</small><b>${esc(plat)}</b></div><div class="info-kv"><small>에디션</small><b>${esc(edition)}</b></div><div class="info-kv"><small>상품 유형</small><b>${esc(productType)}</b></div><div class="info-kv"><small>장르</small><b>${esc(genres)}</b></div><div class="info-kv"><small>퍼블리셔</small><b>${esc(publisher)}</b></div><div class="info-kv"><small>한국어</small><b>${esc(ko)}</b></div><div class="info-kv"><small>스크린 언어</small><b>${esc(lang)}</b></div><div class="info-kv"><small>이용등급</small><b>${esc(age)}</b></div><div class="info-kv"><small>Store 평점</small><b>${Number.isFinite(rating)&&rating>0?`${rating.toFixed(2)} / 5${Number.isFinite(ratingCount)&&ratingCount>0?` · ${nf.format(ratingCount)}건`:''}`:'미확인'}</b></div><div class="info-kv"><small>할인 종료</small><b>${esc(end)}</b></div><div class="info-kv"><small>PS Store 상품 ID</small><b class="product-id">${esc(product)}</b></div><div class="info-kv"><small>게임정보 갱신</small><b>${esc(metaDate)}</b></div><div class="info-kv"><small>가격정보 수집</small><b>${esc(lastCollected(g))}</b></div><div class="info-kv"><small>가격 이력 범위</small><b>PS Radar 관측 기준</b></div><div class="info-kv"><small>이력 신뢰도</small><b>${esc(a.confidence)}</b></div></div>${featureHtml}${desc}`;
           }
-          '''
-          html=html.replace('</style>',css+'</style>',1)
-
-          pattern=re.compile(r"let searchComposing=false;const commitSearch=value=>\{.*?\$\('#searchClear'\)\.addEventListener\('click',\(\)=>\{.*?\}\);",re.S)
-          replacement=r'''let searchComposing=false,searchTimer=0;
-          const K_L=['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
-          const K_V=['ㅏ','ㅐ','ㅑ','ㅒ','ㅓ','ㅔ','ㅕ','ㅖ','ㅗ','ㅘ','ㅙ','ㅚ','ㅛ','ㅜ','ㅝ','ㅞ','ㅟ','ㅠ','ㅡ','ㅢ','ㅣ'];
-          const K_T=['','ㄱ','ㄲ','ㄳ','ㄴ','ㄵ','ㄶ','ㄷ','ㄹ','ㄺ','ㄻ','ㄼ','ㄽ','ㄾ','ㄿ','ㅀ','ㅁ','ㅂ','ㅄ','ㅅ','ㅆ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
-          function composeKoreanJamo(value){
-            const chars=Array.from(String(value||''));let out='';
-            for(let i=0;i<chars.length;){
-              const l=K_L.indexOf(chars[i]);const v=(i+1<chars.length)?K_V.indexOf(chars[i+1]):-1;
-              if(l>=0&&v>=0){
-                let t=0,step=2;
-                if(i+2<chars.length){
-                  const tc=K_T.indexOf(chars[i+2]);
-                  if(tc>0){
-                    const followedByVowel=i+3<chars.length&&K_V.includes(chars[i+3]);
-                    const canStartNext=K_L.includes(chars[i+2]);
-                    if(!(followedByVowel&&canStartNext)){t=tc;step=3;}
-                  }
-                }
-                out+=String.fromCharCode(0xAC00+((l*21+v)*28+t));i+=step;continue;
-              }
-              out+=chars[i++];
-            }
-            return out.normalize('NFC');
-          }
-          const commitSearch=value=>{
-            const input=$('#searchInput');
-            const normalized=composeKoreanJamo(String(value||'')).trim();
-            if(input&&input.value!==normalized)input.value=normalized;
-            state.query=normalized;
-            if(state.query){state.filter='all';$$('.chip[data-filter]').forEach(x=>x.classList.toggle('active',x.dataset.filter==='all'));}
-            state.visible=60;applyFilters();
-          };
-          const queueSearch=(value,delay=360)=>{clearTimeout(searchTimer);searchTimer=setTimeout(()=>{if(!searchComposing)commitSearch(value)},delay)};
-          const searchInput=$('#searchInput');
-          searchInput.addEventListener('compositionstart',()=>{searchComposing=true;clearTimeout(searchTimer)});
-          searchInput.addEventListener('compositionupdate',()=>{searchComposing=true;clearTimeout(searchTimer)});
-          searchInput.addEventListener('compositionend',e=>{searchComposing=false;queueSearch(e.target.value,30)});
-          searchInput.addEventListener('beforeinput',e=>{if(e.inputType==='insertCompositionText')searchComposing=true});
-          searchInput.addEventListener('input',e=>{if(e.isComposing||searchComposing||e.inputType==='insertCompositionText'){clearTimeout(searchTimer);return}queueSearch(e.target.value,360)});
-          searchInput.addEventListener('keydown',e=>{if(e.key==='Enter'){clearTimeout(searchTimer);searchComposing=false;commitSearch(e.target.value);e.target.blur()}});
-          searchInput.addEventListener('blur',e=>{clearTimeout(searchTimer);searchComposing=false;commitSearch(e.target.value)});
-          $('#searchClear').addEventListener('click',()=>{clearTimeout(searchTimer);searchComposing=false;searchInput.value='';state.query='';state.visible=60;applyFilters();searchInput.focus();toast('전체 할인 목록으로 돌아왔습니다')});'''
-          html,count=pattern.subn(replacement,html,count=1)
-          assert count==1, f'search block replacement failed: {count}'
-          assert 'PS Radar 2.2.7' in html
-          assert 'composeKoreanJamo' in html
-          assert 'type="text" placeholder="게임명 검색..."' in html
-          assert 'grid-column:1/-1' in html
-          root.joinpath('index.html').write_text(html,encoding='utf-8')
-          print('2.2.7 standalone preview bytes',len(html.encode('utf-8')))
+          function renderReview'''
+          if 'function renderGameInfo(g,a,s,m)' not in s:
+            s,n=pat.subn(repl,s,count=1)
+            assert n==1, f'renderGameInfo replacement failed {n}'
+          assert 'renderGameInfo(g,a,s,m)' in s
+          assert 'PS Radar 2.2.8' in s and 'deal-meta-v228.json' in s
+          assert '출시일' in s and 'PS Radar 관측 기준' in s
+          assert '역대 최대 할인' not in s and '역대 최저가' not in s
+          p.write_text(s,encoding='utf-8')
+          print('PS Radar 2.2.8 preview patched',len(s.encode('utf-8')))
           PY
 
           python3 - <<'PY'
@@ -106,12 +101,13 @@ jobs:
           import re
           s=Path('ps-radar/preview-v2/index.html').read_text(encoding='utf-8')
           scripts=re.findall(r'<script>(.*?)</script>',s,re.S)
-          Path('/tmp/psradar-v227.js').write_text(scripts[-1],encoding='utf-8')
+          Path('/tmp/psradar-v228.js').write_text(scripts[-1],encoding='utf-8')
           PY
-          node --check /tmp/psradar-v227.js
-          grep -q 'PS Radar 2.2.7' ps-radar/preview-v2/index.html
-          grep -q 'composeKoreanJamo' ps-radar/preview-v2/index.html
-          grep -q 'enterkeyhint="search"' ps-radar/preview-v2/index.html
+          node --check /tmp/psradar-v228.js
+          grep -q 'PS Radar 2.2.8' ps-radar/preview-v2/index.html
+          grep -q 'deal-meta-v228.json' ps-radar/preview-v2/index.html
+          grep -q '관측 최대 할인' ps-radar/preview-v2/index.html
+          grep -q '게임정보 갱신' ps-radar/preview-v2/index.html
 
       - name: Commit preview
         shell: bash
@@ -121,5 +117,5 @@ jobs:
           git config user.email 'actions@users.noreply.github.com'
           git add ps-radar/preview-v2/index.html
           git diff --cached --quiet && exit 0
-          git commit -m 'Deploy PS Radar 2.2.7 wide search and Korean IME fix'
+          git commit -m 'Deploy PS Radar 2.2.8 observed history and expanded game info preview'
           git push origin HEAD:main
