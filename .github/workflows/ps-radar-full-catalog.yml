@@ -6,7 +6,7 @@ on:
 permissions:
   contents: write
 concurrency:
-  group: ps-radar-full-catalog
+  group: ps-radar-catalog-relationships
   cancel-in-progress: false
 jobs:
   refresh:
