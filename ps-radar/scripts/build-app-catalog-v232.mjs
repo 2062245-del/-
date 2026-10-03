@@ -1,0 +1,12 @@
+import fs from 'node:fs/promises';
+const data=JSON.parse(await fs.readFile('ps-radar/data/store-catalog-v232.json','utf8'));
+if(!data.health?.safeToMerge)throw new Error('Unsafe source catalog');
+const fields=['id','productId','conceptId','catalogGroupId','title','groupTitle','image','store','platform','genre','ko','kind','edition','publisher','releaseDate','rating','ratingCount','currentPrice','originalPrice','discountPercent','saleEndsAt','fetchedAt','upcoming','releasedConfirmed','comparisonOnly','selectionEvidence','expansionEvidence','releaseEvidence'];
+const slim=x=>Object.fromEntries(fields.filter(k=>x[k]!==undefined).map(k=>[k,x[k]]));
+const items=data.items.map(slim),upcoming=data.upcoming.map(slim);
+const groups=new Set([...items,...upcoming].map(x=>x.conceptId));
+const links=Object.fromEntries(Object.entries(data.links||{}).filter(([k])=>groups.has(k)));
+const health={...data.health,ps5Products:items.filter(x=>!x.comparisonOnly).length,ps5Games:new Set(items.filter(x=>!x.comparisonOnly).map(x=>x.catalogGroupId)).size,ps5NormalPrice:items.filter(x=>!x.comparisonOnly&&!x.discountPercent).length,upcomingGames:new Set(upcoming.filter(x=>!x.comparisonOnly).map(x=>x.catalogGroupId)).size};
+const out={generatedAt:data.generatedAt,source:data.source,coverage:data.coverage,policy:data.policy,health,links,items,upcoming};
+await fs.writeFile('ps-radar/data/catalog-app-v232.json',JSON.stringify(out)+'\n');
+console.log('APP_CATALOG',JSON.stringify(health),'bytes',Buffer.byteLength(JSON.stringify(out)));
