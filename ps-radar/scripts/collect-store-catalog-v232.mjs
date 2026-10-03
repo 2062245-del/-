@@ -13,8 +13,10 @@ await page.goto('https://store.playstation.com/ko-kr/pages/browse',{waitUntil:'d
 await page.waitForSelector('.psw-product-tile',{timeout:60000});
 await page.getByRole('button',{name:'정렬 및 필터 옵션',exact:false}).click();
 const platformButton=page.getByRole('button',{name:/플랫폼에 대한 필터링/});
-if(!await page.getByRole('checkbox',{name:'PS5',exact:true}).isVisible())await platformButton.click();
-await page.getByRole('checkbox',{name:'PS5',exact:true}).check();
+const ps5=page.locator('[id="targetPlatforms:PS5"]');
+if(!await ps5.isVisible())await platformButton.click();
+await ps5.click();
+await page.waitForFunction(()=>document.querySelector('[id="targetPlatforms:PS5"]')?.getAttribute('aria-pressed')==='true');
 await page.waitForFunction(()=>document.body.innerText.includes('총 ')&&document.querySelectorAll('.psw-product-tile').length>0,null,{timeout:60000});
 const discovered=new Map();let total=0,pages=0;
 while(true){
