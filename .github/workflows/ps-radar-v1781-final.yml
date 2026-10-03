@@ -1,11 +1,6 @@
 name: Build PS Radar v17.8.1 Final Android APK
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'ps-radar/**'
-      - '.github/workflows/ps-radar-v1781-final.yml'
   workflow_dispatch:
 
 concurrency:
