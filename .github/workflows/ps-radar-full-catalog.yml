@@ -29,6 +29,8 @@ jobs:
         run: node ps-radar/scripts/link-expansions-v232.mjs
       - name: Refresh upcoming and actual release transitions
         run: node ps-radar/scripts/refresh-upcoming-v232.mjs
+      - name: Validate game and expansion product intent
+        run: node ps-radar/scripts/sanitize-catalog-v232.mjs
       - name: Build compact mobile catalog
         run: node ps-radar/scripts/build-app-catalog-v232.mjs
       - name: Commit verified catalog
