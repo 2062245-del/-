@@ -457,13 +457,15 @@ function recordObservation(g){const k=keyFor(g);if(!k)return;const arr=Array.isA
 function observations(g){const hist=trendInfo(g),arr=[];if(Array.isArray(hist.timeline))for(const x of hist.timeline){if(x?.active!==false&&Number(x?.price)>0)arr.push({at:x.at,day:String(x.at||'').slice(0,10),price:Number(x.price),discount:Number(x.discount)||0,source:'server'})}if(!arr.length){if(hist.lowestPriceObservedAt&&Number(hist.lowestPrice)>0)arr.push({at:hist.lowestPriceObservedAt,day:String(hist.lowestPriceObservedAt).slice(0,10),price:Number(hist.lowestPrice),discount:Number(hist.highestDiscount)||0,source:'legacy'});if(hist.lastSeenAt&&Number(hist.lastPrice)>0)arr.push({at:hist.lastSeenAt,day:String(hist.lastSeenAt).slice(0,10),price:Number(hist.lastPrice),discount:Number(hist.lastDiscount)||0,source:'legacy'})}for(const x of localHistory[keyFor(g)]||[])arr.push({...x,source:'local'});arr.push({at:new Date().toISOString(),day:currentDay(),price:g.currentPrice,discount:g.discountPercent,source:'current'});const uniq=new Map();for(const x of arr){if(!(Number(x.price)>0))continue;const id=`${String(x.at||x.day).slice(0,16)}|${x.price}|${x.discount}`;uniq.set(id,x)}return [...uniq.values()].filter(x=>x.source==='current'||validHistoricalPoint(g,x)).sort((a,b)=>String(a.at||a.day).localeCompare(String(b.at||b.day))).slice(-64)}
 function saleEndDays(g){const d=daysBetween(new Date().toISOString(),g.saleEndsAt);return Number.isFinite(d)?d:null}
 function analysis(g){
-  const hist=trendInfo(g),serverTrend=hist.trend||{},obs=observations(g);
+  const hist=trendInfo(g),rawTrend=hist.trend||{},obs=observations(g);
+  const trendValid=!(Number(rawTrend.medianSalePrice)>Number(g.originalPrice)*1.03);
+  const serverTrend=trendValid?rawTrend:{};
   const prices=obs.map(x=>Number(x.price)).filter(Number.isFinite),discounts=obs.map(x=>Number(x.discount)).filter(Number.isFinite);
   const low=Math.min(g.currentPrice,...prices);
   const highDisc=Math.max(g.discountPercent,...discounts);
   const medianSalePrice=Number(serverTrend.medianSalePrice)||median(prices)||g.currentPrice;
   const medianDiscount=Number(serverTrend.medianDiscount)||median(discounts)||g.discountPercent;
-  const avgGapDays=Number.isFinite(Number(serverTrend.averageGapDays))?Number(serverTrend.averageGapDays):null;
+  const avgGapDays=serverTrend.averageGapDays!=null&&Number(serverTrend.averageGapDays)>0&&Number.isFinite(Number(serverTrend.averageGapDays))?Number(serverTrend.averageGapDays):null;
   const saleCycles=Number(serverTrend.saleCycles)||0;
   const actualChanges=collapsePriceChanges(obs);
   const changePoints=Math.max(Number(serverTrend.changePoints)||0,actualChanges.length);
@@ -517,7 +519,7 @@ function filterMatchConfidence(a){
   return true;
 }
 function radarMatch(g,a){
-  if(['ending','returning','trusted'].includes(state.radarMode))return radarSignals(g,a)[state.radarMode];
+  if(['best','low','deepening','wait','ending','returning','trusted'].includes(state.radarMode))return radarSignals(g,a)[state.radarMode];
   if(state.radarMode==='best')return (a.label==='BUY NOW'||a.label==='GOOD')&&a.score>=74;
   if(state.radarMode==='low')return a.nearLow&&g.discountPercent>=40;
   if(state.radarMode==='wait')return a.label==='WAIT';
