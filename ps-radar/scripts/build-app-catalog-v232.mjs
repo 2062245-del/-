@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 const data=JSON.parse(await fs.readFile('ps-radar/data/store-catalog-v232.json','utf8'));
 if(!data.health?.safeToMerge)throw new Error('Unsafe source catalog');
-const fields=['id','productId','conceptId','catalogGroupId','title','groupTitle','image','store','platform','genre','ko','kind','edition','publisher','releaseDate','rating','ratingCount','currentPrice','originalPrice','discountPercent','saleEndsAt','fetchedAt','upcoming','releasedConfirmed','comparisonOnly','selectionEvidence','expansionEvidence','releaseEvidence'];
+const fields=['id','productId','conceptId','catalogGroupId','title','groupTitle','image','store','platform','genre','ko','kind','edition','publisher','releaseDate','rating','ratingCount','currentPrice','originalPrice','discountPercent','saleEndsAt','fetchedAt','upcoming','releasedConfirmed','comparisonOnly','selectionEvidence','expansionEvidence','releaseEvidence','releaseNeedsVerification','priceNeedsVerification'];
 const slim=x=>Object.fromEntries(fields.filter(k=>x[k]!==undefined).map(k=>[k,x[k]]));
 const items=data.items.map(slim),upcoming=data.upcoming.map(slim);
 const groups=new Set([...items,...upcoming].map(x=>x.conceptId));
