@@ -2,13 +2,6 @@ name: Build PS Radar 2.2.6 Final APK
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - 'ps-radar/preview-v2/**'
-      - 'ps-radar/data/**'
-      - 'ps-radar/android/**'
-      - '.github/workflows/ps-radar-v226-final.yml'
 
 concurrency:
   group: ps-radar-v226-final
