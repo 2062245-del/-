@@ -1,0 +1,50 @@
+name: PS Radar Full PS5 Catalog
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '41 18 * * *'
+  push:
+    branches: [main]
+    paths:
+      - 'ps-radar/scripts/collect-store-catalog-v232.mjs'
+      - 'ps-radar/scripts/store-api-v232.mjs'
+      - '.github/workflows/ps-radar-full-catalog.yml'
+permissions:
+  contents: write
+concurrency:
+  group: ps-radar-full-catalog
+  cancel-in-progress: false
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install browser runtime
+        run: |
+          npm install --no-save playwright@1.51.1
+          npx playwright install --with-deps chromium
+      - name: Discover all PS5 concepts and verify paid products
+        run: node ps-radar/scripts/collect-store-catalog-v232.mjs
+      - name: Commit verified catalog
+        run: |
+          git add ps-radar/data/store-discovery-v232.json ps-radar/data/store-catalog-v232.json
+          if git diff --cached --quiet; then exit 0; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'Refresh full PS5 catalog and verified release transitions'
+          git pull --rebase origin main
+          git push origin main
+      - name: Upload collection evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ps-radar-full-catalog-evidence
+          path: |
+            ps-radar/data/store-discovery-v232.json
+            ps-radar/data/store-catalog-v232.json
