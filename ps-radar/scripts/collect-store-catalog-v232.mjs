@@ -1,3 +1,4 @@
+import {mergeUpcoming} from './catalog-release-policy-v232.mjs';
 import {chromium} from 'playwright';
 import fs from 'node:fs/promises';
 import {callOfficial,actualPurchasePrice} from './store-api-v232.mjs';
@@ -73,7 +74,7 @@ async function processConcept(row){
  }
 }
 await Promise.all(Array.from({length:8},async()=>{while(true){const i=cursor++;if(i>=pool.length)return;try{await processConcept(pool[i]);}catch(e){failures.push({conceptId:pool[i].conceptId,error:String(e.message)});}if((i+1)%100===0)console.log('ENRICH',i+1,pool.length,products.length,upcoming.length,failures.length);}}));
-const unique=a=>[...new Map(a.map(x=>[x.productId,x])).values()];const items=unique(products),futureItems=unique(upcoming);
+const unique=a=>[...new Map(a.map(x=>[x.productId,x])).values()];const items=unique(products),futureItems=mergeUpcoming(previous.upcoming||[],unique(upcoming),items);
 if(failures.length>pool.length*.1||items.length<100)throw new Error(`Enrichment unsafe: ${items.length} products, ${failures.length} failures`);
 const payload={generatedAt:now,source:'playstation-store-all-ps5',coverage:'complete-discovery-filtered-enrichment',policy:{minRating:4,minRatingCount:500,upcoming:'established-publisher-or-qualified-rating'},health:{safeToMerge:true,discovered:pool.length,pages,total,completeDiscovery:true,itemCount:items.length,upcomingCount:futureItems.length,failures:failures.length,normalPrice:items.filter(x=>!x.discountPercent).length},links,failures,items,upcoming:futureItems};
 await fs.writeFile(root+'store-catalog-v232.json',JSON.stringify(payload,null,2)+'\n');console.log('COMPLETE',JSON.stringify(payload.health));
