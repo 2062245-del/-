@@ -3,11 +3,6 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '41 18 * * *'
-  push:
-    branches: [main]
-    paths:
-      - 'ps-radar/scripts/collect-store-catalog-v232.mjs'
-      - 'ps-radar/scripts/store-api-v232.mjs'
 permissions:
   contents: write
 concurrency:
@@ -32,6 +27,8 @@ jobs:
         run: node ps-radar/scripts/collect-store-catalog-v232.mjs
       - name: Link official gameplay expansions
         run: node ps-radar/scripts/link-expansions-v232.mjs
+      - name: Refresh upcoming and actual release transitions
+        run: node ps-radar/scripts/refresh-upcoming-v232.mjs
       - name: Commit verified catalog
         run: |
           git add ps-radar/data/store-discovery-v232.json ps-radar/data/store-catalog-v232.json
