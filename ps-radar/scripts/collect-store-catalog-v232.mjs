@@ -50,13 +50,13 @@ async function details(pid){
 async function processConcept(row){
  const ratingResult=await callOfficial('rating',row.conceptId,2);const rp=ratingResult.data?.conceptRetrieve?.defaultProduct;const star=rp?.starRating;
  const rating=Number(star?.averageRating)||null,count=Number(star?.totalRatingsCount)||0;
- const qualified=rating>=4&&count>=500;
+ const qualified=(rating>=4&&count>=500)||(previous.upcoming||[]).some(x=>x.conceptId===row.conceptId);
  // The price query supplies official release date and all exact product relationships.
  const j=await callOfficial('price',row.conceptId,2);const c=j.data?.conceptRetrieve;if(!c)throw new Error('No concept');
  const release=c.releaseDate?.value;const future=Number.isFinite(Date.parse(release))&&Date.parse(release)>Date.now();
  links[row.conceptId]=(c.products||[]).map(x=>x.id);
  if(!qualified&&!future)return;
- const editions=await callOfficial('editions',row.conceptId,2);const es=editions.data?.editionSelectionsRetrieveByConceptId||[];
+ const editions=await callOfficial('editions',row.conceptId,2);const selections=editions.data?.editionSelectionsRetrieveByConceptId||[];const es=selections.length?selections:(c.products||[]);
  for(const e of es){
   if(!/(PPSA|CUSA)/.test(e.id)||excluded.test(e.name||''))continue;
   const p=(await callOfficial('productPrice',e.id,2)).data?.productRetrieve;if(!p)continue;
@@ -68,7 +68,7 @@ async function processConcept(row){
   const isFuture=Date.parse(date)>Date.now();if(isFuture&&!(qualified||publisherAllow.test(m.publisher||'')))continue;
   const cart=p.webctas?.some(x=>x.type==='ADD_TO_CART'&&x.price&&!x.price.isTiedToSubscription);
   if(!isFuture&&(!qualified||pre||!cart))continue;
-  const item={id:'store-'+e.id,productId:e.id,conceptId:row.conceptId,catalogGroupId:'concept:'+row.conceptId,title:e.name.replace(/\s*\([^)]*(한국어|영어|중국어|일본어)[^)]*\)\s*$/,'').trim(),groupTitle:row.title,image:row.image,store:'https://store.playstation.com/ko-kr/product/'+e.id,platform:m.platforms?.length?m.platforms:[e.id.includes('PPSA')?'PS5':'PS4'],comparisonOnly:!e.id.includes('PPSA'),genre:m.genres||[],ko:/한국어/.test(e.name),kind,edition:e.edition?.name||m.edition||null,publisher:m.publisher||null,releaseDate:date,rating,ratingCount:count,...price,saleEndsAt:price.saleEndsAt?new Date(Number(price.saleEndsAt)||price.saleEndsAt).toISOString():null,fetchedAt:now,upcoming:isFuture,releasedConfirmed:!isFuture&&cart&&!pre,releaseEvidence:!isFuture?'official-add-to-cart-and-release-date':'official-future-release-date',source:'playstation-store-official-graphql'};
+  const item={id:'store-'+e.id,productId:e.id,conceptId:row.conceptId,catalogGroupId:'concept:'+row.conceptId,title:e.name.replace(/\s*\((?:한국어|영어|일본어|중국어)[\s\S]*\)\s*$/,'').trim(),groupTitle:row.title,image:row.image,store:'https://store.playstation.com/ko-kr/product/'+e.id,platform:m.platforms?.length?m.platforms:[e.id.includes('PPSA')?'PS5':'PS4'],comparisonOnly:!e.id.includes('PPSA'),genre:m.genres||[],ko:/한국어/.test(e.name),kind,edition:e.edition?.name||m.edition||null,publisher:m.publisher||null,releaseDate:date,rating,ratingCount:count,...price,saleEndsAt:price.saleEndsAt?new Date(Number(price.saleEndsAt)||price.saleEndsAt).toISOString():null,fetchedAt:now,upcoming:isFuture,releasedConfirmed:!isFuture&&cart&&!pre,releaseEvidence:!isFuture?'official-add-to-cart-and-release-date':'official-future-release-date',source:'playstation-store-official-graphql'};
   (isFuture?upcoming:products).push(item);
  }
 }
