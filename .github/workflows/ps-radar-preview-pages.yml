@@ -40,9 +40,15 @@ jobs:
           import json
           html=Path('ps-radar/preview-v2/index.html').read_text(encoding='utf-8')
           info=json.loads(Path('ps-radar/data/game-info-v229.json').read_text(encoding='utf-8'))
+          catalog=json.loads(Path('ps-radar/data/catalog-app-v232.json').read_text(encoding='utf-8'))
           checks={
+            'complete PS5 discovery':catalog.get('health',{}).get('completeDiscovery') is True,
+            'catalog safety':catalog.get('health',{}).get('safeToMerge') is True,
+            'full catalog integration':'catalog-app-v232.json' in html,
+            'upcoming menu':'data-nav="upcoming"' in html,
+            'product comparison':'renderProductComparison' in html,
             'app title':'PS Radar' in html,
-            '2.2.9 version':'2.2.9' in html,
+            '2.3.2 version':'PS Radar 2.3.2' in html,
             'refresh':'refreshBtn' in html,
             'Samsung IME fallback':'composeKoreanJamo' in html,
             'text search input':'enterkeyhint="search"' in html,
