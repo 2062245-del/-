@@ -1,3 +1,4 @@
+import {releaseState,mergeUpcoming} from './catalog-release-policy-v232.mjs';
 import fs from 'node:fs/promises';
 import {callOfficial,actualPurchasePrice} from './store-api-v232.mjs';
 const file='ps-radar/data/store-catalog-v232.json',data=JSON.parse(await fs.readFile(file,'utf8'));
@@ -25,12 +26,12 @@ await Promise.all(Array.from({length:8},async()=>{while(true){const i=cursor++;i
   const releaseDate=p.releaseDate||date;if(!Number.isFinite(Date.parse(releaseDate)))continue;
   const live=(await callOfficial('productPrice',e.id,2)).data?.productRetrieve,price=actualPurchasePrice(live);if(!(price.currentPrice>0))continue;
   const isFuture=Date.parse(releaseDate)>Date.now(),isPreorder=live?.webctas?.some(x=>/PRE.?ORDER/i.test(x.type||'')),cart=live?.webctas?.some(x=>x.type==='ADD_TO_CART'&&x.price&&!x.price.isTiedToSubscription);
-  if(!isFuture&&(!wasUpcoming.has(row.conceptId)||isPreorder||!cart))continue;
-  const item={id:'store-'+e.id,productId:e.id,conceptId:row.conceptId,catalogGroupId:'concept:'+row.conceptId,title:e.name.replace(/\s*\((?:한국어|영어|일본어|중국어)[\s\S]*\)\s*$/,'').trim(),groupTitle:row.title,image:p.media?.find(x=>x.role==='EDITION_KEY_ART')?.url||row.image,store:'https://store.playstation.com/ko-kr/product/'+e.id,platform:p.platforms||['PS5'],genre:(p.localizedGenres||[]).map(x=>x.value),ko:/한국어/.test(e.name),kind:p.storeDisplayClassification==='PREMIUM_EDITION'?'edition':'base',edition:p.edition?.name||null,publisher:p.publisherName,releaseDate,rating:Number(p.starRating?.averageRating)||null,ratingCount:Number(p.starRating?.totalRatingsCount)||0,...price,saleEndsAt:price.saleEndsAt?new Date(Number(price.saleEndsAt)||price.saleEndsAt).toISOString():null,fetchedAt:new Date().toISOString(),upcoming:isFuture,releasedConfirmed:!isFuture&&cart&&!isPreorder,selectionEvidence:'established-publisher-upcoming',releaseEvidence:isFuture?'official-future-release-date':'official-release-date-and-add-to-cart'};
-  (isFuture?items:released).push(item);data.links[row.conceptId]=[...new Set([...(data.links[row.conceptId]||[]),e.id])];
+  if(!isFuture&&!wasUpcoming.has(row.conceptId))continue;const grade=releaseState(releaseDate,live?.webctas||[]);
+  const item={id:'store-'+e.id,productId:e.id,conceptId:row.conceptId,catalogGroupId:'concept:'+row.conceptId,title:e.name.replace(/\s*\((?:한국어|영어|일본어|중국어)[\s\S]*\)\s*$/,'').trim(),groupTitle:row.title,image:p.media?.find(x=>x.role==='EDITION_KEY_ART')?.url||row.image,store:'https://store.playstation.com/ko-kr/product/'+e.id,platform:p.platforms||['PS5'],genre:(p.localizedGenres||[]).map(x=>x.value),ko:/한국어/.test(e.name),kind:p.storeDisplayClassification==='PREMIUM_EDITION'?'edition':'base',edition:p.edition?.name||null,publisher:p.publisherName,releaseDate,rating:Number(p.starRating?.averageRating)||null,ratingCount:Number(p.starRating?.totalRatingsCount)||0,...price,saleEndsAt:price.saleEndsAt?new Date(Number(price.saleEndsAt)||price.saleEndsAt).toISOString():null,fetchedAt:new Date().toISOString(),...grade,selectionEvidence:'established-publisher-upcoming',releaseEvidence:isFuture?'official-future-release-date':'official-release-date-and-add-to-cart'};
+  (grade.upcoming?items:released).push(item);data.links[row.conceptId]=[...new Set([...(data.links[row.conceptId]||[]),e.id])];
  }
  }catch(e){failures.push({conceptId:row.conceptId,error:String(e.message)});}if((i+1)%200===0)console.log('UPCOMING_CHECK',i+1,pool.length,items.length,failures.length);}}));
 if(failures.length>pool.length*.1)throw new Error('Upcoming scan failure threshold');
-data.upcoming=[...new Map([...items,...(data.upcoming||[]).filter(x=>x.kind==='expansion')].map(x=>[x.productId,x])).values()];
+data.upcoming=mergeUpcoming(data.upcoming||[],items,[...data.items,...released]);
 data.items=[...new Map([...data.items,...released].map(x=>[x.productId,x])).values()];data.health.upcomingCount=data.upcoming.length;data.health.itemCount=data.items.length;data.health.upcomingConceptsChecked=pool.length;data.upcomingFailures=failures;
 await fs.writeFile(file,JSON.stringify(data,null,2)+'\n');console.log('UPCOMING_COMPLETE',data.upcoming.length,'products',new Set(data.upcoming.map(x=>x.conceptId)).size,'games');
