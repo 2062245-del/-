@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#04111f" />
-  <title>PS Radar 2.3.1</title>
+  <title>PS Radar 2.3.2</title>
   <style>
 :root{
   --bg:#020913;--rail:#04111f;--panel:#06182b;--panel2:#08223a;--panel3:#0a2945;
@@ -211,7 +211,7 @@ button,input,select{font:inherit}button{color:inherit}.app-shell{height:calc(100
 
 .catalog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;padding:4px 0 14px}.catalog-card{position:relative;border:1px solid var(--line);border-radius:14px;background:var(--panel2);overflow:hidden}.catalog-cover-button{padding:0;border:0;background:none;width:100%;cursor:pointer}.catalog-cover{width:100%;aspect-ratio:3/4;background-size:cover;background-position:center;display:grid;place-items:center}.catalog-copy{padding:11px;display:grid;gap:7px}.catalog-copy b{font-size:12px;line-height:1.5;min-height:36px}.catalog-copy strong{font-size:16px}.catalog-copy small{font-size:10px;color:var(--muted);line-height:1.5}.catalog-wish{position:absolute;top:8px;right:8px;border:1px solid #366388;background:#03111ddd;color:#e8faff;border-radius:50%;width:32px;height:32px;cursor:pointer}.catalog-copy button,.catalog-product-detail button{border:1px solid var(--line);background:#0c3554;padding:10px;color:white;border-radius:9px;cursor:pointer}.catalog-product-detail{padding:18px;line-height:1.7}.catalog-product-detail p{color:var(--muted);font-size:13px}.catalog-product-detail a{display:block;margin:16px 0;color:var(--cyan)}.catalog-detail-cover{height:240px;background-size:cover;background-position:center;border-radius:13px}.catalog-empty{color:var(--muted);padding:25px}.rail-nav{gap:3px}.rail-nav .nav-item{height:62px}
 @media(max-width:599px){.bottom-nav{grid-template-columns:repeat(6,1fr)}.bottom-nav .nav-item b{font-size:9px}.bottom-nav .nav-item span{font-size:17px}.catalog-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}}
-</style>
+.product-compare-row{display:flex;width:100%;justify-content:space-between;gap:12px;text-align:left;padding:12px;margin-top:8px;border:1px solid #25435b;border-radius:10px;background:#0b2033;color:#eef5ff}.product-compare-row small{display:block;color:#9aafc1;margin-top:4px}.product-compare-row strong{white-space:nowrap}</style>
 </head>
 <body>
   <div id="app" class="app-shell">
@@ -230,8 +230,8 @@ button,input,select{font:inherit}button{color:inherit}.app-shell{height:calc(100
       <section class="deal-pane panel">
         <header class="deal-header">
           <div class="brand-copy-block">
-            <div class="mobile-brand"><span class="mobile-ps">PS</span><strong>PS Radar <em>2.3.1</em></strong></div>
-            <h1>PS Radar <em>2.3.1</em></h1>
+            <div class="mobile-brand"><span class="mobile-ps">PS</span><strong>PS Radar <em>2.3.2</em></strong></div>
+            <h1>PS Radar <em>2.3.2</em></h1>
             <p>지금 사야 할 플레이스테이션 할인, 레이더가 찾아드립니다.</p>
           </div>
           <div class="header-actions">
@@ -457,7 +457,7 @@ function metaMap(items){const m=new Map();for(const x of items||[]){for(const k 
 function metaInfo(g){return state.meta.get(String(g.id||''))||state.meta.get(String(g.productId||''))||state.meta.get(cleanStore(g.store))||null}
 function trendInfo(g){const k=keyFor(g);return state.trends[k]||state.history[k]||state.history[g.store]||{}}
 function currentDay(){return new Date().toISOString().slice(0,10)}
-function recordObservation(g){const k=keyFor(g);if(!k)return;const arr=Array.isArray(localHistory[k])?localHistory[k]:[];const now={at:new Date().toISOString(),day:currentDay(),price:g.currentPrice,discount:g.discountPercent,originalPrice:g.originalPrice};const last=arr.at(-1);if(!last||Number(last.price)!==now.price||Number(last.discount)!==now.discount||last.day!==now.day){arr.push(now);localHistory[k]=arr.slice(-32);try{localStorage.setItem(LOCAL_HISTORY_KEY,JSON.stringify(localHistory))}catch{}}}
+function recordObservation(g){if(g.upcoming||g.priceNeedsVerification||!(g.currentPrice>0))return;const k=keyFor(g);if(!k)return;const arr=Array.isArray(localHistory[k])?localHistory[k]:[];const now={at:new Date().toISOString(),day:currentDay(),price:g.currentPrice,discount:g.discountPercent,originalPrice:g.originalPrice};const last=arr.at(-1);if(!last||Number(last.price)!==now.price||Number(last.discount)!==now.discount||last.day!==now.day){arr.push(now);localHistory[k]=arr.slice(-32);try{localStorage.setItem(LOCAL_HISTORY_KEY,JSON.stringify(localHistory))}catch{}}}
 function observations(g){const hist=trendInfo(g),arr=[];if(Array.isArray(hist.timeline))for(const x of hist.timeline){if(x?.active!==false&&Number(x?.price)>0)arr.push({at:x.at,day:String(x.at||'').slice(0,10),price:Number(x.price),discount:Number(x.discount)||0,source:'server'})}if(!arr.length){if(hist.lowestPriceObservedAt&&Number(hist.lowestPrice)>0)arr.push({at:hist.lowestPriceObservedAt,day:String(hist.lowestPriceObservedAt).slice(0,10),price:Number(hist.lowestPrice),discount:Number(hist.highestDiscount)||0,source:'legacy'});if(hist.lastSeenAt&&Number(hist.lastPrice)>0)arr.push({at:hist.lastSeenAt,day:String(hist.lastSeenAt).slice(0,10),price:Number(hist.lastPrice),discount:Number(hist.lastDiscount)||0,source:'legacy'})}for(const x of localHistory[keyFor(g)]||[])arr.push({...x,source:'local'});arr.push({at:new Date().toISOString(),day:currentDay(),price:g.currentPrice,discount:g.discountPercent,source:'current'});const uniq=new Map();for(const x of arr){if(!(Number(x.price)>0))continue;const id=`${String(x.at||x.day).slice(0,16)}|${x.price}|${x.discount}`;uniq.set(id,x)}return [...uniq.values()].filter(x=>x.source==='current'||validHistoricalPoint(g,x)).sort((a,b)=>String(a.at||a.day).localeCompare(String(b.at||b.day))).slice(-64)}
 function saleEndDays(g){const d=daysBetween(new Date().toISOString(),g.saleEndsAt);return Number.isFinite(d)?d:null}
 function analysis(g){
@@ -543,6 +543,20 @@ function setFilterOpen(open){
 function syncNavModeUI(){
   const radar=state.nav==='radar';$('#filterStrip').hidden=radar;$$('[data-filter="PS4"]').forEach(b=>b.hidden=true);$('#radarStrip').hidden=!radar;
 }
+function compareGames(a,b){
+    if(state.sort==='release')return (Date.parse(b.releaseDate)||0)-(Date.parse(a.releaseDate)||0);
+    if(state.sort==='upcomingRelease')return (Date.parse(a.releaseDate)||Infinity)-(Date.parse(b.releaseDate)||Infinity);
+    if(state.sort==='rating')return (Number(b.rating)||0)-(Number(a.rating)||0)||(Number(b.ratingCount)||0)-(Number(a.ratingCount)||0);
+    if(state.sort==='ratingCount')return (Number(b.ratingCount)||0)-(Number(a.ratingCount)||0);
+    if(state.query){const q=normalizeSearch(state.query),at=normalizeSearch(a.title),bt=normalizeSearch(b.title);const ap=at.startsWith(q)?0:1,bp=bt.startsWith(q)?0:1;if(ap!==bp)return ap-bp}
+    if(state.sort==='timing')return scoreFor(b)-scoreFor(a);
+    if(state.sort==='price')return a.currentPrice-b.currentPrice;
+    if(state.sort==='nearLow')return analysis(a).deltaLow-analysis(b).deltaLow||scoreFor(b)-scoreFor(a);
+    if(state.sort==='ending'){const ae=analysis(a).endDays,be=analysis(b).endDays;return (Number.isFinite(ae)?ae:9999)-(Number.isFinite(be)?be:9999)}
+    if(state.sort==='title')return a.title.localeCompare(b.title,'ko');
+    return b.discountPercent-a.discountPercent||a.currentPrice-b.currentPrice;
+}
+function catalogRepresentative(group){return group.filter(x=>x.kind==='base').sort((a,b)=>a.currentPrice-b.currentPrice)[0]||group[0];}
 function applyFilters(){
   let arr=[...(state.nav==='catalog'?state.catalog:state.nav==='upcoming'?state.upcoming:state.nav==='my'?state.allProducts:state.deals)];
   if(state.query){arr=arr.filter(g=>titleMatchesQuery(g,state.query))}
@@ -562,23 +576,11 @@ function applyFilters(){
   if(state.lowFilter!=='all')arr=arr.filter(g=>{const a=analysis(g);if(state.lowFilter==='exact')return g.currentPrice<=a.low*1.001;if(state.lowFilter==='near')return a.nearLow;if(state.lowFilter==='above')return g.currentPrice>a.low*1.05;return true});
   if(state.confidenceFilter!=='all')arr=arr.filter(g=>filterMatchConfidence(analysis(g)));
   if(state.koOnly)arr=arr.filter(g=>g.ko===true);
-  arr.sort((a,b)=>{
-    if(state.sort==='release')return (Date.parse(b.releaseDate)||0)-(Date.parse(a.releaseDate)||0);
-    if(state.sort==='upcomingRelease')return (Date.parse(a.releaseDate)||Infinity)-(Date.parse(b.releaseDate)||Infinity);
-    if(state.sort==='rating')return (Number(b.rating)||0)-(Number(a.rating)||0)||(Number(b.ratingCount)||0)-(Number(a.ratingCount)||0);
-    if(state.sort==='ratingCount')return (Number(b.ratingCount)||0)-(Number(a.ratingCount)||0);
-    if(state.query){const q=normalizeSearch(state.query),at=normalizeSearch(a.title),bt=normalizeSearch(b.title);const ap=at.startsWith(q)?0:1,bp=bt.startsWith(q)?0:1;if(ap!==bp)return ap-bp}
-    if(state.sort==='timing')return scoreFor(b)-scoreFor(a);
-    if(state.sort==='price')return a.currentPrice-b.currentPrice;
-    if(state.sort==='nearLow')return analysis(a).deltaLow-analysis(b).deltaLow||scoreFor(b)-scoreFor(a);
-    if(state.sort==='ending'){const ae=analysis(a).endDays,be=analysis(b).endDays;return (Number.isFinite(ae)?ae:9999)-(Number.isFinite(be)?be:9999)}
-    if(state.sort==='title')return a.title.localeCompare(b.title,'ko');
-    return b.discountPercent-a.discountPercent||a.currentPrice-b.currentPrice;
-  });
+  arr.sort(compareGames);
   state.filtered=arr;state.visible=arr.length?Math.min(Math.max(state.visible,1),arr.length):60;
   if(!arr.length){clearDetailForNoResults();renderList();renderSectionContext();return;}
   hideDetailEmpty();const selectedVisible=state.selected&&arr.some(g=>keyFor(g)===keyFor(state.selected));
-  if(!selectedVisible&&arr[0]){state.selected=arr[0];recordObservation(state.selected);if(state.selected.upcoming||!state.selected.discountPercent)renderCatalogDetail(state.selected);else renderDetail(state.selected);$('#detailPane').scrollTop=0}
+  if(!selectedVisible&&arr[0]){state.selected=arr[0];if(!state.selected.upcoming)recordObservation(state.selected);if(state.selected.upcoming||state.selected.priceNeedsVerification||!state.selected.discountPercent)renderCatalogDetail(state.selected);else renderDetail(state.selected);$('#detailPane').scrollTop=0}
   renderList();renderSectionContext();
 }
 function coverMarkup(g,cls='deal-cover'){const style=g.image?`style="background-image:url('${esc(g.image)}')"`:'';return `<div class="${cls}" ${style}>${g.image?'':`<span class="cover-fallback">${esc(g.title)}</span>`}</div>`}
@@ -612,7 +614,7 @@ function renderRadarDashboard(){
     ['wait','지금은 기다릴 게임','이전 가격과 할인 패턴상 대기가 유리한 게임','대기 근거'],
     ['trusted','데이터 충분 · 신뢰도 높음','할인 사이클 3회 이상 · 가격 변화점 5개 이상','높은 신뢰도']
   ];
-  const groups=sections.map(([id,title,desc])=>({id,title,desc,items:rows.filter(r=>r.s[id]).sort((x,y)=>id==='ending'?x.s.end-y.s.end:y.a.score-x.a.score)}));
+  const groups=sections.map(([id,title,desc])=>({id,title,desc,items:[...rows.filter(r=>r.s[id]).sort((x,y)=>id==='ending'?x.s.end-y.s.end:y.a.score-x.a.score).reduce((m,r)=>{const k=r.g.catalogGroupId||keyFor(r.g);if(!m.has(k))m.set(k,r);return m;},new Map()).values()]}));
   const reason=(r,id)=>id==='ending'?Math.ceil((r.s.end-Date.now())/3600000)+'시간 이내 · '+dateLabel(r.g.saleEndsAt):id==='deepening'?'-'+r.a.previousCycleBestDiscount+'% → -'+r.g.discountPercent+'%':id==='returning'?'관측 비할인 구간 '+Math.round(r.s.gap)+'일':id==='trusted'?'할인 '+r.a.saleCycles+'회 · 변화점 '+r.a.changePoints+'개':id==='low'?'관측 최저 '+won(r.a.low)+' · 신뢰도 '+r.a.confidence:r.a.short;
   $('#dealList').innerHTML='<div class="radar-dashboard"><div class="ri-heading"><div><h2>Radar Intelligence</h2><p>현재 조건의 '+nf.format(rows.length)+'개 할인에서 구매 신호를 찾았습니다.</p></div></div><div class="ri-summary">'+[['구매 추천',groups[0].items.length],['관측 최저가',groups[1].items.length],['이력 축적 중',rows.filter(r=>r.a.confidence==='축적 중').length]].map(([label,n])=>'<div class="ri-stat"><span>'+label+'</span><strong>'+nf.format(n)+'</strong></div>').join('')+'</div><div class="ri-sections">'+groups.map(group=>'<section class="ri-section"><header><h3>'+group.title+'</h3><span>'+nf.format(group.items.length)+'개</span></header><p class="ri-description">'+group.desc+'</p>'+(group.items.length?group.items.slice(0,3).map(r=>'<button type="button" class="ri-game" data-ri-game="'+esc(keyFor(r.g))+'">'+coverMarkup(r.g)+'<span class="ri-game-copy"><b>'+esc(r.g.title)+'</b><strong>'+won(r.g.currentPrice)+' · -'+r.g.discountPercent+'%</strong><small>'+esc(reason(r,group.id))+'</small></span></button>').join(''):'<div class="ri-empty">확인된 조건을 충족하는 게임이 없습니다.</div>')+(group.items.length>3?'<button class="ri-show" data-ri-group="'+group.id+'">전체 '+nf.format(group.items.length)+'개 보기</button>':'')+'</section>').join('')+'</div><p class="ri-note">관측 최저가는 PS Radar가 확보한 이력 범위 기준입니다. 한 게임이 여러 신호에 포함될 수 있습니다. 미확인 종료일과 부족한 이력은 추천 근거에서 제외합니다.<br>'+ (state.dataSource==='live'?'수집 시각 ':'오프라인 데이터 · 수집 시각 ')+esc(timeLabel(state.generatedAt))+'</p></div>';
   $('#loadMore').hidden=true;
@@ -624,8 +626,8 @@ function renderRadarDashboard(){
 function catalogDate(s){if(!s)return '발매일 미확인';try{return new Intl.DateTimeFormat('ko-KR',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(s));}catch{return '발매일 미확인';}}
 function renderCatalogCards(){
  const groups=new Map();for(const g of state.filtered){const id=state.nav==='my'?keyFor(g):g.catalogGroupId||keyFor(g);if(!groups.has(id))groups.set(id,[]);groups.get(id).push(g);}
- const all=[...groups.values()],shown=all.slice(0,state.visible);$('#dealCount').textContent=nf.format(all.length)+'개';
- $('#dealList').innerHTML='<div class="catalog-grid">'+shown.map(group=>{const g=group.find(x=>x.kind==='base')||group[0];return '<article class="catalog-card"><button type="button" class="catalog-cover-button" data-catalog-game="'+esc(keyFor(g))+'" aria-label="'+esc(g.title)+' 상세">'+coverMarkup(g,'catalog-cover')+'</button><button class="catalog-wish" data-wish="'+esc(keyFor(g))+'" aria-label="'+esc(g.title)+' 찜">'+(wish.has(keyFor(g))?'♥':'♡')+'</button><div class="catalog-copy"><b>'+esc(g.title)+'</b><small>PS5 · '+(g.kind==='expansion'?'DLC·확장팩 · 본편 필요':g.kind==='edition'?'본편 포함 에디션':'본편')+'</small><strong>'+won(g.currentPrice)+'</strong><small>'+(g.upcoming?'발매 예정':g.discountPercent?'-'+g.discountPercent+'% 할인':'정상가')+' · '+catalogDate(g.releaseDate)+'</small><small>'+(g.rating?'★ '+Number(g.rating).toFixed(2)+' · '+nf.format(g.ratingCount||0)+'건':'평점 미확인')+'</small>'+(group.length>1?'<button data-catalog-game="'+esc(keyFor(g))+'">상품 '+group.length+'개 비교</button>':'')+'</div></article>';}).join('')+(shown.length?'':'<p class="catalog-empty">조건에 맞는 게임이 없습니다.</p>')+'</div>';
+ const all=[...groups.values()].sort((a,b)=>compareGames(catalogRepresentative(a),catalogRepresentative(b))),shown=all.slice(0,state.visible);$('#dealCount').textContent=nf.format(all.length)+'개';
+ $('#dealList').innerHTML='<div class="catalog-grid">'+shown.map(group=>{const g=catalogRepresentative(group);return '<article class="catalog-card"><button type="button" class="catalog-cover-button" data-catalog-game="'+esc(keyFor(g))+'" aria-label="'+esc(g.title)+' 상세">'+coverMarkup(g,'catalog-cover')+'</button><button class="catalog-wish" data-wish="'+esc(keyFor(g))+'" aria-label="'+esc(g.title)+' 찜">'+(wish.has(keyFor(g))?'♥':'♡')+'</button><div class="catalog-copy"><b>'+esc(g.groupTitle||g.title)+'</b><small>'+esc(displayPlatforms(g).join(' · '))+' · '+(g.kind==='expansion'?'DLC·확장팩 · 본편 필요':g.kind==='edition'?'본편 포함 에디션':'본편')+'</small><strong>'+won(g.currentPrice)+'</strong><small>'+(g.upcoming?'발매 예정':g.discountPercent?'-'+g.discountPercent+'% 할인':'정상가')+' · '+catalogDate(g.releaseDate)+'</small><small>'+(g.rating?'★ '+Number(g.rating).toFixed(2)+' · '+nf.format(g.ratingCount||0)+'건':'평점 미확인')+'</small>'+(group.length>1?'<button data-catalog-game="'+esc(keyFor(g))+'">상품 '+group.length+'개 비교</button>':'')+'</div></article>';}).join('')+(shown.length?'':'<p class="catalog-empty">조건에 맞는 게임이 없습니다.</p>')+'</div>';
  $('#loadMore').hidden=shown.length>=all.length;
  $$('[data-catalog-game]').forEach(b=>b.addEventListener('click',()=>{const g=state.allProducts.find(x=>keyFor(x)===b.dataset.catalogGame);if(g)selectGame(g);}));
  $$('[data-wish]').forEach(b=>b.addEventListener('click',()=>toggleWish(b.dataset.wish)));
@@ -633,8 +635,16 @@ function renderCatalogCards(){
 function renderCatalogDetail(g){
  $('#detailContent').hidden=true;$('#catalogProductDetail')?.remove();hideDetailEmpty();
  const el=document.createElement('section');el.id='catalogProductDetail';el.className='catalog-product-detail';const siblings=state.allProducts.filter(x=>x.catalogGroupId&&x.catalogGroupId===g.catalogGroupId);
- el.innerHTML=coverMarkup(g,'catalog-detail-cover')+'<h2>'+esc(g.title)+'</h2><p>PS5 · '+(g.upcoming?'발매 예정':g.kind==='expansion'?'DLC·확장팩 · 본편 필요':'유료 게임')+'</p><h3>'+won(g.currentPrice)+'</h3><p>'+catalogDate(g.releaseDate)+'</p><p>'+(g.rating?'★ '+Number(g.rating).toFixed(2)+' / 5 · '+nf.format(g.ratingCount||0)+'건':'평점 미확인')+'</p><p>'+(g.upcoming?'출시일은 변경될 수 있습니다. 날짜가 지나도 실제 출시 확인 전까지 예정 상태를 유지합니다.':'현재 할인하지 않는 상품입니다. 가격 이력은 확보된 관측값부터 누적됩니다.')+'</p><p>가격 수집 '+timeLabel(g.fetchedAt||state.generatedAt)+'</p><button id="catalogWish">'+(wish.has(keyFor(g))?'♥ 찜됨':'♡ MY에 찜하기')+'</button><a href="'+esc(g.store)+'" target="_blank" rel="noopener">공식 PS Store 확인 ↗</a>'+(siblings.length>1?'<h3>같은 게임 상품</h3>'+siblings.map(x=>'<button data-product="'+esc(keyFor(x))+'">'+esc(x.title)+' · '+won(x.currentPrice)+'</button>').join(''):'');
+ el.innerHTML=coverMarkup(g,'catalog-detail-cover')+'<h2>'+esc(g.title)+'</h2><p>'+esc(displayPlatforms(g).join(' · '))+' · '+(g.upcoming?'발매 예정':g.kind==='expansion'?'DLC·확장팩 · 본편 필요':'유료 게임')+'</p><h3>'+won(g.currentPrice)+'</h3><p>'+catalogDate(g.releaseDate)+'</p><p>'+(g.rating?'★ '+Number(g.rating).toFixed(2)+' / 5 · '+nf.format(g.ratingCount||0)+'건':'평점 미확인')+'</p><p>'+(g.priceNeedsVerification?'이 가격은 이전 저장값입니다. 공식 스토어에서 현재 가격을 재확인해 주세요.':g.upcoming?'출시일은 변경될 수 있습니다. 날짜가 지나도 실제 출시 확인 전까지 예정 상태를 유지합니다.':(g.discountPercent?'-'+g.discountPercent+'% 할인 중입니다.':'현재 할인하지 않는 상품입니다.')+' 가격 이력은 확보된 관측값부터 누적됩니다.')+'</p><p>가격 수집 '+timeLabel(g.fetchedAt||state.generatedAt)+'</p><button id="catalogWish">'+(wish.has(keyFor(g))?'♥ 찜됨':'♡ MY에 찜하기')+'</button><a href="'+esc(g.store)+'" target="_blank" rel="noopener">공식 PS Store 확인 ↗</a>'+(siblings.length>1?'<h3>같은 게임 상품</h3>'+siblings.map(x=>'<button data-product="'+esc(keyFor(x))+'">'+esc(x.title)+' · '+won(x.currentPrice)+'</button>').join(''):'');
  $('#detailPane').appendChild(el);$('#catalogWish').onclick=()=>toggleWish(keyFor(g));$$('[data-product]').forEach(b=>b.onclick=()=>{const x=state.allProducts.find(x=>keyFor(x)===b.dataset.product);if(x)selectGame(x);});
+}
+function renderProductComparison(g){
+ $('#productComparison')?.remove();
+ const siblings=state.allProducts.filter(x=>x.catalogGroupId&&x.catalogGroupId===g.catalogGroupId);
+ if(siblings.length<2)return;
+ const box=document.createElement('section');box.id='productComparison';box.className='info-card';
+ box.innerHTML='<h3>에디션 · 추가 콘텐츠 비교</h3><p>공식 상품 ID로 연결한 상품입니다. 찜과 가격 이력은 상품별로 유지됩니다.</p>'+siblings.map(x=>'<button class="product-compare-row" data-compare-product="'+esc(keyFor(x))+'"><span>'+esc(x.edition||x.title)+'<small>'+esc(displayPlatforms(x).join(' · '))+' · '+(x.kind==='expansion'?'DLC·확장팩 · 본편 필요':'본편 포함')+'</small></span><strong>'+won(x.currentPrice)+'</strong></button>').join('');
+ $('#detailContent').appendChild(box);$$('[data-compare-product]').forEach(b=>b.onclick=()=>{const x=state.allProducts.find(x=>keyFor(x)===b.dataset.compareProduct);if(x)selectGame(x);});
 }
 function storeWishSnapshot(g){if(!g)return;try{const saved=JSON.parse(localStorage.getItem('psr2-wish-products')||'{}');saved[keyFor(g)]=g;localStorage.setItem('psr2-wish-products',JSON.stringify(saved));}catch{}}
 
@@ -642,13 +652,14 @@ function renderList(){
   const list=$('#dealList');$('#dealCount').textContent=`${nf.format(state.filtered.length)}개`;
   if(state.nav==='radar'&&state.radarMode==='dashboard'){renderRadarDashboard();return;}
   if(['catalog','upcoming','my'].includes(state.nav)){renderCatalogCards();return;}
-  const items=state.filtered.slice(0,state.visible);
-  list.innerHTML=items.length?items.map(g=>{const a=analysis(g),k=keyFor(g),sel=state.selected&&keyFor(state.selected)===k;return `<article class="deal-card ${sel?'selected':''}" data-key="${esc(k)}">${coverMarkup(g)}<div class="deal-main"><div class="deal-title">${esc(g.title)}</div><div class="mini-tags">${miniTags(g)}</div><div class="deal-price"><span class="off">-${g.discountPercent}%</span><strong>${won(g.currentPrice)}</strong><del>${won(g.originalPrice)}</del></div></div><div class="deal-verdict"><span class="timing-mini ${a.tone}">${a.label}</span></div><div class="score-dot ${a.tone}" title="구매 타이밍 ${a.score}점">${a.score}</div></article>`}).join(''):`<div class="empty-state"><div class="radar-rings">◎</div><h2>조건에 맞는 할인이 없습니다</h2><p>검색어나 필터를 완화해 보세요.</p><div class="empty-actions"><button id="emptyClearSearch">검색 지우기</button><button id="emptyResetFilters">필터 초기화</button></div></div>`;
-  $('#loadMore').hidden=state.visible>=state.filtered.length;bindList();$('#emptyClearSearch')?.addEventListener('click',()=>{$('#searchInput').value='';state.query='';state.visible=60;applyFilters()});$('#emptyResetFilters')?.addEventListener('click',()=>{resetAllFilters();applyFilters()});
+  const grouped=new Map();for(const g of state.filtered){const k=g.catalogGroupId||keyFor(g);if(!grouped.has(k))grouped.set(k,[]);grouped.get(k).push(g);}
+  const games=[...grouped.values()].map(catalogRepresentative).sort(compareGames);$('#dealCount').textContent=nf.format(games.length)+'개';const items=games.slice(0,state.visible);
+  list.innerHTML=items.length?items.map(g=>{const a=analysis(g),k=keyFor(g),sel=state.selected&&keyFor(state.selected)===k;return `<article class="deal-card ${sel?'selected':''}" data-key="${esc(k)}">${coverMarkup(g)}<div class="deal-main"><div class="deal-title">${esc(g.groupTitle||g.title)}</div><div class="mini-tags">${miniTags(g)}</div><div class="deal-price"><span class="off">-${g.discountPercent}%</span><strong>${won(g.currentPrice)}</strong><del>${won(g.originalPrice)}</del></div></div><div class="deal-verdict"><span class="timing-mini ${a.tone}">${a.label}</span></div><div class="score-dot ${a.tone}" title="구매 타이밍 ${a.score}점">${a.score}</div></article>`}).join(''):`<div class="empty-state"><div class="radar-rings">◎</div><h2>조건에 맞는 할인이 없습니다</h2><p>검색어나 필터를 완화해 보세요.</p><div class="empty-actions"><button id="emptyClearSearch">검색 지우기</button><button id="emptyResetFilters">필터 초기화</button></div></div>`;
+  $('#loadMore').hidden=state.visible>=games.length;bindList();$('#emptyClearSearch')?.addEventListener('click',()=>{$('#searchInput').value='';state.query='';state.visible=60;applyFilters()});$('#emptyResetFilters')?.addEventListener('click',()=>{resetAllFilters();applyFilters()});
 }
 function bindList(){$$('.deal-card').forEach(el=>el.addEventListener('click',e=>{if(e.target.closest('[data-wish]'))return;const g=state.allProducts.find(x=>keyFor(x)===el.dataset.key);if(g)selectGame(g)}));$$('[data-wish]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();toggleWish(b.dataset.wish)}))}
-function toggleWish(k){storeWishSnapshot(state.allProducts.find(x=>keyFor(x)===k));wish.has(k)?wish.delete(k):wish.add(k);localStorage.setItem('psr2-wish',JSON.stringify([...wish]));if(state.selected&&keyFor(state.selected)===k){if(state.selected.upcoming||!state.selected.discountPercent)renderCatalogDetail(state.selected);else renderDetail(state.selected);}applyFilters();toast(wish.has(k)?'MY에 저장했습니다':'MY에서 제거했습니다')}
-function selectGame(g){state.selected=g;hideDetailEmpty();if(g.currentPrice>0&&!g.upcoming)recordObservation(g);if(g.upcoming||!g.discountPercent)renderCatalogDetail(g);else renderDetail(g);renderList();const pane=$('#detailPane');pane.scrollTop=0;activateDetailTab('price');if(innerWidth<600)pane.classList.add('mobile-open')}
+function toggleWish(k){storeWishSnapshot(state.allProducts.find(x=>keyFor(x)===k));wish.has(k)?wish.delete(k):wish.add(k);localStorage.setItem('psr2-wish',JSON.stringify([...wish]));if(state.selected&&keyFor(state.selected)===k){if(state.selected.upcoming||state.selected.priceNeedsVerification||!state.selected.discountPercent)renderCatalogDetail(state.selected);else renderDetail(state.selected);}applyFilters();toast(wish.has(k)?'MY에 저장했습니다':'MY에서 제거했습니다')}
+function selectGame(g){state.selected=g;hideDetailEmpty();if(g.currentPrice>0&&!g.upcoming)recordObservation(g);if(g.upcoming||g.priceNeedsVerification||!g.discountPercent)renderCatalogDetail(g);else renderDetail(g);renderList();const pane=$('#detailPane');pane.scrollTop=0;activateDetailTab('price');if(innerWidth<600)pane.classList.add('mobile-open')}
 function renderDetail(g){$('#detailContent').hidden=false;$('#catalogProductDetail')?.remove();$('#detailContent').style.display='';
   const a=analysis(g),s=storeInfo(g),m=metaInfo(g);$('#detailContent').hidden=false;
   const hero=$('#detailHero');hero.style.backgroundImage=g.image?`url("${g.image.replace(/"/g,'')}")`:'linear-gradient(135deg,#0c3558,#06182b)';
@@ -661,6 +672,7 @@ function renderDetail(g){$('#detailContent').hidden=false;$('#catalogProductDeta
   const tb=$('#timingBadge');tb.className=`timing-badge ${a.tone}`;tb.innerHTML=`<span class="cart-icon">${a.label==='BUY NOW'?'🛒':a.label==='WAIT'?'◷':'◎'}</span><b>${a.label}</b><small>구매 타이밍 점수 ${a.score}</small>`;
   $('#timingScoreRing').className=`score-ring ${a.tone}`;$('#timingScoreRing').innerHTML=`<strong>${a.score}</strong><small>구매 타이밍</small>`;
   renderTrend(g,a);renderCompare(g,a);renderMetrics(g,a);renderGameInfo(g,a,s,m);renderReview(g,s);renderSimilar(g);
+  renderProductComparison(g);
 }
 function collapsePriceChanges(obs){
   const out=[];
@@ -770,7 +782,7 @@ function renderSimilar(g){
 function activateDetailTab(tab){$$('.detail-tab').forEach(b=>b.classList.toggle('active',b.dataset.detailTab===tab));$$('[data-tab-pane]').forEach(p=>p.classList.toggle('active',p.dataset.tabPane===tab))}
 function renderSectionContext(){
  $('#listCaption').textContent={catalog:'전체 게임',upcoming:'발매 예정',my:'찜한 상품'}[state.nav]||'현재 할인 중';
- if(['catalog','upcoming','my'].includes(state.nav)){$('#sectionContext').hidden=false;$('#sectionContext').textContent=state.nav==='catalog'?'확보된 PS5 유료 상품 · 평점 4.0 이상 / 평가 500건 이상 · 전체 Store 수집은 확장 중':state.nav==='upcoming'?'공식 출시 예정 · 출시 여부 확인 후 전체 게임으로 이동':'할인이 끝나도 찜은 유지됩니다. 이전 저장 상품은 가격 재확인이 필요할 수 있습니다.';return;}
+ if(['catalog','upcoming','my'].includes(state.nav)){$('#sectionContext').hidden=false;$('#sectionContext').textContent=state.nav==='catalog'?'PS5 본편 선별: 평점 4.0 이상 / 평가 500건 이상 · 연결된 에디션·DLC 비교':state.nav==='upcoming'?'공식 출시 예정 · 실제 판매와 출시일을 함께 확인한 뒤 전체 게임으로 이동':'할인이 끝나도 찜은 유지됩니다. 이전 저장 상품은 가격 재확인이 필요할 수 있습니다.';return;}
 
   const box=$('#sectionContext');
   if(state.query){box.hidden=false;box.innerHTML=`<strong>검색 “${esc(state.query)}”</strong> · 제목에 포함된 현재 할인 게임 ${nf.format(state.filtered.length)}개`;return}
@@ -786,15 +798,23 @@ function navTo(nav){
 }
 async function load(force=false){
   if(state.busy)return;state.busy=true;setRefreshBusy(true,force?'최신 데이터 확인 중':'데이터 불러오는 중');if(force)toast('최신 할인·가격 이력·추세·게임 정보를 동기화합니다');const selectedKey=state.selected&&keyFor(state.selected);
-  try{const [dealsRes,trendsRes,historyRes,storeRes,metaRes,catalogRes]=await Promise.all([fetchDataFile('deals-auto.json',{force}),fetchDataFile('deal-trends.json',{force,optional:true}),fetchDataFile('deal-history.json',{force,optional:true}),fetchDataFile('store-auto.json',{force,optional:true}),fetchDataFile('game-info-v229.json',{force,optional:true}),fetchDataFile('catalog-curated-v231.json',{force,optional:true})]);const deals=dealsRes.json||{};state.deals=cleanDeals(deals.items);state.trends=trendsRes.json?.items||{};state.history=historyRes.json?.items||{};state.store=storeMap(storeRes.json?.items||[]);state.meta=metaMap(metaRes.json?.items||[]);state.catalog=catalogRes.json?.health?.safeToMerge?catalogRes.json.items:state.catalog;
- state.upcoming=[{id:'up-gta6',title:'Grand Theft Auto VI',store:'https://store.playstation.com/ko-kr/product/EP1004-PPSA01547_00-GTAVISTANDARD001',productId:'EP1004-PPSA01547_00-GTAVISTANDARD001',platform:['PS5'],genre:['액션'],currentPrice:89800,originalPrice:89800,discountPercent:0,releaseDate:'2026-11-18T15:00:00Z',upcoming:true,kind:'base',catalogGroupId:'up-gta6',fetchedAt:'2026-10-03T16:18:00Z'}];
- state.upcoming=state.upcoming.filter(u=>!state.catalog.some(g=>g.productId===u.productId&&g.releasedConfirmed));const oldDeals=state.deals;const available=new Map(state.catalog.map(g=>[keyFor(g),g]));
+  try{const [dealsRes,trendsRes,historyRes,storeRes,metaRes,catalogRes,fullRes]=await Promise.all([fetchDataFile('deals-auto.json',{force}),fetchDataFile('deal-trends.json',{force,optional:true}),fetchDataFile('deal-history.json',{force,optional:true}),fetchDataFile('store-auto.json',{force,optional:true}),fetchDataFile('game-info-v229.json',{force,optional:true}),fetchDataFile('catalog-curated-v231.json',{force,optional:true}),fetchDataFile('catalog-app-v232.json',{force,optional:true})]);const deals=dealsRes.json||{};state.deals=cleanDeals(deals.items);state.trends=trendsRes.json?.items||{};state.history=historyRes.json?.items||{};state.store=storeMap(storeRes.json?.items||[]);state.meta=metaMap(metaRes.json?.items||[]);state.catalog=catalogRes.json?.health?.safeToMerge?catalogRes.json.items:state.catalog;
+ const full=fullRes.json?.health?.safeToMerge?fullRes.json:state.fullCatalog||null;if(full)state.fullCatalog=full;
+ if(full){
+  const byProduct=new Map(state.catalog.map(g=>[g.productId,g]));
+  for(const g of full.items||[])byProduct.set(g.productId,{...byProduct.get(g.productId),...g,title:String(g.title||'').replace(/\s*\((?:한국어|영어|일본어|중국어)[\s\S]*\)\s*$/,'').trim()});
+  const relationship=new Map();for(const [concept,ids] of Object.entries(full.links||{}))for(const id of ids)relationship.set(id,concept);
+  state.catalog=[...byProduct.values()].filter(g=>!g.comparisonOnly).map(g=>{const concept=relationship.get(g.productId)||g.conceptId;return concept?{...g,conceptId:concept,catalogGroupId:'concept:'+concept}:g;});
+  state.upcoming=(full.upcoming||[]).filter(g=>!g.comparisonOnly);state.catalogCoverage=full.health;
+ }else{state.upcoming=state.upcoming||[];}
+ state.upcoming=state.upcoming.filter(u=>!state.catalog.some(g=>g.productId===u.productId&&g.releasedConfirmed));
+ const oldDeals=state.deals;const available=new Map([...state.catalog,...state.upcoming].map(g=>[keyFor(g),g]));
  state.deals=state.catalog.filter(g=>g.discountPercent>0);
  let saved={};try{saved=JSON.parse(localStorage.getItem('psr2-wish-products')||'{}');}catch{}
  for(const g of oldDeals)if(wish.has(keyFor(g))&&!available.has(keyFor(g)))available.set(keyFor(g),g);
  for(const [k,g] of Object.entries(saved))if(wish.has(k)&&!available.has(k))available.set(k,{...g,priceNeedsVerification:true});
- state.allProducts=[...available.values(),...state.upcoming];for(const g of state.allProducts)if(wish.has(keyFor(g)))storeWishSnapshot(g);
- state.generatedAt=deals.generatedAt||trendsRes.json?.generatedAt||null;state.dataSource=dealsRes.source;const stamp=state.generatedAt?timeLabel(state.generatedAt):'미확인';$('#dataStamp').textContent=state.dataSource==='live'?`LIVE ${stamp}`:`OFFLINE ${stamp}`;state.visible=60;applyFilters();const preferred=(selectedKey&&state.allProducts.find(x=>keyFor(x)===selectedKey))||state.filtered[0];if(preferred&&(!state.selected||keyFor(preferred)!==keyFor(state.selected)))selectGame(preferred);setRefreshBusy(false,state.dataSource==='live'?`갱신 ${stamp}`:'오프라인');toast(state.dataSource==='live'?`최신 데이터 동기화 완료 · 할인 ${nf.format(state.deals.length)}개`:`온라인 연결 실패 · 내장 데이터 ${nf.format(state.deals.length)}개 사용`)}catch(e){console.error(e);$('#dealList').innerHTML='<div class="empty-state"><h2>데이터를 불러오지 못했습니다</h2><p>네트워크 연결을 확인한 뒤 새로고침해 주세요.</p></div>';setRefreshBusy(false,'갱신 실패');toast('최신 데이터 동기화에 실패했습니다')}finally{state.busy=false;const refresh=$('#refreshBtn');if(refresh)refresh.disabled=false}
+ state.allProducts=[...new Map([...available.values(),...[...(full?.items||[]),...(full?.upcoming||[])].filter(g=>g.comparisonOnly)].map(g=>[keyFor(g),g])).values()];for(const g of state.allProducts)if(wish.has(keyFor(g)))storeWishSnapshot(g);
+ state.generatedAt=full?.generatedAt||deals.generatedAt||trendsRes.json?.generatedAt||null;state.dataSource=full?(fullRes.json?.health?.safeToMerge?fullRes.source:'cache'):dealsRes.source;const stamp=state.generatedAt?timeLabel(state.generatedAt):'미확인';$('#dataStamp').textContent=state.dataSource==='live'?`LIVE ${stamp}`:`OFFLINE ${stamp}`;state.visible=60;applyFilters();const preferred=(selectedKey&&state.filtered.find(x=>keyFor(x)===selectedKey))||state.filtered[0];if(preferred){state.selected=preferred;if(preferred.upcoming||preferred.priceNeedsVerification||!preferred.discountPercent)renderCatalogDetail(preferred);else renderDetail(preferred);renderList();}setRefreshBusy(false,state.dataSource==='live'?`갱신 ${stamp}`:'오프라인');toast(state.dataSource==='live'?`최신 데이터 동기화 완료 · 할인 ${nf.format(state.deals.length)}개`:`온라인 연결 실패 · 내장 데이터 ${nf.format(state.deals.length)}개 사용`)}catch(e){console.error(e);$('#dealList').innerHTML='<div class="empty-state"><h2>데이터를 불러오지 못했습니다</h2><p>네트워크 연결을 확인한 뒤 새로고침해 주세요.</p></div>';setRefreshBusy(false,'갱신 실패');toast('최신 데이터 동기화에 실패했습니다')}finally{state.busy=false;const refresh=$('#refreshBtn');if(refresh)refresh.disabled=false}
 }
 
 $('#loadMore').addEventListener('click',()=>{state.visible+=60;renderList()});
@@ -868,3 +888,4 @@ navTo('catalog');setFilterOpen(false);load(false);
 </script>
 </body>
 </html>
+
