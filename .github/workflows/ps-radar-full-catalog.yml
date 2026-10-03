@@ -8,7 +8,6 @@ on:
     paths:
       - 'ps-radar/scripts/collect-store-catalog-v232.mjs'
       - 'ps-radar/scripts/store-api-v232.mjs'
-      - '.github/workflows/ps-radar-full-catalog.yml'
 permissions:
   contents: write
 concurrency:
@@ -31,6 +30,8 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Discover all PS5 concepts and verify paid products
         run: node ps-radar/scripts/collect-store-catalog-v232.mjs
+      - name: Link official gameplay expansions
+        run: node ps-radar/scripts/link-expansions-v232.mjs
       - name: Commit verified catalog
         run: |
           git add ps-radar/data/store-discovery-v232.json ps-radar/data/store-catalog-v232.json
