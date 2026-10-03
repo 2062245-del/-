@@ -468,7 +468,7 @@ function analysis(g){
   const avgGapDays=serverTrend.averageGapDays!=null&&Number(serverTrend.averageGapDays)>0&&Number.isFinite(Number(serverTrend.averageGapDays))?Number(serverTrend.averageGapDays):null;
   const saleCycles=Number(serverTrend.saleCycles)||0;
   const actualChanges=collapsePriceChanges(obs);
-  const changePoints=Math.max(Number(serverTrend.changePoints)||0,actualChanges.length);
+  const changePoints=actualChanges.length;
   const observedRuns=Number(hist.priceObservations||hist.observations)||obs.length;
   const previousCycleBestPrice=Number(serverTrend.previousCycleBestPrice)||null;
   const previousCycleBestDiscount=Number(serverTrend.previousCycleBestDiscount)||null;
@@ -477,7 +477,7 @@ function analysis(g){
   const nearLow=g.currentPrice<=low*1.03;
   const deltaLow=low?((g.currentPrice-low)/low)*100:0;
   const endDays=saleEndDays(g);
-  const evidence=saleCycles>=3&&changePoints>=5?'높음':saleCycles>=2||changePoints>=3?'보통':'축적 중';
+  const evidence=saleCycles>=3&&changePoints>=5?'높음':changePoints>=3||(saleCycles>=2&&changePoints>=2)?'보통':'축적 중';
   let score=0;
   score+=nearLow?30:clamp(30-deltaLow*1.5,0,30);
   score+=highDisc?clamp((g.discountPercent/highDisc)*20,0,20):10;
