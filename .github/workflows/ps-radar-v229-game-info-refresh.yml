@@ -1,0 +1,101 @@
+name: PS Radar 2.2.9 Game Info Refresh
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 3 */3 * *'
+  push:
+    branches: [main]
+    paths:
+      - 'ps-radar/scripts/enrich-deal-game-info-v229.mjs'
+      - '.github/workflows/ps-radar-v229-game-info-refresh.yml'
+
+permissions:
+  contents: write
+
+env:
+  SHARD_COUNT: '5'
+
+jobs:
+  collect:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+      - name: Validate collector
+        run: node --check ps-radar/scripts/enrich-deal-game-info-v229.mjs
+      - name: Collect official PS Store game info
+        env:
+          GAME_INFO_LIMIT: '2520'
+          GAME_INFO_CONCURRENCY: '6'
+          GAME_INFO_SHARD_COUNT: '5'
+          GAME_INFO_SHARD_INDEX: '${{ matrix.shard }}'
+          GAME_INFO_OUT: 'ps-radar/data/game-info-v229-shard-${{ matrix.shard }}.json'
+        run: node ps-radar/scripts/enrich-deal-game-info-v229.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ps-radar-v229-shard-${{ matrix.shard }}
+          path: ps-radar/data/game-info-v229-shard-${{ matrix.shard }}.json
+          retention-days: 2
+
+  merge:
+    needs: collect
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+      - uses: actions/download-artifact@v5
+        with:
+          pattern: ps-radar-v229-shard-*
+          path: /tmp/psradar-v229
+          merge-multiple: true
+      - name: Merge and validate game info snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const fs=require('fs'),path=require('path');
+          const dir='/tmp/psradar-v229';
+          const files=fs.readdirSync(dir).filter(x=>x.endsWith('.json'));
+          if(files.length<5) throw new Error(`expected 5 shard files, got ${files.length}`);
+          const byId=new Map(),failures=[];
+          for(const f of files){
+            const j=JSON.parse(fs.readFileSync(path.join(dir,f),'utf8'));
+            for(const x of j.items||[]) if(x?.id) byId.set(String(x.id),x);
+            failures.push(...(j.failures||[]));
+          }
+          const items=[...byId.values()].sort((a,b)=>String(a.title).localeCompare(String(b.title),'ko'));
+          const count=k=>items.filter(k).length;
+          const health={
+            safeToMerge:false,itemCount:items.length,
+            releaseDateCount:count(x=>x.releaseDate),genreCount:count(x=>x.genres?.length),publisherCount:count(x=>x.publisher),
+            ratingCount:count(x=>x.rating),contentRatingCount:count(x=>x.contentRating),editionCount:count(x=>x.edition),
+            screenLanguageCount:count(x=>x.screenLanguages?.length),saleEndCount:count(x=>x.saleEndsAt),descriptionCount:count(x=>x.longDescription||x.shortDescription),
+            failureCount:failures.length,shardCount:files.length
+          };
+          health.safeToMerge=health.itemCount>=1000&&health.genreCount>=300&&health.contentRatingCount>=300&&health.descriptionCount>=300;
+          if(!health.safeToMerge) throw new Error('metadata safety threshold not met '+JSON.stringify(health));
+          const out={generatedAt:new Date().toISOString(),source:'playstation-store-product-html-next-data',health,failures:failures.slice(0,160),items};
+          fs.writeFileSync('ps-radar/data/game-info-v229.json',JSON.stringify(out,null,2)+'\n');
+          console.log('V229_FULL_GAME_INFO',health);
+          NODE
+      - name: Commit refreshed game info
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'PS Radar Automation'
+          git config user.email 'actions@users.noreply.github.com'
+          git add ps-radar/data/game-info-v229.json
+          git diff --cached --quiet && exit 0
+          git commit -m 'Refresh PS Radar 2.2.9 official game info'
+          git pull --rebase origin main
+          git push origin HEAD:main
