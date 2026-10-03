@@ -4,6 +4,7 @@ import path from 'node:path';
 const DEALS='ps-radar/data/deals-auto.json';
 const OUT=process.env.GAME_INFO_OUT||'ps-radar/data/game-info-v229.json';
 const LIMIT=Math.max(1,Number(process.env.GAME_INFO_LIMIT||2520));
+const MATCH=String(process.env.GAME_INFO_MATCH||'').trim().toLowerCase();
 const CONCURRENCY=Math.max(1,Math.min(10,Number(process.env.GAME_INFO_CONCURRENCY||5)));
 const SHARD_COUNT=Math.max(1,Number(process.env.GAME_INFO_SHARD_COUNT||1));
 const SHARD_INDEX=Math.max(0,Number(process.env.GAME_INFO_SHARD_INDEX||0));
@@ -107,14 +108,16 @@ async function fetchOne(row){
 }
 
 const deals=await readJson(DEALS,null);if(!deals?.health?.safeToMerge||!Array.isArray(deals.items))throw new Error('deals-auto.json unsafe');
-const all=(deals.items||[]).filter(x=>x?.id&&productIdFromUrl(x.store)).slice(0,LIMIT);
+const pool=(deals.items||[]).filter(x=>x?.id&&productIdFromUrl(x.store));
+const filtered=MATCH?pool.filter(x=>`${x.title||''} ${x.store||''}`.toLowerCase().includes(MATCH)):pool;
+const all=filtered.slice(0,LIMIT);
 const candidates=all.filter((_,i)=>i%SHARD_COUNT===SHARD_INDEX);
 let cursor=0,ok=0,fail=0,skipped=0;const items=[],failures=[];
 async function worker(workerId){await sleep(workerId*120);while(true){const i=cursor++;if(i>=candidates.length)return;const row=candidates[i];const r=await fetchOne(row);if(r.ok){items.push(r.item);ok++;}else{if(r.skip)skipped++;else fail++;if(failures.length<120)failures.push({id:row.id,title:row.title,error:r.error});}if((i+1)%50===0)console.log('V229_GAME_INFO_PROGRESS',{done:i+1,total:candidates.length,ok,fail,skipped,shardIndex:SHARD_INDEX});await sleep(90);}}
 await Promise.all(Array.from({length:Math.min(CONCURRENCY,Math.max(1,candidates.length))},(_,i)=>worker(i)));
 items.sort((a,b)=>String(a.title).localeCompare(String(b.title),'ko'));
 const coverage={release:items.filter(x=>x.releaseDate).length,genre:items.filter(x=>x.genres?.length).length,publisher:items.filter(x=>x.publisher).length,rating:items.filter(x=>x.rating).length,contentRating:items.filter(x=>x.contentRating).length,edition:items.filter(x=>x.edition).length,screenLanguages:items.filter(x=>x.screenLanguages?.length).length,saleEndsAt:items.filter(x=>x.saleEndsAt).length,description:items.filter(x=>x.longDescription||x.shortDescription).length};
-const health={safeToMerge:items.length>=Math.min(20,Math.floor(candidates.length*0.5)),candidateCount:candidates.length,itemCount:items.length,fetchedNow:ok,failedNow:fail,skippedNow:skipped,shardIndex:SHARD_INDEX,shardCount:SHARD_COUNT,...coverage};
+const health={safeToMerge:items.length>=Math.min(20,Math.max(1,Math.floor(candidates.length*0.5))),candidateCount:candidates.length,itemCount:items.length,fetchedNow:ok,failedNow:fail,skippedNow:skipped,match:MATCH||null,shardIndex:SHARD_INDEX,shardCount:SHARD_COUNT,...coverage};
 const payload={generatedAt:new Date().toISOString(),source:'playstation-store-product-html-next-data',health,failures,items};
 await fs.mkdir(path.dirname(OUT),{recursive:true});await fs.writeFile(OUT,JSON.stringify(payload,null,2)+'\n','utf8');
 console.log('V229_GAME_INFO_DONE',health);
