@@ -5,7 +5,7 @@ Database and managed VAPID push are provisioned. Render is not used.
 
 Verified in sandbox: config, current catalog price check, registration, subscription JSON-object storage, token ownership denial, CORS and disable. Existing five-condition policy tests pass. Physical-device delivery has not been verified.
 
-First production publish requires the provider Publish form. As of this commit the backend is NOT published. preview-v2/push-config.json intentionally has apiBase:null; online app labels server pending and cannot enable background push yet. Once the form completes, verify the production API, set apiBase to its https://…floot.app origin, then verify the GitHub price-check action and phone permission/test notification.
+Production published at https://ps-radar-alerts.floot.app on 2026-10-04. GET /_api/radar and POST /_api/price-check return HTTP 200. preview-v2/push-config.json points at this production origin. The publish form was unusable on the user's device; the provider's documented direct-publish fallback completed successfully. Phone permission and physical-device notification delivery still require a device test.
 
 GitHub .github/workflows/ps-radar-push-price-check.yml runs at minutes 7,27,47; it skips explicitly while apiBase is null. Floot paid scheduled jobs are not used. Backend price-check claims a database lease, at most once every 19 minutes, reads only the trusted safe catalog, rejects stale/unverified/upcoming prices, persists samples/outbox and de-duplicates notification IDs. Push subscriptions and rule changes require a per-device secret hashed in storage. Browser calls use text/plain SuperJSON to avoid cross-origin preflight. Server allows the existing GitHub Pages origin.
 
