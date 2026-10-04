@@ -1,0 +1,27 @@
+name: PS Radar Push Price Check
+on:
+  workflow_dispatch:
+  # Enable after server and repository secrets are verified:
+  # schedule:
+  #   - cron: '7,27,47 * * * *'
+permissions:
+  contents: read
+concurrency:
+  group: ps-radar-push-price-check
+  cancel-in-progress: false
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Invoke configured push server
+        env:
+          PSR_PUSH_API: ${{ secrets.PSR_PUSH_API }}
+          PSR_PUSH_CRON_SECRET: ${{ secrets.PSR_PUSH_CRON_SECRET }}
+        run: |
+          if [ -z "$PSR_PUSH_API" ] || [ -z "$PSR_PUSH_CRON_SECRET" ]; then
+            echo "Push server is not configured; no notifications sent."
+            exit 0
+          fi
+          curl --fail-with-body --silent --show-error --max-time 240 \
+            -X POST -H "Authorization: Bearer $PSR_PUSH_CRON_SECRET" \
+            "$PSR_PUSH_API/tick"
