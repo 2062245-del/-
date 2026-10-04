@@ -1,9 +1,13 @@
 name: PS Radar Push Price Check
 on:
   workflow_dispatch:
-  # Enable after server and repository secrets are verified:
-  # schedule:
-  #   - cron: '7,27,47 * * * *'
+  schedule:
+    - cron: '7,27,47 * * * *'
+  push:
+    branches: [main]
+    paths:
+      - 'ps-radar/preview-v2/push-config.json'
+      - '.github/workflows/ps-radar-push-price-check.yml'
 permissions:
   contents: read
 concurrency:
@@ -13,15 +17,24 @@ jobs:
   check:
     runs-on: ubuntu-24.04
     steps:
-      - name: Invoke configured push server
-        env:
-          PSR_PUSH_API: ${{ secrets.PSR_PUSH_API }}
-          PSR_PUSH_CRON_SECRET: ${{ secrets.PSR_PUSH_CRON_SECRET }}
+      - uses: actions/checkout@v6
+      - name: Check collected prices through Floot
         run: |
-          if [ -z "$PSR_PUSH_API" ] || [ -z "$PSR_PUSH_CRON_SECRET" ]; then
-            echo "Push server is not configured; no notifications sent."
-            exit 0
-          fi
-          curl --fail-with-body --silent --show-error --max-time 240 \
-            -X POST -H "Authorization: Bearer $PSR_PUSH_CRON_SECRET" \
-            "$PSR_PUSH_API/tick"
+          python3 - <<'PY'
+          import json, urllib.request
+          from pathlib import Path
+          config=json.loads(Path('ps-radar/preview-v2/push-config.json').read_text())
+          base=config.get('apiBase')
+          if not base:
+              print('Server first publish pending; push checks are not active.')
+              raise SystemExit(0)
+          if not base.startswith('https://') or not base.endswith('.floot.app'):
+              raise SystemExit('Unexpected push API origin')
+          request=urllib.request.Request(base.rstrip('/')+'/_api/price-check',
+              data=json.dumps({'json':{}}).encode(),
+              headers={'Content-Type':'text/plain'},method='POST')
+          with urllib.request.urlopen(request, timeout=240) as response:
+              result=json.load(response)['json']
+          if not result.get('ok'): raise SystemExit('Push price check failed')
+          print('PS Radar push check:',result)
+          PY
