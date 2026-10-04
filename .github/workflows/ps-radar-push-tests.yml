@@ -1,0 +1,27 @@
+name: PS Radar Push Server Tests
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'ps-radar/push-server/**'
+      - '.github/workflows/ps-radar-push-tests.yml'
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --ignore-scripts
+        working-directory: ps-radar/push-server
+      - run: npm test
+        working-directory: ps-radar/push-server
+      - name: Validate runtime imports and push encryption
+        working-directory: ps-radar/push-server
+        run: |
+          node --input-type=module -e 'import pg from "pg"; import webpush from "web-push"; const keys=webpush.generateVAPIDKeys(); if (!keys.publicKey || !keys.privateKey || !pg.Pool) process.exit(1); console.log("Runtime dependencies and VAPID key generation OK");'
+      - run: node --check server.mjs && node --check push-client.mjs && node --check push-sw.js
+        working-directory: ps-radar/push-server
