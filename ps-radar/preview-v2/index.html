@@ -293,6 +293,10 @@ button:focus-visible,a:focus-visible,[role=button]:focus-visible{outline:2px sol
 }
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
 
+.rail-nav .nav-item{padding:6px 2px}.rail-nav .nav-item b{white-space:nowrap}
+.catalog-copy b{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;min-height:4.5em;overflow:hidden}
+.select-chip{order:-1;position:sticky;left:0;z-index:1;background:#09243d;flex-shrink:0}
+@media(min-width:600px) and (max-width:900px){.rail-nav .nav-item b{font-size:11px}.price-block del{font-size:12px}}
 </style>
 </head>
 <body>
@@ -400,7 +404,7 @@ button:focus-visible,a:focus-visible,[role=button]:focus-visible{outline:2px sol
       </section>
 
       <section class="detail-pane panel" id="detailPane">
-        <button id="mobileBack" class="mobile-back" aria-label="할인 목록으로 돌아가기">‹ 목록</button>
+        <button id="mobileBack" class="mobile-back" aria-label="게임 목록으로 돌아가기">‹ 목록</button>
         <div id="detailContent" hidden>
           <section id="detailHero" class="detail-hero">
             <div class="hero-shade"></div>
@@ -775,7 +779,7 @@ function catalogDate(s){if(!s)return '발매일 미확인';try{return new Intl.D
 function renderCatalogCards(){
  const groups=new Map();for(const g of state.filtered){const id=state.nav==='my'?keyFor(g):g.catalogGroupId||keyFor(g);if(!groups.has(id))groups.set(id,[]);groups.get(id).push(g);}
  const all=[...groups.values()].sort((a,b)=>compareGames(catalogRepresentative(a),catalogRepresentative(b))),shown=all.slice(0,state.visible);$('#dealCount').textContent=nf.format(all.length)+'개';
- $('#dealList').innerHTML='<div class="catalog-grid">'+shown.map(group=>{const g=catalogRepresentative(group);return '<article class="catalog-card"><button type="button" class="catalog-cover-button" data-catalog-game="'+esc(keyFor(g))+'" aria-label="'+esc(g.title)+' 상세">'+coverMarkup(g,'catalog-cover')+'</button><button class="catalog-wish" data-wish="'+esc(keyFor(g))+'" aria-label="'+esc(g.title)+' 찜">'+(wish.has(keyFor(g))?'♥':'♡')+'</button><div class="catalog-copy"><b>'+esc(g.groupTitle||g.title)+'</b><small>'+esc(displayPlatforms(g).join(' · '))+' · '+(g.kind==='expansion'?'DLC·확장팩 · 본편 필요':g.kind==='edition'?'본편 포함 에디션':'본편')+'</small><strong>'+won(g.currentPrice)+'</strong><small>'+(g.releaseNeedsVerification?'출시 확인 중':g.upcoming?'발매 예정':g.discountPercent?'-'+g.discountPercent+'% 할인':'정상가')+' · '+catalogDate(g.releaseDate)+'</small><small>'+(g.rating?'★ '+Number(g.rating).toFixed(2)+' · '+nf.format(g.ratingCount||0)+'건':'평점 미확인')+'</small>'+(group.length>1?'<button data-catalog-game="'+esc(keyFor(g))+'">상품 '+group.length+'개 비교</button>':'')+'</div></article>';}).join('')+(shown.length?'':'<p class="catalog-empty">조건에 맞는 게임이 없습니다.</p>')+'</div>';
+ $('#dealList').innerHTML='<div class="catalog-grid">'+shown.map(group=>{const g=catalogRepresentative(group);const comparisonCount=g.catalogGroupId?state.allProducts.filter(x=>x.catalogGroupId===g.catalogGroupId).length:group.length;return '<article class="catalog-card"><button type="button" class="catalog-cover-button" data-catalog-game="'+esc(keyFor(g))+'" aria-label="'+esc(g.title)+' 상세">'+coverMarkup(g,'catalog-cover')+'</button><button class="catalog-wish" data-wish="'+esc(keyFor(g))+'" aria-label="'+esc(g.title)+' 찜">'+(wish.has(keyFor(g))?'♥':'♡')+'</button><div class="catalog-copy"><b>'+esc(g.groupTitle||g.title)+'</b><small>'+esc(displayPlatforms(g).join(' · '))+' · '+(g.kind==='expansion'?'DLC·확장팩 · 본편 필요':g.kind==='edition'?'본편 포함 에디션':'본편')+'</small><strong>'+won(g.currentPrice)+'</strong><small>'+(g.releaseNeedsVerification?'출시 확인 중':g.upcoming?'발매 예정':g.discountPercent?'-'+g.discountPercent+'% 할인':'정상가')+' · '+catalogDate(g.releaseDate)+'</small><small>'+(g.rating?'★ '+Number(g.rating).toFixed(2)+' · '+nf.format(g.ratingCount||0)+'건':'평점 미확인')+'</small>'+(comparisonCount>1?'<button data-catalog-game="'+esc(keyFor(g))+'">상품 '+comparisonCount+'개 비교</button>':'')+'</div></article>';}).join('')+(shown.length?'':'<p class="catalog-empty">조건에 맞는 게임이 없습니다.</p>')+'</div>';
  $('#loadMore').hidden=shown.length>=all.length;
  $$('[data-catalog-game]').forEach(b=>b.addEventListener('click',()=>{const g=state.allProducts.find(x=>keyFor(x)===b.dataset.catalogGame);if(g)selectGame(g);}));
  $$('[data-wish]').forEach(b=>b.addEventListener('click',()=>toggleWish(b.dataset.wish)));
@@ -812,7 +816,7 @@ function renderDetail(g){$('#detailContent').hidden=false;$('#catalogProductDeta
   const a=analysis(g),s=storeInfo(g),m=metaInfo(g);$('#detailContent').hidden=false;
   const hero=$('#detailHero');hero.style.backgroundImage=g.image?`url("${g.image.replace(/"/g,'')}")`:'linear-gradient(135deg,#0c3558,#06182b)';
   $('#heroTitle').textContent=g.title;$('#heroMaker').textContent=m?.publisher||s?.publisherName||s?.publisher||'PlayStation Store';
-  $('#heroTags').innerHTML=[...displayPlatforms(g),...(editionLabel(g)?[editionLabel(g)]:[]),...(g.ko?['한국어']:[]),...((m?.genres?.length?m.genres:g.genre)||[]).slice(0,2)].map(x=>`<span class="tag">${esc(x)}</span>`).join('');
+  $('#heroTags').innerHTML=[...new Set([...displayPlatforms(g),...(editionLabel(g)?[editionLabel(g)]:[]),...(g.ko?['한국어']:[]),...((m?.genres?.length?m.genres:g.genre)||[]).slice(0,2)])].map(x=>`<span class="tag">${esc(x)}</span>`).join('');
   $('#heroDiscount').textContent=`-${g.discountPercent}%`;$('#heroPrice').textContent=won(g.currentPrice);$('#heroOriginal').textContent=won(g.originalPrice);
   $('#saleClockText').textContent=g.saleEndsAt?`할인 종료 ${dateLabel(g.saleEndsAt)}${a.endDays!==null?` · 약 ${Math.max(0,Math.ceil(a.endDays))}일 남음`:''}`:'할인 종료일 미확인';
   const wb=$('#wishBtn');wb.textContent=wish.has(keyFor(g))?'♥':'♡';wb.classList.toggle('active',wish.has(keyFor(g)));
@@ -834,7 +838,7 @@ function collapsePriceChanges(obs){
 }
 function renderTrend(g,a){
   const box=$('#trendChart'),changes=collapsePriceChanges(a.obs);
-  $('#trendPeriod').textContent=changes.length>=2?`실제 변동 ${changes.length}회`:`관측 ${Math.max(1,a.observedRuns)}회`;
+  $('#trendPeriod').textContent=changes.length>=2?`가격 변화점 ${changes.length}개`:`관측 ${Math.max(1,a.observedRuns)}회`;
   if(changes.length<2){
     const list=Math.max(Number(g.originalPrice)||0,Number(g.currentPrice)||0);
     const current=Number(g.currentPrice)||0;
@@ -848,7 +852,7 @@ function renderTrend(g,a){
     $('#trendNote').textContent=`동일 가격을 여러 번 관측한 것은 가격 변동으로 부풀리지 않습니다. 실제 가격이 변하면 이 영역에 날짜별 추세가 그려집니다.`;
     return;
   }
-  $('#trendNote').textContent=`실제 가격 변화 ${changes.length}개 · 할인 사이클 ${a.saleCycles||1}회 · ${a.direction==='improving'?'최근 할인폭 확대':a.direction==='weakening'?'최근 할인폭 축소':'최근 할인폭 안정'} 추세입니다.`;
+  $('#trendNote').textContent=`가격 변화점 ${changes.length}개 · 할인 사이클 ${a.saleCycles||1}회 · ${a.direction==='improving'?'최근 할인폭 확대':a.direction==='weakening'?'최근 할인폭 축소':'최근 할인폭 안정'} 추세입니다.`;
   const w=640,h=230,pL=52,pR=20,pT=22,pB=34;
   const prices=changes.map(x=>Number(x.price));
   let min=Math.min(...prices),max=Math.max(...prices,Number(g.originalPrice)||0);
