@@ -48,7 +48,7 @@ jobs:
             'upcoming menu':'data-nav="upcoming"' in html,
             'product comparison':'renderProductComparison' in html,
             'app title':'PS Radar' in html,
-            '2.3.4 version':'PS Radar 2.3.4' in html,
+            '2.3.5 version':'PS Radar 2.3.5' in html,
             'refresh':'refreshBtn' in html,
             'price alerts':'function alertSignals' in html and 'openAlertSettings' in html and 'checkPriceAlerts' in html,
             'Samsung IME fallback':'composeKoreanJamo' in html,
