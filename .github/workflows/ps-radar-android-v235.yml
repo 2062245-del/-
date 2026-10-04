@@ -1,0 +1,147 @@
+name: Build PS Radar 2.3.5 Android
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/ps-radar-android-v235.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install Android SDK
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDK=/usr/local/lib/android/sdk
+          yes | "$SDK/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null 2>&1 || true
+          "$SDK/cmdline-tools/latest/bin/sdkmanager" "platforms;android-35" "build-tools;35.0.0"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+      - name: Validate source
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s ps-radar/preview-v2/index.html
+          grep -q 'PS Radar 2.3.5' ps-radar/preview-v2/index.html
+          test -s ps-radar/data/deals-auto.json
+          test -s ps-radar/data/deal-trends.json
+          test -s ps-radar/data/deal-history.json
+          test -s ps-radar/data/store-auto.json
+          test -s ps-radar/data/game-info-v229.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          h=json.loads(Path('ps-radar/data/game-info-v229.json').read_text()).get('health',{})
+          assert h.get('safeToMerge') is True and h.get('itemCount',0)>=1700
+          print(h)
+          PY
+      - name: Generate Android project
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p app/src/main/java/com/seungho/psradar app/src/main/assets/ps-radar/data app/src/main/res/drawable app/src/main/res/values app/src/main/res/xml
+          cp ps-radar/preview-v2/index.html app/src/main/assets/ps-radar/index.html
+          cp ps-radar/preview-v2/push-client.mjs ps-radar/preview-v2/push-config.json app/src/main/assets/ps-radar/
+          cp ps-radar/data/catalog-curated-v231.json ps-radar/data/catalog-app-v232.json app/src/main/assets/ps-radar/data/
+          python3 ps-radar/scripts/package-android-v235.py app/src/main/assets/ps-radar/index.html
+          cp ps-radar/data/deals-auto.json ps-radar/data/deal-trends.json ps-radar/data/deal-history.json ps-radar/data/store-auto.json ps-radar/data/game-info-v229.json app/src/main/assets/ps-radar/data/
+          [ ! -s ps-radar/data/deal-meta-v228.json ] || cp ps-radar/data/deal-meta-v228.json app/src/main/assets/ps-radar/data/
+          cat > settings.gradle <<'EOF'
+          pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }
+          dependencyResolutionManagement { repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS); repositories { google(); mavenCentral() } }
+          rootProject.name='PSRadar235'
+          include ':app'
+          EOF
+          cat > build.gradle <<'EOF'
+          plugins { id 'com.android.application' version '8.7.3' apply false }
+          EOF
+          cat > gradle.properties <<'EOF'
+          org.gradle.jvmargs=-Xmx3072m -Dfile.encoding=UTF-8
+          android.useAndroidX=true
+          EOF
+          cat > app/build.gradle <<'EOF'
+          plugins { id 'com.android.application' }
+          android {
+            namespace 'com.seungho.psradar'
+            compileSdk 35
+            defaultConfig { applicationId 'com.seungho.psradar'; minSdk 26; targetSdk 35; versionCode 20305; versionName '2.3.5' }
+            buildTypes { release { minifyEnabled false; shrinkResources false } }
+            compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
+          }
+          dependencies { implementation 'androidx.webkit:webkit:1.12.1'; implementation 'androidx.core:core:1.15.0' }
+          EOF
+          cat > app/src/main/res/values/styles.xml <<'EOF'
+          <resources><style name="AppTheme" parent="android:style/Theme.Material.NoActionBar"><item name="android:statusBarColor">#020913</item><item name="android:navigationBarColor">#020913</item><item name="android:windowLightStatusBar">false</item><item name="android:windowLightNavigationBar">false</item><item name="android:fontFamily">sans</item></style></resources>
+          EOF
+          cat > app/src/main/res/drawable/ic_launcher.xml <<'EOF'
+          <vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108"><path android:fillColor="#020913" android:pathData="M0,0h108v108h-108z"/><path android:fillColor="#0A6BD8" android:pathData="M54,10a44,44 0,1 0,0 88a44,44 0,1 0,0 -88"/><path android:fillColor="#FFFFFF" android:pathData="M31,30h29c12,0 21,7.5 21,19s-9,19 -21,19H49v12H31V30zm18,14v10h10c3.7,0 6,-1.8 6,-5s-2.3,-5 -6,-5H49z"/><path android:fillColor="#3FE2FF" android:pathData="M68,70h10v10H68z"/></vector>
+          EOF
+          cat > app/src/main/res/xml/network_security_config.xml <<'EOF'
+          <network-security-config><base-config cleartextTrafficPermitted="false" /></network-security-config>
+          EOF
+          cat > app/src/main/AndroidManifest.xml <<'EOF'
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android"><uses-permission android:name="android.permission.INTERNET"/><application android:label="PS Radar" android:icon="@drawable/ic_launcher" android:roundIcon="@drawable/ic_launcher" android:theme="@style/AppTheme" android:hardwareAccelerated="true" android:networkSecurityConfig="@xml/network_security_config" android:usesCleartextTraffic="false"><activity android:name=".MainActivity" android:exported="true" android:screenOrientation="unspecified"><intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter></activity></application></manifest>
+          EOF
+          cat > app/src/main/java/com/seungho/psradar/MainActivity.java <<'EOF'
+          package com.seungho.psradar;
+          import android.app.Activity;
+          import android.os.Bundle;
+          import android.content.Intent;
+          import android.net.Uri;
+          import android.webkit.WebChromeClient;
+          import android.webkit.WebResourceRequest;
+          import android.webkit.WebSettings;
+          import android.webkit.WebView;
+          import android.webkit.WebViewClient;
+          import android.view.ViewGroup;
+          import android.graphics.Color;
+          public class MainActivity extends Activity {
+            private WebView webView;
+            @Override public void onCreate(Bundle b){super.onCreate(b);getWindow().setStatusBarColor(Color.rgb(2,9,19));getWindow().setNavigationBarColor(Color.rgb(2,9,19));webView=new WebView(this);webView.setLayoutParams(new ViewGroup.LayoutParams(-1,-1));WebSettings s=webView.getSettings();s.setJavaScriptEnabled(true);s.setDomStorageEnabled(true);s.setDatabaseEnabled(true);s.setAllowFileAccess(true);s.setAllowContentAccess(true);s.setAllowFileAccessFromFileURLs(true);s.setAllowUniversalAccessFromFileURLs(true);s.setUseWideViewPort(true);s.setMediaPlaybackRequiresUserGesture(false);webView.setWebChromeClient(new WebChromeClient());webView.setWebViewClient(new WebViewClient(){@Override public boolean shouldOverrideUrlLoading(WebView v,WebResourceRequest r){Uri u=r.getUrl();String h=u.getHost()==null?"":u.getHost();if(("http".equals(u.getScheme())||"https".equals(u.getScheme()))&&!h.contains("raw.githubusercontent.com")&&!h.contains("githubusercontent.com")){try{startActivity(new Intent(Intent.ACTION_VIEW,u));return true;}catch(Exception ignored){}}return false;}});webView.setOnApplyWindowInsetsListener((v,insets)->{if(android.os.Build.VERSION.SDK_INT>=30){android.graphics.Insets bars=insets.getInsets(android.view.WindowInsets.Type.systemBars()|android.view.WindowInsets.Type.displayCutout());v.setPadding(bars.left,bars.top,bars.right,bars.bottom);}else{v.setPadding(insets.getSystemWindowInsetLeft(),insets.getSystemWindowInsetTop(),insets.getSystemWindowInsetRight(),insets.getSystemWindowInsetBottom());}return insets;});setContentView(webView);webView.requestApplyInsets();webView.loadUrl("file:///android_asset/ps-radar/index.html");}
+            @Override public void onBackPressed(){if(webView!=null&&webView.canGoBack())webView.goBack();else super.onBackPressed();}
+          }
+          EOF
+      - name: Build release APK
+        run: gradle :app:assembleRelease --stacktrace
+      - name: Verify unsigned APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK=app/build/outputs/apk/release/app-release-unsigned.apk
+          AAPT=/usr/local/lib/android/sdk/build-tools/35.0.0/aapt
+          test -s "$APK"
+          "$AAPT" dump badging "$APK" | tee apk-badging.txt
+          grep -q "package: name='com.seungho.psradar' versionCode='20305' versionName='2.3.5'" apk-badging.txt
+          unzip -l "$APK" | tee apk-contents.txt
+          grep -q 'assets/ps-radar/index.html' apk-contents.txt
+          grep -q 'assets/ps-radar/data/game-info-v229.json' apk-contents.txt
+          cp /usr/local/lib/android/sdk/build-tools/35.0.0/lib/apksigner.jar .
+          cp /usr/local/lib/android/sdk/build-tools/35.0.0/zipalign .
+          cp "$APK" PSRadar-2.3.5-unsigned.apk
+          sha256sum PSRadar-2.3.5-unsigned.apk > PSRadar-2.3.5-unsigned.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PSRadar-2.3.5-unsigned
+          path: |
+            PSRadar-2.3.5-unsigned.apk
+            PSRadar-2.3.5-unsigned.sha256
+            apk-badging.txt
+            apk-contents.txt
+            apksigner.jar
+            zipalign
+          if-no-files-found: error
+          retention-days: 7
