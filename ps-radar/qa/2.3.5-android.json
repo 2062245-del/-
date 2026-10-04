@@ -1,0 +1,28 @@
+{
+  "package": "com.seungho.psradar",
+  "versionName": "2.3.5",
+  "versionCode": 20305,
+  "previousVersionCode": 20209,
+  "certificateContinuity": "PASS",
+  "certSHA256": "ca341a9d6e57542a1ec19cf2ecd748608af70fe42c344b4ac3c69446113c0bc4",
+  "signatureV2V3": "PASS",
+  "zipIntegrity": "PASS",
+  "storedEntries4ByteAlignment": "PASS",
+  "resourcesArscStored": "PASS",
+  "packagedJavaScriptSyntax": "PASS",
+  "bundledCounts": {
+    "deals-auto.json": 2486,
+    "deal-history.json": 2635,
+    "deal-trends.json": 2486,
+    "store-auto.json": 476,
+    "game-info-v229.json": 1796,
+    "catalog-curated-v231.json": 461,
+    "catalog-app-v232.json": 2031
+  },
+  "sizeBytes": 4236984,
+  "sha256": "c41db3ca74bcf5e178bec3dde41f4edea7fdba0bfba664ea79709580da2dfb41",
+  "limits": [
+    "No Android device attached; physical install not tested",
+    "Closed-app push configured separately in Chrome; APK wishlist not automatically shared with Chrome"
+  ]
+}
