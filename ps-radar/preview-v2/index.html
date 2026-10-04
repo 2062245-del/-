@@ -241,7 +241,6 @@ button,input,select{font:inherit}button{color:inherit}.app-shell{height:calc(100
             <button id="refreshBtn" class="refresh-primary" type="button" aria-label="최신 데이터 새로고침" aria-busy="false" title="최신 할인·가격이력·추세 데이터 새로고침">
               <span class="refresh-icon" aria-hidden="true">↻</span><b class="refresh-label">새로고침</b>
             </button>
-            <button id="alertCenterButton" class="refresh-primary" aria-label="가격 알림 내역">♧ 알림 <span id="alertUnread">0</span></button>
             <span id="refreshStatus" class="refresh-status" aria-live="polite"></span>
           </div>
 
@@ -313,6 +312,7 @@ button,input,select{font:inherit}button{color:inherit}.app-shell{height:calc(100
             </div>
             <label class="check-label"><input id="koOnly" type="checkbox" /> 한국어 확인 게임만</label>
           </div>
+          <div class="alert-toolbar"><button id="alertCenterButton" aria-label="가격 알림 내역">♧ 가격 알림 · <span id="alertUnread">0</span>건</button></div>
         </header>
 
         <div id="sectionContext" class="section-context" hidden></div>
@@ -496,7 +496,7 @@ function openAlertSettings(g){
  openAlertDialog('<h2>가격 알림 설정</h2><b>'+esc(g.title)+'</b><p>이 상품을 찜하고 가격을 추적합니다. PS4·PS5·에디션별로 따로 설정됩니다.</p><label><input id="alertEnabled" type="checkbox" '+(r.enabled?'checked':'')+'> 가격 알림 사용</label><label>목표 가격 이하 (원)<br><input id="alertTarget" type="number" min="0" max="10000000" step="1" value="'+r.target+'" placeholder="예: 30000"></label>'+[['low','관측 최저가 갱신'],['start','할인 시작'],['end','할인 종료 24시간 이내']].map(([key,label])=>'<label><input id="alert-'+key+'" type="checkbox" '+(r[key]?'checked':'')+'> '+label+'</label>').join('')+'<label>할인율 기준 <select id="alertThreshold">'+[0,30,50,70,80,90].map(n=>'<option value="'+n+'" '+(n===r.threshold?'selected':'')+'>'+(n?n+'% 이상':'사용 안 함')+'</option>').join('')+'</select></label><p>앱 실행·새로고침 시, 그리고 화면을 사용하는 동안 10분마다 확인합니다. 앱 종료 상태의 푸시는 아직 지원하지 않습니다. 첫 등록부터 할인 중인 상품은 할인 시작 알림을 만들지 않습니다.</p><button id="savePriceAlert">설정 저장</button>');
  $('#savePriceAlert').onclick=()=>{const target=Number($('#alertTarget').value);if(!Number.isFinite(target)||target<0||target>10000000||!Number.isInteger(target)){toast('목표 가격을 0~10,000,000원으로 입력해 주세요');return;}alertState.rules[k]={enabled:$('#alertEnabled').checked,target,low:$('#alert-low').checked,start:$('#alert-start').checked,end:$('#alert-end').checked,threshold:Number($('#alertThreshold').value)};wish.add(k);storeWishSnapshot(g);localStorage.setItem('psr2-wish',JSON.stringify([...wish]));saveAlerts();checkPriceAlerts();$('#priceAlertDialog').close();selectGame(g);applyFilters();toast('가격 알림 설정을 저장했습니다');};
 }
-function mountAlertSettings(g){$('#priceAlertSettings')?.remove();const box=document.createElement('div');box.className='alert-box';box.id='priceAlertSettings';const r=alertState.rules[keyFor(g)];box.innerHTML='<button id="openPriceAlert">♧ 가격 알림 '+(r?.enabled?'설정됨':'설정')+'</button><small> · 이 상품의 가격·할인 조건을 추적</small>';($('#catalogProductDetail')||$('#detailContent')).appendChild(box);$('#openPriceAlert').onclick=()=>openAlertSettings(g);}
+function mountAlertSettings(g){$('#priceAlertSettings')?.remove();const box=document.createElement('div');box.className='alert-box';box.id='priceAlertSettings';const r=alertState.rules[keyFor(g)];box.innerHTML='<button id="openPriceAlert">♧ 가격 알림 '+(r?.enabled?'설정됨':'설정')+'</button><small> · 이 상품의 가격·할인 조건을 추적</small>';($('#catalogProductDetail')||$('#detailContent')).prepend(box);$('#openPriceAlert').onclick=()=>openAlertSettings(g);}
 function openAlertCenter(){
  const rules=Object.entries(alertState.rules).filter(([k,r])=>r.enabled&&wish.has(k));
  openAlertDialog('<h2>가격 알림</h2><p>추적 중 '+rules.length+'개 상품 · 이 기기의 알림 내역 최대 200건</p><p>실시간 푸시가 아닙니다. 앱을 열거나 새로고침하면 최신 수집 가격으로 확인합니다. 종료일 미확인·오래된 가격은 알림에서 제외합니다.</p><div class="alert-toolbar"><button id="checkAlertsNow">최신 가격 확인</button><button id="readAllAlerts">모두 읽음</button></div><h3>추적 상품</h3>'+rules.map(([k,r])=>{const g=state.allProducts.find(g=>keyFor(g)===k);return '<div class="alert-entry"><button data-alert-rule="'+esc(k)+'">'+esc(g?.title||'저장된 상품')+'</button> <small>'+(r.target?'목표 '+won(r.target)+' · ':'')+(r.threshold?r.threshold+'% 이상':'할인 변화 추적')+'</small></div>';}).join('')+'<h3>알림 내역</h3>'+(alertState.events.map(e=>'<div class="alert-entry"><b>'+(e.read?'':'● ')+esc(e.message)+'</b><p>'+esc(e.title)+' · '+won(e.price)+' · -'+e.discount+'%</p><small>'+timeLabel(e.at)+' · 관측 '+timeLabel(e.observedAt)+'</small><br><button data-alert-open="'+esc(e.key)+'">상품 보기</button></div>').join('')||'<p>아직 알림이 없습니다. 게임 상세에서 가격 알림을 설정해 주세요.</p>'));
@@ -693,7 +693,7 @@ function renderCatalogDetail(g){
  $('#detailContent').hidden=true;$('#catalogProductDetail')?.remove();hideDetailEmpty();
  const el=document.createElement('section');el.id='catalogProductDetail';el.className='catalog-product-detail';const siblings=state.allProducts.filter(x=>x.catalogGroupId&&x.catalogGroupId===g.catalogGroupId);
  el.innerHTML=coverMarkup(g,'catalog-detail-cover')+'<h2>'+esc(g.title)+'</h2><p>'+esc(displayPlatforms(g).join(' · '))+' · '+(g.upcoming?'발매 예정':g.kind==='expansion'?'DLC·확장팩 · 본편 필요':'유료 게임')+'</p><h3>'+won(g.currentPrice)+'</h3><p>'+catalogDate(g.releaseDate)+'</p><p>'+(g.rating?'★ '+Number(g.rating).toFixed(2)+' / 5 · '+nf.format(g.ratingCount||0)+'건':'평점 미확인')+'</p><p>'+(g.priceNeedsVerification?'이 가격은 이전 저장값입니다. 공식 스토어에서 현재 가격을 재확인해 주세요.':g.releaseNeedsVerification?'예정일이 지났거나 최신 출시 상태가 확인되지 않았습니다. 실제 판매를 확인할 때까지 예정 목록에 유지합니다.':g.upcoming?'출시일은 변경될 수 있습니다. 날짜가 지나도 실제 출시 확인 전까지 예정 상태를 유지합니다.':(g.discountPercent?'-'+g.discountPercent+'% 할인 중입니다.':'현재 할인하지 않는 상품입니다.')+' 가격 이력은 확보된 관측값부터 누적됩니다.')+'</p><p>가격 수집 '+timeLabel(g.fetchedAt||state.generatedAt)+'</p><button id="catalogWish">'+(wish.has(keyFor(g))?'♥ 찜됨':'♡ MY에 찜하기')+'</button><a href="'+esc(g.store)+'" target="_blank" rel="noopener">공식 PS Store 확인 ↗</a>'+(siblings.length>1?'<h3>같은 게임 상품</h3>'+siblings.map(x=>'<button data-product="'+esc(keyFor(x))+'">'+esc(x.title)+' · '+won(x.currentPrice)+'</button>').join(''):'');
- $('#detailPane').appendChild(el);$('#catalogWish').onclick=()=>toggleWish(keyFor(g));$$('[data-product]').forEach(b=>b.onclick=()=>{const x=state.allProducts.find(x=>keyFor(x)===b.dataset.product);if(x)selectGame(x);});
+ $('#detailPane').appendChild(el);mountAlertSettings(g);$('#catalogWish').onclick=()=>toggleWish(keyFor(g));$$('[data-product]').forEach(b=>b.onclick=()=>{const x=state.allProducts.find(x=>keyFor(x)===b.dataset.product);if(x)selectGame(x);});
 }
 function renderProductComparison(g){
  $('#productComparison')?.remove();
@@ -729,7 +729,7 @@ function renderDetail(g){$('#detailContent').hidden=false;$('#catalogProductDeta
   const tb=$('#timingBadge');tb.className=`timing-badge ${a.tone}`;tb.innerHTML=`<span class="cart-icon">${a.label==='BUY NOW'?'🛒':a.label==='WAIT'?'◷':'◎'}</span><b>${a.label}</b><small>구매 타이밍 점수 ${a.score}</small>`;
   $('#timingScoreRing').className=`score-ring ${a.tone}`;$('#timingScoreRing').innerHTML=`<strong>${a.score}</strong><small>구매 타이밍</small>`;
   renderTrend(g,a);renderCompare(g,a);renderMetrics(g,a);renderGameInfo(g,a,s,m);renderReview(g,s);renderSimilar(g);
-  renderProductComparison(g);
+  renderProductComparison(g);mountAlertSettings(g);
 }
 function collapsePriceChanges(obs){
   const out=[];
