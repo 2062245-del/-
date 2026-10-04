@@ -658,7 +658,7 @@ function analysis(g){
   return {obs,low,avg:medianSalePrice,medianDiscount,highDisc,nearLow,deltaLow,score,label,tone,headline,short,confidence:evidence,verified,avgGapDays,saleCycles,changePoints,observedRuns,previousCycleBestPrice,previousCycleBestDiscount,direction,endDays};
 }
 function scoreFor(g){return analysis(g).score}
-function dateLabel(s){if(!s)return '미확인';try{return new Intl.DateTimeFormat('ko-KR',{month:'short',day:'numeric'}).format(new Date(s))}catch{return '미확인'}}
+function dateLabel(s){if(!s)return '미확인';try{return new Intl.DateTimeFormat('ko-KR',{timeZone:'Asia/Seoul',month:'short',day:'numeric'}).format(new Date(s))}catch{return '미확인'}}
 function timeLabel(s){if(!s)return '미확인';try{return new Intl.DateTimeFormat('ko-KR',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}).format(new Date(s))}catch{return String(s).slice(0,16)}}
 function lastCollected(g){return String(g.fetchedAt||g.storeVerifiedAt||state.generatedAt||'').slice(0,10)||'미확인'}
 async function fetchWithTimeout(url,timeout=DATA_TIMEOUT_MS){const ctrl=new AbortController();const t=setTimeout(()=>ctrl.abort(),timeout);try{return await fetch(url,{cache:'no-cache',signal:ctrl.signal})}finally{clearTimeout(t)}}
@@ -823,7 +823,7 @@ function renderDetail(g){$('#detailContent').hidden=false;$('#catalogProductDeta
   $('#timingHeadline').textContent=a.headline;$('#timingReason').textContent=`${a.short} 데이터 신뢰도는 ${a.confidence}입니다.`;
   const tb=$('#timingBadge');tb.className=`timing-badge ${a.tone}`;tb.innerHTML=`<span class="cart-icon">${a.label==='BUY NOW'?'🛒':a.label==='WAIT'?'◷':'◎'}</span><b>${a.label}</b><small>구매 타이밍 점수 ${a.score}</small>`;
   $('#timingScoreRing').className=`score-ring ${a.tone}`;$('#timingScoreRing').innerHTML=`<strong>${a.score}</strong><small>구매 타이밍</small>`;
-  renderTrend(g,a);renderCompare(g,a);renderMetrics(g,a);renderGameInfo(g,a,s,m);renderReview(g,s);renderSimilar(g);
+  renderTrend(g,a);renderCompare(g,a);renderMetrics(g,a);renderGameInfo(g,a,s,m);renderReview(g,s,m);renderSimilar(g);
   renderProductComparison(g);mountAlertSettings(g);
 }
 function collapsePriceChanges(obs){
@@ -886,9 +886,9 @@ function renderGameInfo(g,a,s,m){
   const platforms=(m?.platforms?.length?m.platforms:displayPlatforms(g));
   const plat=platforms.join(' · ')||'미확인';
   const product=m?.productId||g.productId||String(g.store||'').split('/').pop()||'미확인';
-  const rating=Number(m?.rating??s?.rating),ratingCount=Number(m?.ratingCount??s?.ratingCount);
+  const rating=Number(g.rating??m?.rating??s?.rating),ratingCount=Number(g.ratingCount??m?.ratingCount??s?.ratingCount);
   const release=m?.releaseDate?new Date(m.releaseDate).toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric'}):'미확인';
-  const genres=(m?.genres||[]).filter(Boolean).join(' · ')||'미확인';
+  const genres=(m?.genres?.length?m.genres:g.genre||[]).filter(Boolean).join(' · ')||'미확인';
   const edition=m?.edition||editionLabel(g)||'기본 / 미확인';
   const publisher=m?.publisher||s?.publisherName||s?.publisher||'미확인';
   const typeMap={GAME:'게임',FULL_GAME:'게임',BUNDLE:'게임 번들',ADD_ON:'추가 콘텐츠',AVATAR:'아바타'};
@@ -920,8 +920,8 @@ function renderGameInfo(g,a,s,m){
   const recentLow=m?.lowestRecentPriceText?`<div class="info-kv"><small>최근 가격 참고</small><b>${esc(m.lowestRecentPriceText)}</b></div>`:'';
   $('#gameInfoContent').innerHTML=`<div class="info-card"><h3>${esc(g.title)}${edition?` <small>· ${esc(edition)}</small>`:''}</h3><p>공식 PlayStation Store 상품 정보를 우선 사용합니다. 확인되지 않은 정보는 추정하지 않습니다.</p></div><div class="info-grid"><div class="info-kv"><small>출시일</small><b>${esc(release)}</b></div><div class="info-kv"><small>플랫폼</small><b>${esc(plat)}</b></div><div class="info-kv"><small>에디션</small><b>${esc(edition)}</b></div><div class="info-kv"><small>상품 유형</small><b>${esc(productType)}</b></div><div class="info-kv"><small>장르</small><b>${esc(genres)}</b></div><div class="info-kv"><small>퍼블리셔</small><b>${esc(publisher)}</b></div><div class="info-kv"><small>한국어</small><b>${esc(ko)}</b></div><div class="info-kv"><small>스크린 언어</small><b>${esc(lang)}</b></div><div class="info-kv"><small>이용등급</small><b>${esc(age)}</b></div><div class="info-kv"><small>Store 평점</small><b>${Number.isFinite(rating)&&rating>0?`${rating.toFixed(2)} / 5${Number.isFinite(ratingCount)&&ratingCount>0?` · ${nf.format(ratingCount)}건`:''}`:'미확인'}</b></div><div class="info-kv"><small>할인 종료</small><b>${esc(end)}</b></div><div class="info-kv"><small>PS Store 상품 ID</small><b class="product-id">${esc(product)}</b></div>${recentLow}<div class="info-kv"><small>게임정보 갱신</small><b>${esc(metaDate)}</b></div><div class="info-kv"><small>가격정보 수집</small><b>${esc(lastCollected(g))}</b></div><div class="info-kv"><small>가격 이력 범위</small><b>PS Radar 관측 기준</b></div><div class="info-kv"><small>이력 신뢰도</small><b>${esc(a.confidence)}</b></div></div>${featureHtml}${desc}`;
 }
-function renderReview(g,s){
-  const rating=s?.rating==null?null:Number(s.rating),count=s?.ratingCount==null?null:Number(s.ratingCount);
+function renderReview(g,s,m){
+  const rating=Number(g.rating??m?.rating??s?.rating),count=Number(g.ratingCount??m?.ratingCount??s?.ratingCount);
   $('#reviewContent').innerHTML=`<div class="info-card"><h3>PlayStation Store 평가</h3><p>${Number.isFinite(rating)&&rating>0?`현재 사용자 평점은 <b>${rating.toFixed(2)} / 5</b>${Number.isFinite(count)&&count>0?` · 평가 ${nf.format(count)}건`:''}입니다.`:'이 게임의 Store 평점 데이터가 아직 충분하지 않습니다.'}</p></div><div class="info-grid"><div class="info-kv"><small>현재가</small><b>${won(g.currentPrice)}</b></div><div class="info-kv"><small>할인율</small><b>-${g.discountPercent}%</b></div></div>`;
 }
 function renderSimilar(g){
