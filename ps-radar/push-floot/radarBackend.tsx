@@ -13,7 +13,7 @@ function validateRules(rules:any[]){
 }
 function evaluate(g:any,r:any,prev:any,now=Date.now()){
  const price=Number(g.currentPrice),discount=Number(g.discountPercent)||0,fetched=Date.parse(g.fetchedAt);
- if(!r.enabled||g.upcoming||g.priceNeedsVerification||!Number.isFinite(fetched)||now-fetched>172800000||fetched>now+300000||prev&&fetched<prev.fetched||!(price>0)||discount<0||discount>=100)return {events:[],next:prev};
+ if(!r.enabled||g.upcoming||g.priceNeedsVerification||String(g.priceStatus||"").startsWith("rejected")||!Number.isFinite(fetched)||now-fetched>172800000||fetched>now+300000||prev&&fetched<prev.fetched||!(price>0)||discount<0||discount>=100)return {events:[],next:prev};
  const events:any[]=[];const add=(kind:string,message:string,cycle:any)=>events.push({kind,message,id:r.productId+'|'+kind+'|'+cycle,title:g.title,price,discount,observedAt:g.fetchedAt,productId:r.productId});
  if(r.target&&price<=r.target&&(!prev||prev.price>r.target||prev.target!==r.target))add('target','목표 가격 이하 도달',r.target+':'+price+':'+fetched);
  if(r.low&&prev&&price<prev.low)add('low','관측 최저가 갱신',price);
@@ -27,7 +27,7 @@ const catalogURL="https://raw.githubusercontent.com/2062245-del/-/main/ps-radar/
 const appURL="https://2062245-del.github.io/-/ps-radar/preview-v2/";
 const hash=(s:string)=>createHash("sha256").update(s).digest("hex");
 export async function radarBackend(action:string,b:any={}):Promise<any>{
- if(action==="config")return {ok:true,version:"2.3.4",publicKey:"BFUTAtc02GNrziMyQ8DRrSFoCbXQBQ0VYizFjsnd60p71v9KPP-jcn6KJJuHyizIxqavbtBRKajMGqnVMcqmo_o"};
+ if(action==="config")return {ok:true,version:"2.3.5",publicKey:"BFUTAtc02GNrziMyQ8DRrSFoCbXQBQ0VYizFjsnd60p71v9KPP-jcn6KJJuHyizIxqavbtBRKajMGqnVMcqmo_o"};
  if(action==="tick"){
   const claim=await db.updateTable("radarRuns").set({ranAt:new Date()}).where("id","=","prices").where("ranAt","<",new Date(Date.now()-19*60000)).returning("id").executeTakeFirst();
   if(!claim)return {ok:true,skipped:true};
