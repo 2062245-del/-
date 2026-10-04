@@ -1,0 +1,1 @@
+{"name":"ps-radar-push","version":"2.3.4","private":true,"type":"module","engines":{"node":">=22"},"scripts":{"start":"node server.mjs","test":"node --test *.test.mjs"},"dependencies":{"pg":"^8.16.3","web-push":"^3.6.7"}}
