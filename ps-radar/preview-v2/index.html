@@ -880,7 +880,8 @@ function purchaseEvidence(g,a){
  for(const x of timeline){const sale=x.active!==false&&Number(x.discount)>0&&validHistoricalPoint(g,x);if(last===false&&sale)starts.push(Date.parse(x.at));last=sale;}
  const gaps=starts.slice(1).map((x,i)=>(x-starts[i])/86400000).filter(x=>x>=1&&x<=730);
  const range=gaps.length>=3?[Math.floor(Math.min(...gaps)),Math.ceil(Math.max(...gaps))]:null;
- return {safe,fresh,past,low,prev,range};
+ const forecast=range&&safe&&!g.discountPercent&&starts.at(-1)+range[0]*86400000>now?[starts.at(-1)+range[0]*86400000,starts.at(-1)+range[1]*86400000]:null;
+ return {safe,fresh,past,low,prev,range,forecast};
 }
 function renderPurchaseSummary(g){
  $('#purchaseSummary')?.remove();const a=analysis(g),e=purchaseEvidence(g,a),box=document.createElement('section');box.id='purchaseSummary';box.className='purchase-summary';
@@ -890,7 +891,7 @@ function renderPurchaseSummary(g){
  const lowText=delta===null?'비교 이력 부족':delta===0?'관측 최저가와 같음':won(delta)+' 높음 · +'+Math.round(delta/e.low*100)+'%';
  const prevText=prevDiff===null?'직전 할인 이력 미확인':prevDiff===0?'직전 할인과 같은 가격':won(Math.abs(prevDiff))+(prevDiff<0?' 더 저렴':' 더 비쌈');
  const metrics=[['현재가',e.safe?won(g.currentPrice):'재확인 필요'],['관측 최저가',e.low?won(e.low):'이력 부족'],['직전 할인 최저가',e.prev?won(e.prev):'미확인'],['관측 최저가 대비',lowText]];
- box.innerHTML='<div class="purchase-heading"><span>구매 판단 요약</span><strong>'+esc(headline)+'</strong><small>데이터 신뢰도 '+esc(a.confidence)+' · 관측 '+nf.format(a.observedRuns)+'회 · 가격 변화점 '+a.changePoints+'개 · 할인 사이클 '+a.saleCycles+'회</small></div><div class="purchase-grid">'+metrics.map(([label,value])=>'<div><small>'+esc(label)+'</small><b>'+esc(value)+'</b></div>').join('')+'</div><p class="purchase-difference">'+esc(prevText)+'</p><p class="purchase-cycle">최근 재할인 간격: '+(e.range?e.range[0]+'~'+e.range[1]+'일 · 확인된 할인 시작 간격 기준':'이력 부족')+'<br>다음 할인 예상: '+(g.upcoming?'발매 전이라 예측하지 않습니다.':g.discountPercent?'현재 할인 중 · 다음 일정은 예측 보류':e.range?'과거 간격은 참고용이며, 확정할 근거가 없어 일정 예측은 보류합니다.':'충분한 할인 주기가 없어 예측 보류')+'</p><small class="purchase-note">관측 최저가는 PS Radar가 확보한 상품별 이력 기준입니다. PS4·PS5·에디션의 이력은 섞지 않습니다.'+(!e.fresh?' 수집 가격이 오래되었거나 수집 시각을 확인하지 못했습니다.':'')+'</small>';
+ box.innerHTML='<div class="purchase-heading"><span>구매 판단 요약</span><strong>'+esc(headline)+'</strong><small>데이터 신뢰도 '+esc(a.confidence)+' · 관측 '+nf.format(a.observedRuns)+'회 · 가격 변화점 '+a.changePoints+'개 · 할인 사이클 '+a.saleCycles+'회</small></div><div class="purchase-grid">'+metrics.map(([label,value])=>'<div><small>'+esc(label)+'</small><b>'+esc(value)+'</b></div>').join('')+'</div><p class="purchase-difference">'+esc(prevText)+'</p><p class="purchase-cycle">최근 재할인 간격: '+(e.range?e.range[0]+'~'+e.range[1]+'일 · 확인된 할인 시작 간격 기준':'이력 부족')+'<br>다음 할인 예상: '+(g.upcoming?'발매 전이라 예측하지 않습니다.':e.forecast?dateLabel(new Date(e.forecast[0]).toISOString())+' ~ '+dateLabel(new Date(e.forecast[1]).toISOString())+' · 과거 간격 기반 추정, 일정 보장 아님':g.discountPercent?'현재 할인 중 · 다음 일정은 예측 보류':e.range?'과거 간격은 참고용이며, 확정할 근거가 없어 일정 예측은 보류합니다.':'충분한 할인 주기가 없어 예측 보류')+'</p><small class="purchase-note">관측 최저가는 PS Radar가 확보한 상품별 이력 기준입니다. PS4·PS5·에디션의 이력은 섞지 않습니다.'+(!e.fresh?' 수집 가격이 오래되었거나 수집 시각을 확인하지 못했습니다.':'')+'</small>';
  const parent=$('#catalogProductDetail')||$('#detailContent');if(parent.id==='catalogProductDetail'){const overview=parent.querySelector('.catalog-overview');overview?overview.after(box):parent.prepend(box);}else parent.prepend(box);
 }
 function productComparisonMarkup(g,siblings){
@@ -900,7 +901,7 @@ function productComparisonMarkup(g,siblings){
  return '<div class="comparison-product '+(keyFor(x)===keyFor(g)?'selected':'')+'"><button class="product-compare-row" data-compare-product="'+esc(keyFor(x))+'" aria-pressed="'+(keyFor(x)===keyFor(g))+'"><span>'+esc(x.edition||x.title)+'<small>'+esc(displayPlatforms(x).join(' · '))+' · '+kind+'</small></span><strong>'+won(x.currentPrice)+'</strong></button><small class="comparison-price-note">'+(x.priceNeedsVerification?'이전 저장 가격 · 현재가 확인 필요':x.upcoming?'발매 예정':x.discountPercent?'-'+x.discountPercent+'% 할인':'정상가')+'</small>'+(description?'<details><summary>공식 상품 설명 확인</summary><p>'+esc(description.slice(0,1000))+(description.length>1000?'…':'')+'</p><a href="'+esc(x.store)+'" target="_blank" rel="noopener">전체 구성은 PS Store에서 확인 ↗</a></details>':'<p class="comparison-missing">세부 구성품 미확인 · 공식 PS Store에서 확인해 주세요.</p>')+'</div>';
  }).join('');
 }
-function bindProductComparison(){ $('[data-compare-product]').forEach(b=>b.onclick=()=>{const x=state.allProducts.find(x=>keyFor(x)===b.dataset.compareProduct);if(x)selectGame(x);}); }
+function bindProductComparison(){ $$('[data-compare-product]').forEach(b=>b.onclick=()=>{const x=state.allProducts.find(x=>keyFor(x)===b.dataset.compareProduct);if(x)selectGame(x);}); }
 
 function renderCatalogDetail(g){
  $('#detailContent').hidden=true;$('#catalogProductDetail')?.remove();$('#purchaseSummary')?.remove();$('#productComparison')?.remove();hideDetailEmpty();
