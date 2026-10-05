@@ -792,8 +792,8 @@ function applyFilters(){
   arr.sort(compareGames);
   state.filtered=arr;state.visible=arr.length?Math.min(Math.max(state.visible,1),arr.length):60;
   if(!arr.length){clearDetailForNoResults();renderList();renderSectionContext();return;}
-  hideDetailEmpty();const selectedVisible=state.selected&&arr.some(g=>keyFor(g)===keyFor(state.selected));
-  if(!selectedVisible&&arr[0]){state.selected=arr[0];if(!state.selected.upcoming&&!state.selected.priceNeedsVerification)recordObservation(state.selected);if(state.selected.upcoming||state.selected.priceNeedsVerification||!state.selected.discountPercent)renderCatalogDetail(state.selected);else renderDetail(state.selected);$('#detailPane').scrollTop=0}
+  hideDetailEmpty();const selectedVisible=state.selected&&arr.some(g=>keyFor(g)===keyFor(state.selected)||(state.nav!=='my'&&state.selected.catalogGroupId&&g.catalogGroupId===state.selected.catalogGroupId));
+  if(!selectedVisible&&arr[0]){state.selected=catalogRepresentative(arr.filter(g=>g.catalogGroupId&&g.catalogGroupId===arr[0].catalogGroupId))||arr[0];if(!state.selected.upcoming&&!state.selected.priceNeedsVerification)recordObservation(state.selected);if(state.selected.upcoming||state.selected.priceNeedsVerification||!state.selected.discountPercent)renderCatalogDetail(state.selected);else renderDetail(state.selected);$('#detailPane').scrollTop=0}
   renderList();renderSectionContext();
 }
 
