@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-10T06:02:43.184Z",
+  "generatedAt": "2026-10-10T12:43:48.149Z",
   "source": "existing-official-store-data",
   "coverage": "partial-plus-catalog-and-discount-products",
   "policy": {
@@ -15,14 +15,14 @@
   },
   "health": {
     "safeToMerge": true,
-    "itemCount": 203,
+    "itemCount": 206,
     "normalPrice": 154,
-    "discounted": 49,
+    "discounted": 52,
     "expansions": 0,
     "rejected": {
       "platform": 191,
       "type": 16,
-      "price": 5,
+      "price": 4,
       "rating": 141,
       "unknown": 0
     }
@@ -156,8 +156,8 @@
       "saleEndsAt": null,
       "priceStatus": "verified",
       "storeVerified": true,
-      "storeVerifiedAt": "2026-10-10T05:46:57.854Z",
-      "fetchedAt": "2026-10-10T05:46:57.854Z",
+      "storeVerifiedAt": "2026-10-10T12:30:12.924Z",
+      "fetchedAt": "2026-10-10T12:30:12.924Z",
       "dataQuality": "verified",
       "priceCrosscheckError": 0,
       "priceVerifiedBy": "listing-card-crosscheck-v1742",
@@ -165,7 +165,7 @@
       "storeTitle": "ANNO: Mutationem PS4 & PS5 (중국어(간체자), 한국어, 영어, 일본어, 중국어(번체자))",
       "radarLowPrice": 13900,
       "radarLowObservedAt": "2026-10-06T18:30:03.274Z",
-      "radarObservations": 12,
+      "radarObservations": 13,
       "radarHighestDiscount": 50,
       "isRadarLow": true,
       "nearRadarLow": true,
@@ -320,7 +320,7 @@
       "ko": true,
       "languageStatus": "verified-store-positive",
       "desc": "PS Store 공식 프로모션에서 자동 확인한 할인 타이틀입니다.",
-      "image": "https://image.api.playstation.com/vulcan/ap/rnd/202007/0208/Ud7Ikvjoyev61bx3n1PTC9u8.png",
+      "image": "https://image.api.playstation.com/vulcan/ap/rnd/202007/0208/Ud7Ikvjoyev61bx3n1PTC9u8.png?w=230&thumb=false",
       "store": "https://store.playstation.com/ko-kr/product/JP0001-PPSA01504_00-GAME000000000000",
       "currentPrice": 16450,
       "originalPrice": 65800,
@@ -328,17 +328,16 @@
       "saleEndsAt": null,
       "priceStatus": "verified",
       "storeVerified": true,
-      "storeVerifiedAt": "2026-10-10T05:46:57.854Z",
-      "fetchedAt": "2026-10-10T05:46:57.854Z",
+      "storeVerifiedAt": "2026-10-10T12:30:12.924Z",
+      "fetchedAt": "2026-10-10T12:30:12.924Z",
       "dataQuality": "verified",
       "priceCrosscheckError": 0,
       "priceVerifiedBy": "listing-card-crosscheck-v1742",
-      "imageStatus": "official-product-page-v177",
+      "imageStatus": "listing-card-v1742",
       "storeTitle": "Assassin's Creed Valhalla PS4 & PS5 (중국어(간체자), 한국어, 영어, 일본어, 중국어(번체자))",
-      "imageVerifiedAt": "2026-10-10T05:51:44.873Z",
       "radarLowPrice": 16450,
       "radarLowObservedAt": "2026-10-06T18:30:03.274Z",
-      "radarObservations": 12,
+      "radarObservations": 13,
       "radarHighestDiscount": 75,
       "isRadarLow": true,
       "nearRadarLow": true,
@@ -4128,8 +4127,8 @@
       "saleEndsAt": null,
       "priceStatus": "verified",
       "storeVerified": true,
-      "storeVerifiedAt": "2026-10-10T05:46:57.854Z",
-      "fetchedAt": "2026-10-10T05:46:57.854Z",
+      "storeVerifiedAt": "2026-10-10T12:30:12.924Z",
+      "fetchedAt": "2026-10-10T12:30:12.924Z",
       "dataQuality": "verified",
       "priceCrosscheckError": 0,
       "priceVerifiedBy": "listing-card-crosscheck-v1742",
@@ -4137,7 +4136,7 @@
       "storeTitle": "Overcooked! All You Can Eat (중국어(간체자), 한국어, 태국어, 영어, 일본어, 중국어(번체자))",
       "radarLowPrice": 13440,
       "radarLowObservedAt": "2026-10-06T18:30:03.274Z",
-      "radarObservations": 10,
+      "radarObservations": 11,
       "radarHighestDiscount": 70,
       "isRadarLow": true,
       "nearRadarLow": true,
@@ -9921,6 +9920,82 @@
       "releasedConfirmed": true
     },
     {
+      "id": "deal-auto-6fadc83e627be04a",
+      "title": "Outer Wilds",
+      "type": "regular",
+      "categories": [
+        "promo"
+      ],
+      "platform": [
+        "PS5"
+      ],
+      "genre": [
+        "유니크",
+        "어드벤처"
+      ],
+      "ko": true,
+      "languageStatus": "verified-store-positive",
+      "desc": "PS Store 공식 프로모션에서 자동 확인한 할인 타이틀입니다.",
+      "image": "https://image.api.playstation.com/vulcan/ap/rnd/202208/1623/Zofebh60Ue7Zt5sC10UAtU3D.png",
+      "store": "https://store.playstation.com/ko-kr/product/UP2470-PPSA08101_00-OUTERWILDSSIEA00",
+      "currentPrice": 8300,
+      "originalPrice": 83000,
+      "discountPercent": 90,
+      "saleEndsAt": null,
+      "priceStatus": "verified",
+      "storeVerified": true,
+      "storeVerifiedAt": "2026-10-10T12:30:12.924Z",
+      "fetchedAt": "2026-10-10T12:30:12.924Z",
+      "dataQuality": "verified",
+      "priceCrosscheckError": 0,
+      "priceVerifiedBy": "listing-card-crosscheck-v1742",
+      "storeTitle": "Outer Wilds (중국어(간체자), 한국어, 영어, 일본어)",
+      "imageStatus": "official-product-page-v177",
+      "imageVerifiedAt": "2026-10-10T12:34:46.488Z",
+      "radarLowPrice": 6500,
+      "radarLowObservedAt": "2026-10-09T18:28:08.024Z",
+      "radarObservations": 29,
+      "radarHighestDiscount": 90,
+      "isRadarLow": false,
+      "nearRadarLow": false,
+      "radarLowDeltaPercent": 27.7,
+      "radarFirstSeenAt": "2026-09-27T16:26:56.855Z",
+      "radarNewDeal": false,
+      "radarTrend": {
+        "changePoints": 12,
+        "saleCycles": 3,
+        "averageGapDays": 6,
+        "medianDiscount": 50,
+        "medianSalePrice": 9750,
+        "currentCycleStartedAt": "2026-10-09T00:41:25.130Z",
+        "previousCycleBestPrice": 8250,
+        "previousCycleBestDiscount": 70,
+        "recentDirection": "improving",
+        "recentCycleBest": [
+          {
+            "price": 16680,
+            "discount": 40
+          },
+          {
+            "price": 8250,
+            "discount": 70
+          },
+          {
+            "price": 6500,
+            "discount": 90
+          }
+        ]
+      },
+      "productId": "UP2470-PPSA08101_00-OUTERWILDSSIEA00",
+      "releaseDate": "2022-09-15T16:00:00.000Z",
+      "rating": 4.75,
+      "ratingCount": 13760,
+      "classification": "FULL_GAME",
+      "kind": "base",
+      "catalogGroupId": "product:UP2470-PPSA08101_00-OUTERWILDSSIEA00",
+      "releasedConfirmed": true
+    },
+    {
       "id": "deal-auto-59bc18f7d6d307a5",
       "title": "SnowRunner - 5-Year Anniversary Edition",
       "type": "regular",
@@ -9946,8 +10021,8 @@
       "saleEndsAt": null,
       "priceStatus": "verified",
       "storeVerified": true,
-      "storeVerifiedAt": "2026-10-10T05:46:57.854Z",
-      "fetchedAt": "2026-10-10T05:46:57.854Z",
+      "storeVerifiedAt": "2026-10-10T12:30:12.924Z",
+      "fetchedAt": "2026-10-10T12:30:12.924Z",
       "dataQuality": "verified",
       "priceCrosscheckError": 0,
       "priceVerifiedBy": "listing-card-crosscheck-v1742",
@@ -9955,7 +10030,7 @@
       "storeTitle": "SnowRunner - 5-Year Anniversary Edition (중국어(간체자), 한국어, 영어, 중국어(번체자))",
       "radarLowPrice": 87000,
       "radarLowObservedAt": "2026-10-06T18:30:03.274Z",
-      "radarObservations": 11,
+      "radarObservations": 12,
       "radarHighestDiscount": 40,
       "isRadarLow": true,
       "nearRadarLow": true,
@@ -10016,8 +10091,8 @@
       "saleEndsAt": null,
       "priceStatus": "verified",
       "storeVerified": true,
-      "storeVerifiedAt": "2026-10-10T05:46:57.854Z",
-      "fetchedAt": "2026-10-10T05:46:57.854Z",
+      "storeVerifiedAt": "2026-10-10T12:30:12.924Z",
+      "fetchedAt": "2026-10-10T12:30:12.924Z",
       "dataQuality": "verified",
       "priceCrosscheckError": 0,
       "priceVerifiedBy": "listing-card-crosscheck-v1742",
@@ -10025,7 +10100,7 @@
       "storeTitle": "John Carpenter’s Toxic Commando (중국어(간체자), 한국어, 태국어, 영어, 일본어, 중국어(번체자))",
       "radarLowPrice": 22400,
       "radarLowObservedAt": "2026-10-06T18:30:03.274Z",
-      "radarObservations": 12,
+      "radarObservations": 13,
       "radarHighestDiscount": 50,
       "isRadarLow": true,
       "nearRadarLow": true,
@@ -10059,138 +10134,6 @@
       "releasedConfirmed": true
     },
     {
-      "id": "deal-auto-c055ff9e661d80e4",
-      "title": "It Takes Two PS4™와 PS5™",
-      "type": "regular",
-      "categories": [
-        "promo"
-      ],
-      "platform": [
-        "PS5"
-      ],
-      "genre": [
-        "유니크"
-      ],
-      "ko": true,
-      "languageStatus": "verified-store-positive",
-      "desc": "PS Store 공식 프로모션에서 자동 확인한 할인 타이틀입니다.",
-      "image": "https://image.api.playstation.com/vulcan/ap/rnd/202012/0815/7CRynuLSAb0vysSC4TmZy5e4.png?w=230&thumb=false",
-      "store": "https://store.playstation.com/ko-kr/product/UP0006-PPSA02342_00-ITTAKESTWORETAIL",
-      "currentPrice": 14100,
-      "originalPrice": 47000,
-      "discountPercent": 70,
-      "saleEndsAt": null,
-      "priceStatus": "verified",
-      "storeVerified": true,
-      "storeVerifiedAt": "2026-10-10T05:46:57.854Z",
-      "fetchedAt": "2026-10-10T05:46:57.854Z",
-      "dataQuality": "verified",
-      "priceCrosscheckError": 0,
-      "priceVerifiedBy": "listing-card-crosscheck-v1742",
-      "imageStatus": "listing-card-v1742",
-      "storeTitle": "It Takes Two PS4™와 PS5™ (중국어(간체자), 한국어, 영어, 일본어, 중국어(번체자))",
-      "radarLowPrice": 14100,
-      "radarLowObservedAt": "2026-10-06T18:30:03.274Z",
-      "radarObservations": 12,
-      "radarHighestDiscount": 70,
-      "isRadarLow": true,
-      "nearRadarLow": true,
-      "radarLowDeltaPercent": 0,
-      "radarFirstSeenAt": "2026-10-06T18:30:03.274Z",
-      "radarNewDeal": false,
-      "radarTrend": {
-        "changePoints": 1,
-        "saleCycles": 1,
-        "averageGapDays": null,
-        "medianDiscount": 70,
-        "medianSalePrice": 14100,
-        "currentCycleStartedAt": "2026-10-06T18:30:03.274Z",
-        "previousCycleBestPrice": null,
-        "previousCycleBestDiscount": null,
-        "recentDirection": "insufficient",
-        "recentCycleBest": [
-          {
-            "price": 14100,
-            "discount": 70
-          }
-        ]
-      },
-      "productId": "UP0006-PPSA02342_00-ITTAKESTWORETAIL",
-      "releaseDate": "2021-03-25T15:00:00.000Z",
-      "rating": 4.54,
-      "ratingCount": 144078,
-      "classification": "GAME_BUNDLE",
-      "kind": "base",
-      "catalogGroupId": "product:UP0006-PPSA02342_00-ITTAKESTWORETAIL",
-      "releasedConfirmed": true
-    },
-    {
-      "id": "deal-auto-1a4453e0a6e6ed7c",
-      "title": "Towerborne Deluxe Edition",
-      "type": "regular",
-      "categories": [
-        "promo"
-      ],
-      "platform": [
-        "PS5"
-      ],
-      "genre": [
-        "액션"
-      ],
-      "ko": true,
-      "languageStatus": "verified-store-positive",
-      "desc": "PS Store 공식 프로모션에서 자동 확인한 할인 타이틀입니다.",
-      "image": "https://image.api.playstation.com/vulcan/ap/rnd/202601/0221/fc622258a62eac1d08a7033fd7efe359541298164c05970b.png?w=230&thumb=false",
-      "store": "https://store.playstation.com/ko-kr/product/UP6312-PPSA29586_00-0765025196979148",
-      "currentPrice": 19800,
-      "originalPrice": 33000,
-      "discountPercent": 40,
-      "saleEndsAt": null,
-      "priceStatus": "verified",
-      "storeVerified": true,
-      "storeVerifiedAt": "2026-10-10T05:46:57.854Z",
-      "fetchedAt": "2026-10-10T05:46:57.854Z",
-      "dataQuality": "verified",
-      "priceCrosscheckError": 0,
-      "priceVerifiedBy": "listing-card-crosscheck-v1742",
-      "imageStatus": "listing-card-v1742",
-      "storeTitle": "Towerborne Deluxe Edition (중국어(간체자), 한국어, 영어, 일본어, 중국어(번체자))",
-      "radarLowPrice": 19800,
-      "radarLowObservedAt": "2026-10-06T18:30:03.274Z",
-      "radarObservations": 12,
-      "radarHighestDiscount": 40,
-      "isRadarLow": true,
-      "nearRadarLow": true,
-      "radarLowDeltaPercent": 0,
-      "radarFirstSeenAt": "2026-10-06T18:30:03.274Z",
-      "radarNewDeal": false,
-      "radarTrend": {
-        "changePoints": 1,
-        "saleCycles": 1,
-        "averageGapDays": null,
-        "medianDiscount": 40,
-        "medianSalePrice": 19800,
-        "currentCycleStartedAt": "2026-10-06T18:30:03.274Z",
-        "previousCycleBestPrice": null,
-        "previousCycleBestDiscount": null,
-        "recentDirection": "insufficient",
-        "recentCycleBest": [
-          {
-            "price": 19800,
-            "discount": 40
-          }
-        ]
-      },
-      "productId": "UP6312-PPSA29586_00-0765025196979148",
-      "releaseDate": "2026-02-26T18:00:00.000Z",
-      "rating": 4.25,
-      "ratingCount": 655,
-      "classification": "PREMIUM_EDITION",
-      "kind": "edition",
-      "catalogGroupId": "product:UP6312-PPSA29586_00-0765025196979148",
-      "releasedConfirmed": true
-    },
-    {
       "id": "deal-auto-fe6a101cc9062035",
       "title": "애스트럴 어센트 (Astral Ascent) PS4 & PS5",
       "type": "regular",
@@ -10214,8 +10157,8 @@
       "saleEndsAt": null,
       "priceStatus": "verified",
       "storeVerified": true,
-      "storeVerifiedAt": "2026-10-10T05:46:57.854Z",
-      "fetchedAt": "2026-10-10T05:46:57.854Z",
+      "storeVerifiedAt": "2026-10-10T12:30:12.924Z",
+      "fetchedAt": "2026-10-10T12:30:12.924Z",
       "dataQuality": "verified",
       "priceCrosscheckError": 0,
       "priceVerifiedBy": "listing-card-crosscheck-v1742",
@@ -10223,7 +10166,7 @@
       "storeTitle": "애스트럴 어센트 (Astral Ascent) PS4 & PS5 (중국어(간체자), 한국어, 영어, 일본어, 중국어(번체자))",
       "radarLowPrice": 12600,
       "radarLowObservedAt": "2026-10-06T18:30:03.274Z",
-      "radarObservations": 10,
+      "radarObservations": 11,
       "radarHighestDiscount": 60,
       "isRadarLow": true,
       "nearRadarLow": true,
@@ -10261,340 +10204,6 @@
       "releasedConfirmed": true
     },
     {
-      "id": "deal-auto-fd639b82778d8785",
-      "title": "Cult of the Lamb: Unholy Edition",
-      "type": "regular",
-      "categories": [
-        "promo"
-      ],
-      "platform": [
-        "PS5"
-      ],
-      "genre": [
-        "전략",
-        "어드벤처",
-        "액션"
-      ],
-      "ko": true,
-      "languageStatus": "verified-store-positive",
-      "desc": "PS Store 공식 프로모션에서 자동 확인한 할인 타이틀입니다.",
-      "image": "https://image.api.playstation.com/vulcan/ap/rnd/202410/1420/f3bbff136644fe4f445b19c34b24cddc357205e465c1e514.png?w=230&thumb=false",
-      "store": "https://store.playstation.com/ko-kr/product/UP3643-PPSA06464_00-0874137573989438",
-      "currentPrice": 24900,
-      "originalPrice": 49800,
-      "discountPercent": 50,
-      "saleEndsAt": null,
-      "priceStatus": "verified",
-      "storeVerified": true,
-      "storeVerifiedAt": "2026-10-10T05:46:57.854Z",
-      "fetchedAt": "2026-10-10T05:46:57.854Z",
-      "dataQuality": "verified",
-      "priceCrosscheckError": 0,
-      "priceVerifiedBy": "listing-card-crosscheck-v1742",
-      "imageStatus": "listing-card-v1742",
-      "storeTitle": "Cult of the Lamb: Unholy Edition (중국어(간체자), 한국어, 영어, 일본어, 중국어(번체자))",
-      "radarLowPrice": 24900,
-      "radarLowObservedAt": "2026-10-06T18:30:03.274Z",
-      "radarObservations": 12,
-      "radarHighestDiscount": 50,
-      "isRadarLow": true,
-      "nearRadarLow": true,
-      "radarLowDeltaPercent": 0,
-      "radarFirstSeenAt": "2026-10-06T18:30:03.274Z",
-      "radarNewDeal": false,
-      "radarTrend": {
-        "changePoints": 1,
-        "saleCycles": 1,
-        "averageGapDays": null,
-        "medianDiscount": 50,
-        "medianSalePrice": 24900,
-        "currentCycleStartedAt": "2026-10-06T18:30:03.274Z",
-        "previousCycleBestPrice": null,
-        "previousCycleBestDiscount": null,
-        "recentDirection": "insufficient",
-        "recentCycleBest": [
-          {
-            "price": 24900,
-            "discount": 50
-          }
-        ]
-      },
-      "productId": "UP3643-PPSA06464_00-0874137573989438",
-      "releaseDate": "2024-10-31T16:00:00.000Z",
-      "rating": 4.5,
-      "ratingCount": 21898,
-      "classification": "GAME_BUNDLE",
-      "kind": "base",
-      "catalogGroupId": "product:UP3643-PPSA06464_00-0874137573989438",
-      "releasedConfirmed": true
-    },
-    {
-      "id": "deal-auto-6cf45323b8cb6f3e",
-      "title": "레드 데드 리뎀션 (PS4 & PS5)",
-      "type": "regular",
-      "categories": [
-        "promo"
-      ],
-      "platform": [
-        "PS5"
-      ],
-      "genre": [
-        "액션"
-      ],
-      "ko": true,
-      "languageStatus": "verified-store-positive",
-      "desc": "PS Store 공식 프로모션에서 자동 확인한 할인 타이틀입니다.",
-      "image": "https://image.api.playstation.com/vulcan/ap/rnd/202511/1414/3aaf8b9fade62d225447ca7beaf7a0a48851224c7b012093.png?w=230&thumb=false",
-      "store": "https://store.playstation.com/ko-kr/product/UP1004-PPSA30528_00-REDEMPTION000001",
-      "currentPrice": 31000,
-      "originalPrice": 62000,
-      "discountPercent": 50,
-      "saleEndsAt": null,
-      "priceStatus": "verified",
-      "storeVerified": true,
-      "storeVerifiedAt": "2026-10-10T05:46:57.854Z",
-      "fetchedAt": "2026-10-10T05:46:57.854Z",
-      "dataQuality": "verified",
-      "priceCrosscheckError": 0,
-      "priceVerifiedBy": "listing-card-crosscheck-v1742",
-      "imageStatus": "listing-card-v1742",
-      "storeTitle": "레드 데드 리뎀션 (PS4 & PS5) (중국어(간체자), 한국어, 영어, 중국어(번체자))",
-      "radarLowPrice": 31000,
-      "radarLowObservedAt": "2026-10-06T18:30:03.274Z",
-      "radarObservations": 12,
-      "radarHighestDiscount": 50,
-      "isRadarLow": true,
-      "nearRadarLow": true,
-      "radarLowDeltaPercent": 0,
-      "radarFirstSeenAt": "2026-10-06T18:30:03.274Z",
-      "radarNewDeal": false,
-      "radarTrend": {
-        "changePoints": 1,
-        "saleCycles": 1,
-        "averageGapDays": null,
-        "medianDiscount": 50,
-        "medianSalePrice": 31000,
-        "currentCycleStartedAt": "2026-10-06T18:30:03.274Z",
-        "previousCycleBestPrice": null,
-        "previousCycleBestDiscount": null,
-        "recentDirection": "insufficient",
-        "recentCycleBest": [
-          {
-            "price": 31000,
-            "discount": 50
-          }
-        ]
-      },
-      "productId": "UP1004-PPSA30528_00-REDEMPTION000001",
-      "releaseDate": "2025-12-01T15:00:00.000Z",
-      "rating": 4.71,
-      "ratingCount": 41712,
-      "classification": "FULL_GAME",
-      "kind": "base",
-      "catalogGroupId": "product:UP1004-PPSA30528_00-REDEMPTION000001",
-      "releasedConfirmed": true
-    },
-    {
-      "id": "deal-auto-ef45edded4993210",
-      "title": "Battlefield™ 6",
-      "type": "regular",
-      "categories": [
-        "promo"
-      ],
-      "platform": [
-        "PS5"
-      ],
-      "genre": [
-        "슈팅"
-      ],
-      "ko": true,
-      "languageStatus": "verified-store-positive",
-      "desc": "PS Store 공식 프로모션에서 자동 확인한 할인 타이틀입니다.",
-      "image": "https://image.api.playstation.com/vulcan/ap/rnd/202507/2514/606363ddf40fc2a7ec23f78f5310de1d41008d316dc2c98d.png",
-      "store": "https://store.playstation.com/ko-kr/product/UP0006-PPSA19534_00-SANTIAGOSTANDARD",
-      "currentPrice": 33200,
-      "originalPrice": 83000,
-      "discountPercent": 60,
-      "saleEndsAt": null,
-      "priceStatus": "verified",
-      "storeVerified": true,
-      "storeVerifiedAt": "2026-10-10T05:46:57.854Z",
-      "fetchedAt": "2026-10-10T05:46:57.854Z",
-      "dataQuality": "verified",
-      "priceCrosscheckError": 0,
-      "priceVerifiedBy": "listing-card-crosscheck-v1742",
-      "imageStatus": "official-product-page-v177",
-      "storeTitle": "Battlefield™ 6 (중국어(간체자), 한국어, 영어, 일본어)",
-      "imageVerifiedAt": "2026-10-10T05:51:51.484Z",
-      "radarLowPrice": 33200,
-      "radarLowObservedAt": "2026-10-06T18:30:03.274Z",
-      "radarObservations": 12,
-      "radarHighestDiscount": 60,
-      "isRadarLow": true,
-      "nearRadarLow": true,
-      "radarLowDeltaPercent": 0,
-      "radarFirstSeenAt": "2026-10-06T18:30:03.274Z",
-      "radarNewDeal": false,
-      "radarTrend": {
-        "changePoints": 1,
-        "saleCycles": 1,
-        "averageGapDays": null,
-        "medianDiscount": 60,
-        "medianSalePrice": 33200,
-        "currentCycleStartedAt": "2026-10-06T18:30:03.274Z",
-        "previousCycleBestPrice": null,
-        "previousCycleBestDiscount": null,
-        "recentDirection": "insufficient",
-        "recentCycleBest": [
-          {
-            "price": 33200,
-            "discount": 60
-          }
-        ]
-      },
-      "productId": "UP0006-PPSA19534_00-SANTIAGOSTANDARD",
-      "releaseDate": "2025-10-10T15:00:00.000Z",
-      "rating": 4.04,
-      "ratingCount": 86792,
-      "classification": "GAME_BUNDLE",
-      "kind": "base",
-      "catalogGroupId": "product:UP0006-PPSA19534_00-SANTIAGOSTANDARD",
-      "releasedConfirmed": true
-    },
-    {
-      "id": "deal-auto-03f7d2e8ab4b1170",
-      "title": "BLEACH 리버스 오브 소울즈 PS4 & PS5",
-      "type": "regular",
-      "categories": [
-        "promo"
-      ],
-      "platform": [
-        "PS5"
-      ],
-      "genre": [
-        "격투",
-        "액션"
-      ],
-      "ko": true,
-      "languageStatus": "verified-store-positive",
-      "desc": "PS Store 공식 프로모션에서 자동 확인한 할인 타이틀입니다.",
-      "image": "https://image.api.playstation.com/vulcan/ap/rnd/202410/0203/8e754c14a0bd7304a51d4b29ef5343287a57d8313d7f11d1.png?w=230&thumb=false",
-      "store": "https://store.playstation.com/ko-kr/product/HP0700-PPSA02167_00-BLEACHROFS000000",
-      "currentPrice": 20940,
-      "originalPrice": 69800,
-      "discountPercent": 70,
-      "saleEndsAt": null,
-      "priceStatus": "verified",
-      "storeVerified": true,
-      "storeVerifiedAt": "2026-10-10T05:46:57.854Z",
-      "fetchedAt": "2026-10-10T05:46:57.854Z",
-      "dataQuality": "verified",
-      "priceCrosscheckError": 0,
-      "priceVerifiedBy": "listing-card-crosscheck-v1742",
-      "imageStatus": "listing-card-v1742",
-      "storeTitle": "BLEACH 리버스 오브 소울즈 PS4 & PS5 (중국어(간체자), 한국어, 중국어(번체자))",
-      "radarLowPrice": 20940,
-      "radarLowObservedAt": "2026-10-06T18:30:03.274Z",
-      "radarObservations": 12,
-      "radarHighestDiscount": 70,
-      "isRadarLow": true,
-      "nearRadarLow": true,
-      "radarLowDeltaPercent": 0,
-      "radarFirstSeenAt": "2026-10-06T18:30:03.274Z",
-      "radarNewDeal": false,
-      "radarTrend": {
-        "changePoints": 1,
-        "saleCycles": 1,
-        "averageGapDays": null,
-        "medianDiscount": 70,
-        "medianSalePrice": 20940,
-        "currentCycleStartedAt": "2026-10-06T18:30:03.274Z",
-        "previousCycleBestPrice": null,
-        "previousCycleBestDiscount": null,
-        "recentDirection": "insufficient",
-        "recentCycleBest": [
-          {
-            "price": 20940,
-            "discount": 70
-          }
-        ]
-      },
-      "productId": "HP0700-PPSA02167_00-BLEACHROFS000000",
-      "releaseDate": "2025-03-20T15:00:00.000Z",
-      "rating": 4.42,
-      "ratingCount": 7506,
-      "classification": "FULL_GAME",
-      "kind": "base",
-      "catalogGroupId": "product:HP0700-PPSA02167_00-BLEACHROFS000000",
-      "releasedConfirmed": true
-    },
-    {
-      "id": "deal-auto-c590c381edf7511e",
-      "title": "FINAL FANTASY TACTICS - The Ivalice Chronicles Deluxe Edition [PS4 & PS5]",
-      "type": "regular",
-      "categories": [
-        "promo"
-      ],
-      "platform": [
-        "PS5"
-      ],
-      "genre": [
-        "전략"
-      ],
-      "ko": true,
-      "languageStatus": "verified-store-positive",
-      "desc": "PS Store 공식 프로모션에서 자동 확인한 할인 타이틀입니다.",
-      "image": "https://image.api.playstation.com/vulcan/ap/rnd/202509/1611/bdb7ca2a4018e478c447a460fa2f91380484af3bece8c18b.png?w=230&thumb=false",
-      "store": "https://store.playstation.com/ko-kr/product/JP0082-PPSA21783_00-0607198398321785",
-      "currentPrice": 48860,
-      "originalPrice": 69800,
-      "discountPercent": 30,
-      "saleEndsAt": null,
-      "priceStatus": "verified",
-      "storeVerified": true,
-      "storeVerifiedAt": "2026-10-10T05:46:57.854Z",
-      "fetchedAt": "2026-10-10T05:46:57.854Z",
-      "dataQuality": "verified",
-      "priceCrosscheckError": 0,
-      "priceVerifiedBy": "listing-card-crosscheck-v1742",
-      "imageStatus": "listing-card-v1742",
-      "storeTitle": "FINAL FANTASY TACTICS - The Ivalice Chronicles Deluxe Edition [PS4 & PS5] (중국어(간체자), 한국어, 영어, 일본어, 중국어(번체자))",
-      "radarLowPrice": 48860,
-      "radarLowObservedAt": "2026-10-06T18:30:03.274Z",
-      "radarObservations": 12,
-      "radarHighestDiscount": 30,
-      "isRadarLow": true,
-      "nearRadarLow": true,
-      "radarLowDeltaPercent": 0,
-      "radarFirstSeenAt": "2026-10-06T18:30:03.274Z",
-      "radarNewDeal": false,
-      "radarTrend": {
-        "changePoints": 1,
-        "saleCycles": 1,
-        "averageGapDays": null,
-        "medianDiscount": 30,
-        "medianSalePrice": 48860,
-        "currentCycleStartedAt": "2026-10-06T18:30:03.274Z",
-        "previousCycleBestPrice": null,
-        "previousCycleBestDiscount": null,
-        "recentDirection": "insufficient",
-        "recentCycleBest": [
-          {
-            "price": 48860,
-            "discount": 30
-          }
-        ]
-      },
-      "productId": "JP0082-PPSA21783_00-0607198398321785",
-      "releaseDate": "2025-09-29T15:00:00.000Z",
-      "rating": 4.73,
-      "ratingCount": 4011,
-      "classification": "PREMIUM_EDITION",
-      "kind": "edition",
-      "catalogGroupId": "product:JP0082-PPSA21783_00-0607198398321785",
-      "releasedConfirmed": true
-    },
-    {
       "id": "deal-auto-c2352f330d9fb578",
       "title": "Grand Theft Auto V 인핸스드 및 그레이트 화이트 샤크 카드 번들",
       "type": "regular",
@@ -10619,8 +10228,8 @@
       "saleEndsAt": null,
       "priceStatus": "verified",
       "storeVerified": true,
-      "storeVerifiedAt": "2026-10-10T05:46:57.854Z",
-      "fetchedAt": "2026-10-10T05:46:57.854Z",
+      "storeVerifiedAt": "2026-10-10T12:30:12.924Z",
+      "fetchedAt": "2026-10-10T12:30:12.924Z",
       "dataQuality": "verified",
       "priceCrosscheckError": 0,
       "priceVerifiedBy": "listing-card-crosscheck-v1742",
@@ -10628,7 +10237,7 @@
       "storeTitle": "Grand Theft Auto V 인핸스드 및 그레이트 화이트 샤크 카드 번들 (중국어(간체자), 한국어, 영어, 중국어(번체자))",
       "radarLowPrice": 31000,
       "radarLowObservedAt": "2026-10-06T18:30:03.274Z",
-      "radarObservations": 12,
+      "radarObservations": 13,
       "radarHighestDiscount": 50,
       "isRadarLow": true,
       "nearRadarLow": true,
@@ -10662,8 +10271,8 @@
       "releasedConfirmed": true
     },
     {
-      "id": "deal-auto-61dab3b0261b023d",
-      "title": "Grounded 2",
+      "id": "deal-auto-c055ff9e661d80e4",
+      "title": "It Takes Two PS4™와 PS5™",
       "type": "regular",
       "categories": [
         "promo"
@@ -10672,30 +10281,30 @@
         "PS5"
       ],
       "genre": [
-        "어드벤처"
+        "유니크"
       ],
       "ko": true,
       "languageStatus": "verified-store-positive",
       "desc": "PS Store 공식 프로모션에서 자동 확인한 할인 타이틀입니다.",
-      "image": "https://image.api.playstation.com/vulcan/ap/rnd/202606/0316/a79dd27918cc2856b6f459dec2857548cfea7db7a85af544.png?w=230&thumb=false",
-      "store": "https://store.playstation.com/ko-kr/product/UP6312-PPSA32718_00-AUGUSTA000000000",
-      "currentPrice": 31320,
-      "originalPrice": 34800,
-      "discountPercent": 10,
+      "image": "https://image.api.playstation.com/vulcan/ap/rnd/202012/0815/7CRynuLSAb0vysSC4TmZy5e4.png?w=230&thumb=false",
+      "store": "https://store.playstation.com/ko-kr/product/UP0006-PPSA02342_00-ITTAKESTWORETAIL",
+      "currentPrice": 14100,
+      "originalPrice": 47000,
+      "discountPercent": 70,
       "saleEndsAt": null,
       "priceStatus": "verified",
       "storeVerified": true,
-      "storeVerifiedAt": "2026-10-10T05:46:57.854Z",
-      "fetchedAt": "2026-10-10T05:46:57.854Z",
+      "storeVerifiedAt": "2026-10-10T12:30:12.924Z",
+      "fetchedAt": "2026-10-10T12:30:12.924Z",
       "dataQuality": "verified",
       "priceCrosscheckError": 0,
       "priceVerifiedBy": "listing-card-crosscheck-v1742",
       "imageStatus": "listing-card-v1742",
-      "storeTitle": "Grounded 2 (중국어(간체자), 한국어, 영어, 일본어, 중국어(번체자))",
-      "radarLowPrice": 31320,
+      "storeTitle": "It Takes Two PS4™와 PS5™ (중국어(간체자), 한국어, 영어, 일본어, 중국어(번체자))",
+      "radarLowPrice": 14100,
       "radarLowObservedAt": "2026-10-06T18:30:03.274Z",
-      "radarObservations": 12,
-      "radarHighestDiscount": 10,
+      "radarObservations": 13,
+      "radarHighestDiscount": 70,
       "isRadarLow": true,
       "nearRadarLow": true,
       "radarLowDeltaPercent": 0,
@@ -10705,31 +10314,31 @@
         "changePoints": 1,
         "saleCycles": 1,
         "averageGapDays": null,
-        "medianDiscount": 10,
-        "medianSalePrice": 31320,
+        "medianDiscount": 70,
+        "medianSalePrice": 14100,
         "currentCycleStartedAt": "2026-10-06T18:30:03.274Z",
         "previousCycleBestPrice": null,
         "previousCycleBestDiscount": null,
         "recentDirection": "insufficient",
         "recentCycleBest": [
           {
-            "price": 31320,
-            "discount": 10
+            "price": 14100,
+            "discount": 70
           }
         ]
       },
-      "productId": "UP6312-PPSA32718_00-AUGUSTA000000000",
-      "releaseDate": "2026-08-11T17:00:00.000Z",
-      "rating": 4.79,
-      "ratingCount": 4715,
-      "classification": "FULL_GAME",
+      "productId": "UP0006-PPSA02342_00-ITTAKESTWORETAIL",
+      "releaseDate": "2021-03-25T15:00:00.000Z",
+      "rating": 4.54,
+      "ratingCount": 144078,
+      "classification": "GAME_BUNDLE",
       "kind": "base",
-      "catalogGroupId": "product:UP6312-PPSA32718_00-AUGUSTA000000000",
+      "catalogGroupId": "product:UP0006-PPSA02342_00-ITTAKESTWORETAIL",
       "releasedConfirmed": true
     },
     {
-      "id": "deal-auto-6fadc83e627be04a",
-      "title": "Outer Wilds",
+      "id": "deal-auto-fd639b82778d8785",
+      "title": "Cult of the Lamb: Unholy Edition",
       "type": "regular",
       "categories": [
         "promo"
@@ -10738,69 +10347,539 @@
         "PS5"
       ],
       "genre": [
-        "유니크",
+        "전략",
+        "어드벤처",
+        "액션"
+      ],
+      "ko": true,
+      "languageStatus": "verified-store-positive",
+      "desc": "PS Store 공식 프로모션에서 자동 확인한 할인 타이틀입니다.",
+      "image": "https://image.api.playstation.com/vulcan/ap/rnd/202410/1420/f3bbff136644fe4f445b19c34b24cddc357205e465c1e514.png?w=230&thumb=false",
+      "store": "https://store.playstation.com/ko-kr/product/UP3643-PPSA06464_00-0874137573989438",
+      "currentPrice": 24900,
+      "originalPrice": 49800,
+      "discountPercent": 50,
+      "saleEndsAt": null,
+      "priceStatus": "verified",
+      "storeVerified": true,
+      "storeVerifiedAt": "2026-10-10T12:30:12.924Z",
+      "fetchedAt": "2026-10-10T12:30:12.924Z",
+      "dataQuality": "verified",
+      "priceCrosscheckError": 0,
+      "priceVerifiedBy": "listing-card-crosscheck-v1742",
+      "imageStatus": "listing-card-v1742",
+      "storeTitle": "Cult of the Lamb: Unholy Edition (중국어(간체자), 한국어, 영어, 일본어, 중국어(번체자))",
+      "radarLowPrice": 24900,
+      "radarLowObservedAt": "2026-10-06T18:30:03.274Z",
+      "radarObservations": 13,
+      "radarHighestDiscount": 50,
+      "isRadarLow": true,
+      "nearRadarLow": true,
+      "radarLowDeltaPercent": 0,
+      "radarFirstSeenAt": "2026-10-06T18:30:03.274Z",
+      "radarNewDeal": false,
+      "radarTrend": {
+        "changePoints": 1,
+        "saleCycles": 1,
+        "averageGapDays": null,
+        "medianDiscount": 50,
+        "medianSalePrice": 24900,
+        "currentCycleStartedAt": "2026-10-06T18:30:03.274Z",
+        "previousCycleBestPrice": null,
+        "previousCycleBestDiscount": null,
+        "recentDirection": "insufficient",
+        "recentCycleBest": [
+          {
+            "price": 24900,
+            "discount": 50
+          }
+        ]
+      },
+      "productId": "UP3643-PPSA06464_00-0874137573989438",
+      "releaseDate": "2024-10-31T16:00:00.000Z",
+      "rating": 4.5,
+      "ratingCount": 21898,
+      "classification": "GAME_BUNDLE",
+      "kind": "base",
+      "catalogGroupId": "product:UP3643-PPSA06464_00-0874137573989438",
+      "releasedConfirmed": true
+    },
+    {
+      "id": "deal-auto-1a4453e0a6e6ed7c",
+      "title": "Towerborne Deluxe Edition",
+      "type": "regular",
+      "categories": [
+        "promo"
+      ],
+      "platform": [
+        "PS5"
+      ],
+      "genre": [
+        "액션"
+      ],
+      "ko": true,
+      "languageStatus": "verified-store-positive",
+      "desc": "PS Store 공식 프로모션에서 자동 확인한 할인 타이틀입니다.",
+      "image": "https://image.api.playstation.com/vulcan/ap/rnd/202601/0221/fc622258a62eac1d08a7033fd7efe359541298164c05970b.png?w=230&thumb=false",
+      "store": "https://store.playstation.com/ko-kr/product/UP6312-PPSA29586_00-0765025196979148",
+      "currentPrice": 19800,
+      "originalPrice": 33000,
+      "discountPercent": 40,
+      "saleEndsAt": null,
+      "priceStatus": "verified",
+      "storeVerified": true,
+      "storeVerifiedAt": "2026-10-10T12:30:12.924Z",
+      "fetchedAt": "2026-10-10T12:30:12.924Z",
+      "dataQuality": "verified",
+      "priceCrosscheckError": 0,
+      "priceVerifiedBy": "listing-card-crosscheck-v1742",
+      "imageStatus": "listing-card-v1742",
+      "storeTitle": "Towerborne Deluxe Edition (중국어(간체자), 한국어, 영어, 일본어, 중국어(번체자))",
+      "radarLowPrice": 19800,
+      "radarLowObservedAt": "2026-10-06T18:30:03.274Z",
+      "radarObservations": 13,
+      "radarHighestDiscount": 40,
+      "isRadarLow": true,
+      "nearRadarLow": true,
+      "radarLowDeltaPercent": 0,
+      "radarFirstSeenAt": "2026-10-06T18:30:03.274Z",
+      "radarNewDeal": false,
+      "radarTrend": {
+        "changePoints": 1,
+        "saleCycles": 1,
+        "averageGapDays": null,
+        "medianDiscount": 40,
+        "medianSalePrice": 19800,
+        "currentCycleStartedAt": "2026-10-06T18:30:03.274Z",
+        "previousCycleBestPrice": null,
+        "previousCycleBestDiscount": null,
+        "recentDirection": "insufficient",
+        "recentCycleBest": [
+          {
+            "price": 19800,
+            "discount": 40
+          }
+        ]
+      },
+      "productId": "UP6312-PPSA29586_00-0765025196979148",
+      "releaseDate": "2026-02-26T18:00:00.000Z",
+      "rating": 4.25,
+      "ratingCount": 655,
+      "classification": "PREMIUM_EDITION",
+      "kind": "edition",
+      "catalogGroupId": "product:UP6312-PPSA29586_00-0765025196979148",
+      "releasedConfirmed": true
+    },
+    {
+      "id": "deal-auto-6cf45323b8cb6f3e",
+      "title": "레드 데드 리뎀션 (PS4 & PS5)",
+      "type": "regular",
+      "categories": [
+        "promo"
+      ],
+      "platform": [
+        "PS5"
+      ],
+      "genre": [
+        "액션"
+      ],
+      "ko": true,
+      "languageStatus": "verified-store-positive",
+      "desc": "PS Store 공식 프로모션에서 자동 확인한 할인 타이틀입니다.",
+      "image": "https://image.api.playstation.com/vulcan/ap/rnd/202511/1414/3aaf8b9fade62d225447ca7beaf7a0a48851224c7b012093.png?w=230&thumb=false",
+      "store": "https://store.playstation.com/ko-kr/product/UP1004-PPSA30528_00-REDEMPTION000001",
+      "currentPrice": 31000,
+      "originalPrice": 62000,
+      "discountPercent": 50,
+      "saleEndsAt": null,
+      "priceStatus": "verified",
+      "storeVerified": true,
+      "storeVerifiedAt": "2026-10-10T12:30:12.924Z",
+      "fetchedAt": "2026-10-10T12:30:12.924Z",
+      "dataQuality": "verified",
+      "priceCrosscheckError": 0,
+      "priceVerifiedBy": "listing-card-crosscheck-v1742",
+      "imageStatus": "listing-card-v1742",
+      "storeTitle": "레드 데드 리뎀션 (PS4 & PS5) (중국어(간체자), 한국어, 영어, 중국어(번체자))",
+      "radarLowPrice": 31000,
+      "radarLowObservedAt": "2026-10-06T18:30:03.274Z",
+      "radarObservations": 13,
+      "radarHighestDiscount": 50,
+      "isRadarLow": true,
+      "nearRadarLow": true,
+      "radarLowDeltaPercent": 0,
+      "radarFirstSeenAt": "2026-10-06T18:30:03.274Z",
+      "radarNewDeal": false,
+      "radarTrend": {
+        "changePoints": 1,
+        "saleCycles": 1,
+        "averageGapDays": null,
+        "medianDiscount": 50,
+        "medianSalePrice": 31000,
+        "currentCycleStartedAt": "2026-10-06T18:30:03.274Z",
+        "previousCycleBestPrice": null,
+        "previousCycleBestDiscount": null,
+        "recentDirection": "insufficient",
+        "recentCycleBest": [
+          {
+            "price": 31000,
+            "discount": 50
+          }
+        ]
+      },
+      "productId": "UP1004-PPSA30528_00-REDEMPTION000001",
+      "releaseDate": "2025-12-01T15:00:00.000Z",
+      "rating": 4.71,
+      "ratingCount": 41712,
+      "classification": "FULL_GAME",
+      "kind": "base",
+      "catalogGroupId": "product:UP1004-PPSA30528_00-REDEMPTION000001",
+      "releasedConfirmed": true
+    },
+    {
+      "id": "deal-auto-03f7d2e8ab4b1170",
+      "title": "BLEACH 리버스 오브 소울즈 PS4 & PS5",
+      "type": "regular",
+      "categories": [
+        "promo"
+      ],
+      "platform": [
+        "PS5"
+      ],
+      "genre": [
+        "격투",
+        "액션"
+      ],
+      "ko": true,
+      "languageStatus": "verified-store-positive",
+      "desc": "PS Store 공식 프로모션에서 자동 확인한 할인 타이틀입니다.",
+      "image": "https://image.api.playstation.com/vulcan/ap/rnd/202410/0203/8e754c14a0bd7304a51d4b29ef5343287a57d8313d7f11d1.png?w=230&thumb=false",
+      "store": "https://store.playstation.com/ko-kr/product/HP0700-PPSA02167_00-BLEACHROFS000000",
+      "currentPrice": 20940,
+      "originalPrice": 69800,
+      "discountPercent": 70,
+      "saleEndsAt": null,
+      "priceStatus": "verified",
+      "storeVerified": true,
+      "storeVerifiedAt": "2026-10-10T12:30:12.924Z",
+      "fetchedAt": "2026-10-10T12:30:12.924Z",
+      "dataQuality": "verified",
+      "priceCrosscheckError": 0,
+      "priceVerifiedBy": "listing-card-crosscheck-v1742",
+      "imageStatus": "listing-card-v1742",
+      "storeTitle": "BLEACH 리버스 오브 소울즈 PS4 & PS5 (중국어(간체자), 한국어, 중국어(번체자))",
+      "radarLowPrice": 20940,
+      "radarLowObservedAt": "2026-10-06T18:30:03.274Z",
+      "radarObservations": 13,
+      "radarHighestDiscount": 70,
+      "isRadarLow": true,
+      "nearRadarLow": true,
+      "radarLowDeltaPercent": 0,
+      "radarFirstSeenAt": "2026-10-06T18:30:03.274Z",
+      "radarNewDeal": false,
+      "radarTrend": {
+        "changePoints": 1,
+        "saleCycles": 1,
+        "averageGapDays": null,
+        "medianDiscount": 70,
+        "medianSalePrice": 20940,
+        "currentCycleStartedAt": "2026-10-06T18:30:03.274Z",
+        "previousCycleBestPrice": null,
+        "previousCycleBestDiscount": null,
+        "recentDirection": "insufficient",
+        "recentCycleBest": [
+          {
+            "price": 20940,
+            "discount": 70
+          }
+        ]
+      },
+      "productId": "HP0700-PPSA02167_00-BLEACHROFS000000",
+      "releaseDate": "2025-03-20T15:00:00.000Z",
+      "rating": 4.42,
+      "ratingCount": 7506,
+      "classification": "FULL_GAME",
+      "kind": "base",
+      "catalogGroupId": "product:HP0700-PPSA02167_00-BLEACHROFS000000",
+      "releasedConfirmed": true
+    },
+    {
+      "id": "deal-auto-735c9a03e4f40a5d",
+      "title": "007 First Light",
+      "type": "regular",
+      "categories": [
+        "promo"
+      ],
+      "platform": [
+        "PS5"
+      ],
+      "genre": [
+        "어드벤처",
+        "액션"
+      ],
+      "ko": true,
+      "languageStatus": "verified-store-positive",
+      "desc": "PS Store 공식 프로모션에서 자동 확인한 할인 타이틀입니다.",
+      "image": "https://image.api.playstation.com/vulcan/ap/rnd/202610/0213/2a446965c0e8537af78302782417b0353a73ff1b19ebfeb4.png?w=230&thumb=false",
+      "store": "https://store.playstation.com/ko-kr/product/EP3969-PPSA11386_00-007FIRSTLIGHT000",
+      "currentPrice": 54460,
+      "originalPrice": 77800,
+      "discountPercent": 30,
+      "saleEndsAt": null,
+      "priceStatus": "verified",
+      "storeVerified": true,
+      "storeVerifiedAt": "2026-10-10T12:30:12.924Z",
+      "fetchedAt": "2026-10-10T12:30:12.924Z",
+      "dataQuality": "verified",
+      "priceCrosscheckError": 0,
+      "priceVerifiedBy": "listing-card-crosscheck-v1742",
+      "imageStatus": "listing-card-v1742",
+      "storeTitle": "007 First Light (중국어(간체자), 한국어, 영어, 일본어, 중국어(번체자))",
+      "radarLowPrice": 54460,
+      "radarLowObservedAt": "2026-10-06T18:30:03.274Z",
+      "radarObservations": 12,
+      "radarHighestDiscount": 30,
+      "isRadarLow": true,
+      "nearRadarLow": true,
+      "radarLowDeltaPercent": 0,
+      "radarFirstSeenAt": "2026-10-06T18:30:03.274Z",
+      "radarNewDeal": false,
+      "radarTrend": {
+        "changePoints": 3,
+        "saleCycles": 2,
+        "averageGapDays": 4,
+        "medianDiscount": 30,
+        "medianSalePrice": 54460,
+        "currentCycleStartedAt": "2026-10-10T12:30:12.924Z",
+        "previousCycleBestPrice": 54460,
+        "previousCycleBestDiscount": 30,
+        "recentDirection": "insufficient",
+        "recentCycleBest": [
+          {
+            "price": 54460,
+            "discount": 30
+          },
+          {
+            "price": 54460,
+            "discount": 30
+          }
+        ]
+      },
+      "productId": "EP3969-PPSA11386_00-007FIRSTLIGHT000",
+      "releaseDate": "2026-05-26T14:00:00.000Z",
+      "rating": 4.6,
+      "ratingCount": 34122,
+      "classification": "FULL_GAME",
+      "kind": "base",
+      "catalogGroupId": "product:EP3969-PPSA11386_00-007FIRSTLIGHT000",
+      "releasedConfirmed": true
+    },
+    {
+      "id": "deal-auto-a054934ad277d512",
+      "title": "철권 8",
+      "type": "regular",
+      "categories": [
+        "promo"
+      ],
+      "platform": [
+        "PS5"
+      ],
+      "genre": [
+        "액션",
+        "격투"
+      ],
+      "ko": true,
+      "languageStatus": "verified-store-positive",
+      "desc": "PS Store 공식 프로모션에서 자동 확인한 할인 타이틀입니다.",
+      "image": "https://image.api.playstation.com/vulcan/ap/rnd/202212/2101/CxnQHVI3gzboBTHqEEQVWZJ6.png?w=230&thumb=false",
+      "store": "https://store.playstation.com/ko-kr/product/HP0700-PPSA10593_00-TEKKEN8000000000",
+      "currentPrice": 29880,
+      "originalPrice": 49800,
+      "discountPercent": 40,
+      "saleEndsAt": null,
+      "priceStatus": "verified",
+      "storeVerified": true,
+      "storeVerifiedAt": "2026-10-10T12:30:12.924Z",
+      "fetchedAt": "2026-10-10T12:30:12.924Z",
+      "dataQuality": "verified",
+      "priceCrosscheckError": 0,
+      "priceVerifiedBy": "listing-card-crosscheck-v1742",
+      "imageStatus": "listing-card-v1742",
+      "storeTitle": "철권 8 (중국어(간체자), 한국어, 중국어(번체자))",
+      "radarLowPrice": 29880,
+      "radarLowObservedAt": "2026-10-06T18:30:03.274Z",
+      "radarObservations": 12,
+      "radarHighestDiscount": 40,
+      "isRadarLow": true,
+      "nearRadarLow": true,
+      "radarLowDeltaPercent": 0,
+      "radarFirstSeenAt": "2026-10-06T18:30:03.274Z",
+      "radarNewDeal": false,
+      "radarTrend": {
+        "changePoints": 3,
+        "saleCycles": 2,
+        "averageGapDays": 4,
+        "medianDiscount": 40,
+        "medianSalePrice": 29880,
+        "currentCycleStartedAt": "2026-10-10T12:30:12.924Z",
+        "previousCycleBestPrice": 29880,
+        "previousCycleBestDiscount": 40,
+        "recentDirection": "insufficient",
+        "recentCycleBest": [
+          {
+            "price": 29880,
+            "discount": 40
+          },
+          {
+            "price": 29880,
+            "discount": 40
+          }
+        ]
+      },
+      "productId": "HP0700-PPSA10593_00-TEKKEN8000000000",
+      "releaseDate": "2024-01-25T23:00:00.000Z",
+      "rating": 4.25,
+      "ratingCount": 25472,
+      "classification": "FULL_GAME",
+      "kind": "base",
+      "catalogGroupId": "product:HP0700-PPSA10593_00-TEKKEN8000000000",
+      "releasedConfirmed": true
+    },
+    {
+      "id": "deal-auto-1b130f2aafe7c744",
+      "title": "Lies of P",
+      "type": "regular",
+      "categories": [
+        "promo"
+      ],
+      "platform": [
+        "PS5"
+      ],
+      "genre": [
+        "롤플레잉 게임",
+        "액션"
+      ],
+      "ko": true,
+      "languageStatus": "verified-store-positive",
+      "desc": "PS Store 공식 프로모션에서 자동 확인한 할인 타이틀입니다.",
+      "image": null,
+      "store": "https://store.playstation.com/ko-kr/product/HP1804-PPSA10623_00-6700122691247574",
+      "currentPrice": 32400,
+      "originalPrice": 64800,
+      "discountPercent": 50,
+      "saleEndsAt": null,
+      "priceStatus": "verified",
+      "storeVerified": true,
+      "storeVerifiedAt": "2026-10-10T12:30:12.924Z",
+      "fetchedAt": "2026-10-10T12:30:12.924Z",
+      "dataQuality": "verified",
+      "priceCrosscheckError": 0,
+      "priceVerifiedBy": "listing-card-crosscheck-v1742",
+      "imageStatus": "collision-removed",
+      "storeTitle": "Lies of P (중국어(간체자), 한국어, 영어, 일본어, 중국어(번체자))",
+      "radarLowPrice": 32400,
+      "radarLowObservedAt": "2026-10-06T18:30:03.274Z",
+      "radarObservations": 13,
+      "radarHighestDiscount": 50,
+      "isRadarLow": true,
+      "nearRadarLow": true,
+      "radarLowDeltaPercent": 0,
+      "radarFirstSeenAt": "2026-10-06T18:30:03.274Z",
+      "radarNewDeal": false,
+      "radarTrend": {
+        "changePoints": 1,
+        "saleCycles": 1,
+        "averageGapDays": null,
+        "medianDiscount": 50,
+        "medianSalePrice": 32400,
+        "currentCycleStartedAt": "2026-10-06T18:30:03.274Z",
+        "previousCycleBestPrice": null,
+        "previousCycleBestDiscount": null,
+        "recentDirection": "insufficient",
+        "recentCycleBest": [
+          {
+            "price": 32400,
+            "discount": 50
+          }
+        ]
+      },
+      "productId": "HP1804-PPSA10623_00-6700122691247574",
+      "releaseDate": "2023-09-15T15:00:00.000Z",
+      "rating": 4.54,
+      "ratingCount": 51356,
+      "classification": "FULL_GAME",
+      "kind": "base",
+      "catalogGroupId": "product:HP1804-PPSA10623_00-6700122691247574",
+      "releasedConfirmed": true
+    },
+    {
+      "id": "deal-auto-907202ab4fe3f763",
+      "title": "Split Fiction",
+      "type": "regular",
+      "categories": [
+        "promo"
+      ],
+      "platform": [
+        "PS5"
+      ],
+      "genre": [
         "어드벤처"
       ],
       "ko": true,
       "languageStatus": "verified-store-positive",
       "desc": "PS Store 공식 프로모션에서 자동 확인한 할인 타이틀입니다.",
-      "image": "https://image.api.playstation.com/vulcan/ap/rnd/202208/1623/Zofebh60Ue7Zt5sC10UAtU3D.png",
-      "store": "https://store.playstation.com/ko-kr/product/UP2470-PPSA08101_00-OUTERWILDSSIEA00",
-      "currentPrice": 13920,
-      "originalPrice": 34800,
-      "discountPercent": 60,
+      "image": "https://image.api.playstation.com/vulcan/ap/rnd/202502/2109/0c582584b280e3bf8872316fd4626ec084efaeb9ba436c65.png?w=230&thumb=false",
+      "store": "https://store.playstation.com/ko-kr/product/UP0006-PPSA08560_00-SPLITSTANDARDED0",
+      "currentPrice": 38350,
+      "originalPrice": 59000,
+      "discountPercent": 35,
       "saleEndsAt": null,
       "priceStatus": "verified",
       "storeVerified": true,
-      "storeVerifiedAt": "2026-10-10T05:46:57.854Z",
-      "fetchedAt": "2026-10-10T05:46:57.854Z",
+      "storeVerifiedAt": "2026-10-10T12:30:12.924Z",
+      "fetchedAt": "2026-10-10T12:30:12.924Z",
       "dataQuality": "verified",
       "priceCrosscheckError": 0,
       "priceVerifiedBy": "listing-card-crosscheck-v1742",
-      "storeTitle": "Outer Wilds (중국어(간체자), 한국어, 영어, 일본어)",
-      "imageStatus": "official-product-page-v177",
-      "imageVerifiedAt": "2026-10-10T05:51:53.754Z",
-      "radarLowPrice": 6500,
-      "radarLowObservedAt": "2026-10-09T18:28:08.024Z",
-      "radarObservations": 28,
-      "radarHighestDiscount": 90,
-      "isRadarLow": false,
-      "nearRadarLow": false,
-      "radarLowDeltaPercent": 114.2,
-      "radarFirstSeenAt": "2026-09-27T16:26:56.855Z",
+      "imageStatus": "listing-card-v1742",
+      "storeTitle": "Split Fiction (중국어(간체자), 한국어, 영어, 일본어, 중국어(번체자))",
+      "radarLowPrice": 38350,
+      "radarLowObservedAt": "2026-10-06T18:30:03.274Z",
+      "radarObservations": 12,
+      "radarHighestDiscount": 35,
+      "isRadarLow": true,
+      "nearRadarLow": true,
+      "radarLowDeltaPercent": 0,
+      "radarFirstSeenAt": "2026-10-06T18:30:03.274Z",
       "radarNewDeal": false,
       "radarTrend": {
-        "changePoints": 11,
-        "saleCycles": 3,
-        "averageGapDays": 6,
-        "medianDiscount": 40,
-        "medianSalePrice": 10800,
-        "currentCycleStartedAt": "2026-10-09T00:41:25.130Z",
-        "previousCycleBestPrice": 8250,
-        "previousCycleBestDiscount": 70,
-        "recentDirection": "improving",
+        "changePoints": 3,
+        "saleCycles": 2,
+        "averageGapDays": 4,
+        "medianDiscount": 35,
+        "medianSalePrice": 38350,
+        "currentCycleStartedAt": "2026-10-10T12:30:12.924Z",
+        "previousCycleBestPrice": 38350,
+        "previousCycleBestDiscount": 35,
+        "recentDirection": "insufficient",
         "recentCycleBest": [
           {
-            "price": 16680,
-            "discount": 40
+            "price": 38350,
+            "discount": 35
           },
           {
-            "price": 8250,
-            "discount": 70
-          },
-          {
-            "price": 6500,
-            "discount": 90
+            "price": 38350,
+            "discount": 35
           }
         ]
       },
-      "productId": "UP2470-PPSA08101_00-OUTERWILDSSIEA00",
-      "releaseDate": "2022-09-15T16:00:00.000Z",
-      "rating": 4.75,
-      "ratingCount": 13760,
-      "classification": "FULL_GAME",
+      "productId": "UP0006-PPSA08560_00-SPLITSTANDARDED0",
+      "releaseDate": "2025-03-06T16:00:00.000Z",
+      "rating": 4.83,
+      "ratingCount": 44386,
+      "classification": "GAME_BUNDLE",
       "kind": "base",
-      "catalogGroupId": "product:UP2470-PPSA08101_00-OUTERWILDSSIEA00",
+      "catalogGroupId": "product:UP0006-PPSA08560_00-SPLITSTANDARDED0",
       "releasedConfirmed": true
     },
     {
@@ -10827,8 +10906,8 @@
       "saleEndsAt": null,
       "priceStatus": "verified",
       "storeVerified": true,
-      "storeVerifiedAt": "2026-10-10T05:46:57.854Z",
-      "fetchedAt": "2026-10-10T05:46:57.854Z",
+      "storeVerifiedAt": "2026-10-10T12:30:12.924Z",
+      "fetchedAt": "2026-10-10T12:30:12.924Z",
       "dataQuality": "verified",
       "priceCrosscheckError": 0,
       "priceVerifiedBy": "listing-card-crosscheck-v1742",
@@ -10836,7 +10915,7 @@
       "storeTitle": "어쌔신 크리드 발할라 - 컴플리트 에디션 (중국어(간체자), 한국어, 영어, 일본어, 중국어(번체자))",
       "radarLowPrice": 37500,
       "radarLowObservedAt": "2026-10-06T18:30:03.274Z",
-      "radarObservations": 12,
+      "radarObservations": 13,
       "radarHighestDiscount": 75,
       "isRadarLow": true,
       "nearRadarLow": true,
@@ -10870,8 +10949,8 @@
       "releasedConfirmed": true
     },
     {
-      "id": "deal-auto-1b130f2aafe7c744",
-      "title": "Lies of P",
+      "id": "deal-auto-ef45edded4993210",
+      "title": "Battlefield™ 6",
       "type": "regular",
       "categories": [
         "promo"
@@ -10880,31 +10959,30 @@
         "PS5"
       ],
       "genre": [
-        "롤플레잉 게임",
-        "액션"
+        "슈팅"
       ],
       "ko": true,
       "languageStatus": "verified-store-positive",
       "desc": "PS Store 공식 프로모션에서 자동 확인한 할인 타이틀입니다.",
-      "image": null,
-      "store": "https://store.playstation.com/ko-kr/product/HP1804-PPSA10623_00-6700122691247574",
-      "currentPrice": 32400,
-      "originalPrice": 64800,
-      "discountPercent": 50,
+      "image": "https://image.api.playstation.com/vulcan/ap/rnd/202507/2514/606363ddf40fc2a7ec23f78f5310de1d41008d316dc2c98d.png?w=230&thumb=false",
+      "store": "https://store.playstation.com/ko-kr/product/UP0006-PPSA19534_00-SANTIAGOSTANDARD",
+      "currentPrice": 33200,
+      "originalPrice": 83000,
+      "discountPercent": 60,
       "saleEndsAt": null,
       "priceStatus": "verified",
       "storeVerified": true,
-      "storeVerifiedAt": "2026-10-10T05:46:57.854Z",
-      "fetchedAt": "2026-10-10T05:46:57.854Z",
+      "storeVerifiedAt": "2026-10-10T12:30:12.924Z",
+      "fetchedAt": "2026-10-10T12:30:12.924Z",
       "dataQuality": "verified",
       "priceCrosscheckError": 0,
       "priceVerifiedBy": "listing-card-crosscheck-v1742",
-      "imageStatus": "collision-removed",
-      "storeTitle": "Lies of P (중국어(간체자), 한국어, 영어, 일본어, 중국어(번체자))",
-      "radarLowPrice": 32400,
+      "imageStatus": "listing-card-v1742",
+      "storeTitle": "Battlefield™ 6 (중국어(간체자), 한국어, 영어, 일본어)",
+      "radarLowPrice": 33200,
       "radarLowObservedAt": "2026-10-06T18:30:03.274Z",
-      "radarObservations": 12,
-      "radarHighestDiscount": 50,
+      "radarObservations": 13,
+      "radarHighestDiscount": 60,
       "isRadarLow": true,
       "nearRadarLow": true,
       "radarLowDeltaPercent": 0,
@@ -10914,26 +10992,158 @@
         "changePoints": 1,
         "saleCycles": 1,
         "averageGapDays": null,
-        "medianDiscount": 50,
-        "medianSalePrice": 32400,
+        "medianDiscount": 60,
+        "medianSalePrice": 33200,
         "currentCycleStartedAt": "2026-10-06T18:30:03.274Z",
         "previousCycleBestPrice": null,
         "previousCycleBestDiscount": null,
         "recentDirection": "insufficient",
         "recentCycleBest": [
           {
-            "price": 32400,
-            "discount": 50
+            "price": 33200,
+            "discount": 60
           }
         ]
       },
-      "productId": "HP1804-PPSA10623_00-6700122691247574",
-      "releaseDate": "2023-09-15T15:00:00.000Z",
-      "rating": 4.54,
-      "ratingCount": 51356,
+      "productId": "UP0006-PPSA19534_00-SANTIAGOSTANDARD",
+      "releaseDate": "2025-10-10T15:00:00.000Z",
+      "rating": 4.04,
+      "ratingCount": 86792,
+      "classification": "GAME_BUNDLE",
+      "kind": "base",
+      "catalogGroupId": "product:UP0006-PPSA19534_00-SANTIAGOSTANDARD",
+      "releasedConfirmed": true
+    },
+    {
+      "id": "deal-auto-c590c381edf7511e",
+      "title": "FINAL FANTASY TACTICS - The Ivalice Chronicles Deluxe Edition [PS4 & PS5]",
+      "type": "regular",
+      "categories": [
+        "promo"
+      ],
+      "platform": [
+        "PS5"
+      ],
+      "genre": [
+        "전략"
+      ],
+      "ko": true,
+      "languageStatus": "verified-store-positive",
+      "desc": "PS Store 공식 프로모션에서 자동 확인한 할인 타이틀입니다.",
+      "image": "https://image.api.playstation.com/vulcan/ap/rnd/202509/1611/bdb7ca2a4018e478c447a460fa2f91380484af3bece8c18b.png?w=230&thumb=false",
+      "store": "https://store.playstation.com/ko-kr/product/JP0082-PPSA21783_00-0607198398321785",
+      "currentPrice": 48860,
+      "originalPrice": 69800,
+      "discountPercent": 30,
+      "saleEndsAt": null,
+      "priceStatus": "verified",
+      "storeVerified": true,
+      "storeVerifiedAt": "2026-10-10T12:30:12.924Z",
+      "fetchedAt": "2026-10-10T12:30:12.924Z",
+      "dataQuality": "verified",
+      "priceCrosscheckError": 0,
+      "priceVerifiedBy": "listing-card-crosscheck-v1742",
+      "imageStatus": "listing-card-v1742",
+      "storeTitle": "FINAL FANTASY TACTICS - The Ivalice Chronicles Deluxe Edition [PS4 & PS5] (중국어(간체자), 한국어, 영어, 일본어, 중국어(번체자))",
+      "radarLowPrice": 48860,
+      "radarLowObservedAt": "2026-10-06T18:30:03.274Z",
+      "radarObservations": 13,
+      "radarHighestDiscount": 30,
+      "isRadarLow": true,
+      "nearRadarLow": true,
+      "radarLowDeltaPercent": 0,
+      "radarFirstSeenAt": "2026-10-06T18:30:03.274Z",
+      "radarNewDeal": false,
+      "radarTrend": {
+        "changePoints": 1,
+        "saleCycles": 1,
+        "averageGapDays": null,
+        "medianDiscount": 30,
+        "medianSalePrice": 48860,
+        "currentCycleStartedAt": "2026-10-06T18:30:03.274Z",
+        "previousCycleBestPrice": null,
+        "previousCycleBestDiscount": null,
+        "recentDirection": "insufficient",
+        "recentCycleBest": [
+          {
+            "price": 48860,
+            "discount": 30
+          }
+        ]
+      },
+      "productId": "JP0082-PPSA21783_00-0607198398321785",
+      "releaseDate": "2025-09-29T15:00:00.000Z",
+      "rating": 4.73,
+      "ratingCount": 4011,
+      "classification": "PREMIUM_EDITION",
+      "kind": "edition",
+      "catalogGroupId": "product:JP0082-PPSA21783_00-0607198398321785",
+      "releasedConfirmed": true
+    },
+    {
+      "id": "deal-auto-61dab3b0261b023d",
+      "title": "Grounded 2",
+      "type": "regular",
+      "categories": [
+        "promo"
+      ],
+      "platform": [
+        "PS5"
+      ],
+      "genre": [
+        "어드벤처"
+      ],
+      "ko": true,
+      "languageStatus": "verified-store-positive",
+      "desc": "PS Store 공식 프로모션에서 자동 확인한 할인 타이틀입니다.",
+      "image": "https://image.api.playstation.com/vulcan/ap/rnd/202606/0316/a79dd27918cc2856b6f459dec2857548cfea7db7a85af544.png?w=230&thumb=false",
+      "store": "https://store.playstation.com/ko-kr/product/UP6312-PPSA32718_00-AUGUSTA000000000",
+      "currentPrice": 31320,
+      "originalPrice": 34800,
+      "discountPercent": 10,
+      "saleEndsAt": null,
+      "priceStatus": "verified",
+      "storeVerified": true,
+      "storeVerifiedAt": "2026-10-10T12:30:12.924Z",
+      "fetchedAt": "2026-10-10T12:30:12.924Z",
+      "dataQuality": "verified",
+      "priceCrosscheckError": 0,
+      "priceVerifiedBy": "listing-card-crosscheck-v1742",
+      "imageStatus": "listing-card-v1742",
+      "storeTitle": "Grounded 2 (중국어(간체자), 한국어, 영어, 일본어, 중국어(번체자))",
+      "radarLowPrice": 31320,
+      "radarLowObservedAt": "2026-10-06T18:30:03.274Z",
+      "radarObservations": 13,
+      "radarHighestDiscount": 10,
+      "isRadarLow": true,
+      "nearRadarLow": true,
+      "radarLowDeltaPercent": 0,
+      "radarFirstSeenAt": "2026-10-06T18:30:03.274Z",
+      "radarNewDeal": false,
+      "radarTrend": {
+        "changePoints": 1,
+        "saleCycles": 1,
+        "averageGapDays": null,
+        "medianDiscount": 10,
+        "medianSalePrice": 31320,
+        "currentCycleStartedAt": "2026-10-06T18:30:03.274Z",
+        "previousCycleBestPrice": null,
+        "previousCycleBestDiscount": null,
+        "recentDirection": "insufficient",
+        "recentCycleBest": [
+          {
+            "price": 31320,
+            "discount": 10
+          }
+        ]
+      },
+      "productId": "UP6312-PPSA32718_00-AUGUSTA000000000",
+      "releaseDate": "2026-08-11T17:00:00.000Z",
+      "rating": 4.79,
+      "ratingCount": 4715,
       "classification": "FULL_GAME",
       "kind": "base",
-      "catalogGroupId": "product:HP1804-PPSA10623_00-6700122691247574",
+      "catalogGroupId": "product:UP6312-PPSA32718_00-AUGUSTA000000000",
       "releasedConfirmed": true
     }
   ]
