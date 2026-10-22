@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-21T21:50:15.708Z",
+  "generatedAt": "2026-10-22T05:03:11.610Z",
   "source": "existing-official-store-data",
   "coverage": "partial-plus-catalog-and-discount-products",
   "policy": {
@@ -20,10 +20,10 @@
     "discounted": 73,
     "expansions": 0,
     "rejected": {
-      "platform": 182,
-      "type": 12,
-      "price": 4,
-      "rating": 129,
+      "platform": 181,
+      "type": 11,
+      "price": 5,
+      "rating": 128,
       "unknown": 0
     }
   },
@@ -1096,7 +1096,7 @@
       "ko": true,
       "languageStatus": "verified-store-positive",
       "desc": "PS Store 공식 프로모션에서 자동 확인한 할인 타이틀입니다.",
-      "image": "https://image.api.playstation.com/vulcan/ap/rnd/202111/3013/wTHTD6xDqiFEKL2JPZDRN57n.png?w=230",
+      "image": "https://image.api.playstation.com/vulcan/ap/rnd/202111/3013/wTHTD6xDqiFEKL2JPZDRN57n.png?w=230&thumb=false",
       "store": "https://store.playstation.com/ko-kr/product/EP4497-PPSA04029_00-0000000000000N22",
       "currentPrice": 21920,
       "originalPrice": 54800,
@@ -1104,8 +1104,8 @@
       "saleEndsAt": null,
       "priceStatus": "verified",
       "storeVerified": true,
-      "storeVerifiedAt": "2026-10-21T21:41:55.153Z",
-      "fetchedAt": "2026-10-21T21:41:55.153Z",
+      "storeVerifiedAt": "2026-10-22T04:37:01.077Z",
+      "fetchedAt": "2026-10-22T04:37:01.077Z",
       "dataQuality": "verified",
       "priceCrosscheckError": 0,
       "priceVerifiedBy": "listing-card-crosscheck-v1742",
@@ -1113,7 +1113,7 @@
       "storeTitle": "사이버펑크 2077 (한국어, 영어)",
       "radarLowPrice": 21920,
       "radarLowObservedAt": "2026-10-15T16:58:09.357Z",
-      "radarObservations": 14,
+      "radarObservations": 15,
       "radarHighestDiscount": 60,
       "isRadarLow": true,
       "nearRadarLow": true,
@@ -4431,8 +4431,8 @@
       "saleEndsAt": null,
       "priceStatus": "verified",
       "storeVerified": true,
-      "storeVerifiedAt": "2026-10-21T21:41:55.153Z",
-      "fetchedAt": "2026-10-21T21:41:55.153Z",
+      "storeVerifiedAt": "2026-10-22T04:37:01.077Z",
+      "fetchedAt": "2026-10-22T04:37:01.077Z",
       "dataQuality": "verified",
       "priceCrosscheckError": 1,
       "priceVerifiedBy": "listing-card-crosscheck-v1742",
@@ -4440,7 +4440,7 @@
       "storeTitle": "Ratchet & Clank: Rift Apart (중국어(간체자), 한국어, 영어, 중국어(번체자))",
       "radarLowPrice": 27920,
       "radarLowObservedAt": "2026-10-07T06:33:10.678Z",
-      "radarObservations": 40,
+      "radarObservations": 41,
       "radarHighestDiscount": 60,
       "isRadarLow": false,
       "nearRadarLow": false,
@@ -9749,378 +9749,6 @@
       "releasedConfirmed": true
     },
     {
-      "id": "deal-auto-5861d4a37c175a80",
-      "title": "What Remains of Edith Finch",
-      "type": "regular",
-      "categories": [
-        "promo"
-      ],
-      "platform": [
-        "PS5"
-      ],
-      "genre": [
-        "공포",
-        "어드벤처"
-      ],
-      "ko": true,
-      "languageStatus": "verified-store-positive",
-      "desc": "PS Store 공식 프로모션에서 자동 확인한 할인 타이틀입니다.",
-      "image": "https://image.api.playstation.com/cdn/UP2470/CUSA06886_00/0CwzEsHOogTAXTYmXERXEIktPEqSed7c.png",
-      "store": "https://store.playstation.com/ko-kr/product/UP2470-PPSA06207_00-EFINCHPS5SIEA000",
-      "currentPrice": 17640,
-      "originalPrice": 58800,
-      "discountPercent": 70,
-      "saleEndsAt": null,
-      "priceStatus": "verified",
-      "storeVerified": true,
-      "storeVerifiedAt": "2026-10-21T21:41:55.153Z",
-      "fetchedAt": "2026-10-21T21:41:55.153Z",
-      "dataQuality": "verified",
-      "priceCrosscheckError": 0,
-      "priceVerifiedBy": "listing-card-crosscheck-v1742",
-      "storeTitle": "What Remains of Edith Finch (중국어(간체자), 한국어, 영어, 일본어)",
-      "imageStatus": "official-product-page-v177",
-      "imageVerifiedAt": "2026-10-21T21:47:16.164Z",
-      "radarLowPrice": 5700,
-      "radarLowObservedAt": "2026-09-27T15:18:36.847Z",
-      "radarObservations": 49,
-      "radarHighestDiscount": 90,
-      "isRadarLow": false,
-      "nearRadarLow": false,
-      "radarLowDeltaPercent": 209.5,
-      "radarFirstSeenAt": "2026-09-27T16:26:56.855Z",
-      "radarNewDeal": false,
-      "radarTrend": {
-        "changePoints": 22,
-        "saleCycles": 2,
-        "averageGapDays": 14,
-        "medianDiscount": 70,
-        "medianSalePrice": 16880,
-        "currentCycleStartedAt": "2026-10-11T05:43:09.215Z",
-        "previousCycleBestPrice": 5700,
-        "previousCycleBestDiscount": 75,
-        "recentDirection": "insufficient",
-        "recentCycleBest": [
-          {
-            "price": 5700,
-            "discount": 75
-          },
-          {
-            "price": 7920,
-            "discount": 90
-          }
-        ]
-      },
-      "productId": "UP2470-PPSA06207_00-EFINCHPS5SIEA000",
-      "releaseDate": "2022-07-28T19:00:00.000Z",
-      "rating": 4.55,
-      "ratingCount": 28960,
-      "classification": "FULL_GAME",
-      "kind": "base",
-      "catalogGroupId": "product:UP2470-PPSA06207_00-EFINCHPS5SIEA000",
-      "releasedConfirmed": true
-    },
-    {
-      "id": "deal-auto-6fadc83e627be04a",
-      "title": "Outer Wilds",
-      "type": "regular",
-      "categories": [
-        "promo"
-      ],
-      "platform": [
-        "PS5"
-      ],
-      "genre": [
-        "유니크",
-        "어드벤처"
-      ],
-      "ko": true,
-      "languageStatus": "verified-store-positive",
-      "desc": "PS Store 공식 프로모션에서 자동 확인한 할인 타이틀입니다.",
-      "image": null,
-      "store": "https://store.playstation.com/ko-kr/product/UP2470-PPSA08101_00-OUTERWILDSSIEA00",
-      "currentPrice": 57400,
-      "originalPrice": 114800,
-      "discountPercent": 50,
-      "saleEndsAt": null,
-      "priceStatus": "verified",
-      "storeVerified": true,
-      "storeVerifiedAt": "2026-10-21T21:41:55.153Z",
-      "fetchedAt": "2026-10-21T21:41:55.153Z",
-      "dataQuality": "verified",
-      "priceCrosscheckError": 0,
-      "priceVerifiedBy": "listing-card-crosscheck-v1742",
-      "storeTitle": "Outer Wilds (중국어(간체자), 한국어, 영어, 일본어)",
-      "imageStatus": "collision-removed",
-      "radarLowPrice": 3720,
-      "radarLowObservedAt": "2026-10-11T05:43:09.215Z",
-      "radarObservations": 57,
-      "radarHighestDiscount": 90,
-      "isRadarLow": false,
-      "nearRadarLow": false,
-      "radarLowDeltaPercent": 1443,
-      "radarFirstSeenAt": "2026-09-27T16:26:56.855Z",
-      "radarNewDeal": false,
-      "radarTrend": {
-        "changePoints": 31,
-        "saleCycles": 3,
-        "averageGapDays": 6,
-        "medianDiscount": 50,
-        "medianSalePrice": 20930,
-        "currentCycleStartedAt": "2026-10-09T00:41:25.130Z",
-        "previousCycleBestPrice": 8250,
-        "previousCycleBestDiscount": 70,
-        "recentDirection": "improving",
-        "recentCycleBest": [
-          {
-            "price": 16680,
-            "discount": 40
-          },
-          {
-            "price": 8250,
-            "discount": 70
-          },
-          {
-            "price": 3720,
-            "discount": 90
-          }
-        ]
-      },
-      "productId": "UP2470-PPSA08101_00-OUTERWILDSSIEA00",
-      "releaseDate": "2022-09-15T16:00:00.000Z",
-      "rating": 4.75,
-      "ratingCount": 13853,
-      "classification": "FULL_GAME",
-      "kind": "base",
-      "catalogGroupId": "product:UP2470-PPSA08101_00-OUTERWILDSSIEA00",
-      "releasedConfirmed": true
-    },
-    {
-      "id": "deal-auto-8d88bd26f26116a5",
-      "title": "【PS4 버전 구매자용】 FINAL FANTASY VII REMAKE",
-      "type": "regular",
-      "categories": [
-        "promo"
-      ],
-      "platform": [
-        "PS5"
-      ],
-      "genre": [
-        "롤플레잉 게임",
-        "유니크"
-      ],
-      "ko": true,
-      "languageStatus": "verified-store-positive",
-      "desc": "PS Store 공식 프로모션에서 자동 확인한 할인 타이틀입니다.",
-      "image": null,
-      "store": "https://store.playstation.com/ko-kr/product/HP0082-PPSA01773_00-7462776201452750",
-      "currentPrice": 48300,
-      "originalPrice": 69000,
-      "discountPercent": 30,
-      "saleEndsAt": null,
-      "priceStatus": "verified",
-      "storeVerified": true,
-      "storeVerifiedAt": "2026-10-21T21:41:55.153Z",
-      "fetchedAt": "2026-10-21T21:41:55.153Z",
-      "dataQuality": "verified",
-      "priceCrosscheckError": 0,
-      "priceVerifiedBy": "listing-card-crosscheck-v1742",
-      "storeTitle": "【PS4 버전 구매자용】 FINAL FANTASY VII REMAKE (중국어(간체자), 한국어, 중국어(번체자))",
-      "imageStatus": "collision-removed",
-      "radarLowPrice": 910,
-      "radarLowObservedAt": "2026-10-08T12:35:55.820Z",
-      "radarObservations": 12,
-      "radarHighestDiscount": 75,
-      "isRadarLow": false,
-      "nearRadarLow": false,
-      "radarLowDeltaPercent": 5207.7,
-      "radarFirstSeenAt": "2026-10-06T06:34:01.762Z",
-      "radarNewDeal": false,
-      "radarTrend": {
-        "changePoints": 12,
-        "saleCycles": 3,
-        "averageGapDays": 8,
-        "medianDiscount": 25,
-        "medianSalePrice": 18240,
-        "currentCycleStartedAt": "2026-10-21T17:13:29.275Z",
-        "previousCycleBestPrice": 910,
-        "previousCycleBestDiscount": 75,
-        "recentDirection": "weakening",
-        "recentCycleBest": [
-          {
-            "price": 8750,
-            "discount": 75
-          },
-          {
-            "price": 910,
-            "discount": 75
-          },
-          {
-            "price": 48300,
-            "discount": 30
-          }
-        ]
-      },
-      "productId": "HP0082-PPSA01773_00-7462776201452750",
-      "releaseDate": "2021-06-09T15:00:00.000Z",
-      "rating": 4.69,
-      "ratingCount": 143185,
-      "classification": "FULL_GAME",
-      "kind": "base",
-      "catalogGroupId": "product:HP0082-PPSA01773_00-7462776201452750",
-      "releasedConfirmed": true
-    },
-    {
-      "id": "deal-auto-8624778d563574f0",
-      "title": "Enshrouded",
-      "type": "regular",
-      "categories": [
-        "promo"
-      ],
-      "platform": [
-        "PS5"
-      ],
-      "genre": [
-        "어드벤처",
-        "액션"
-      ],
-      "ko": true,
-      "languageStatus": "verified-store-positive",
-      "desc": "PS Store 공식 프로모션에서 자동 확인한 할인 타이틀입니다.",
-      "image": null,
-      "store": "https://store.playstation.com/ko-kr/product/EP4137-PPSA32539_00-0013250200429445",
-      "currentPrice": 31430,
-      "originalPrice": 34800,
-      "discountPercent": 10,
-      "saleEndsAt": null,
-      "priceStatus": "verified",
-      "storeVerified": true,
-      "storeVerifiedAt": "2026-10-21T21:41:55.153Z",
-      "fetchedAt": "2026-10-21T21:41:55.153Z",
-      "dataQuality": "verified",
-      "priceCrosscheckError": 0.316,
-      "priceVerifiedBy": "listing-card-crosscheck-v1742",
-      "storeTitle": "Enshrouded (중국어(간체자), 한국어, 태국어, 영어, 일본어, 중국어(번체자))",
-      "imageStatus": "collision-removed",
-      "radarLowPrice": 31430,
-      "radarLowObservedAt": "2026-10-21T17:13:29.275Z",
-      "radarObservations": 11,
-      "radarHighestDiscount": 33,
-      "isRadarLow": true,
-      "nearRadarLow": true,
-      "radarLowDeltaPercent": 0,
-      "radarFirstSeenAt": "2026-10-17T04:18:53.301Z",
-      "radarNewDeal": false,
-      "radarTrend": {
-        "changePoints": 6,
-        "saleCycles": 3,
-        "averageGapDays": 2,
-        "medianDiscount": 10,
-        "medianSalePrice": 57658,
-        "currentCycleStartedAt": "2026-10-20T16:56:41.864Z",
-        "previousCycleBestPrice": 58500,
-        "previousCycleBestDiscount": 10,
-        "recentDirection": "weakening",
-        "recentCycleBest": [
-          {
-            "price": 56816,
-            "discount": 33
-          },
-          {
-            "price": 58500,
-            "discount": 10
-          },
-          {
-            "price": 31430,
-            "discount": 10
-          }
-        ]
-      },
-      "productId": "EP4137-PPSA32539_00-0013250200429445",
-      "releaseDate": "2026-10-15T15:00:00.000Z",
-      "rating": 4.8,
-      "ratingCount": 1663,
-      "classification": "FULL_GAME",
-      "kind": "base",
-      "catalogGroupId": "product:EP4137-PPSA32539_00-0013250200429445",
-      "releasedConfirmed": true
-    },
-    {
-      "id": "deal-auto-04b380e71b67eabd",
-      "title": "Enshrouded",
-      "type": "regular",
-      "categories": [
-        "promo"
-      ],
-      "platform": [
-        "PS5"
-      ],
-      "genre": [
-        "어드벤처",
-        "액션"
-      ],
-      "ko": true,
-      "languageStatus": "verified-store-positive",
-      "desc": "PS Store 공식 프로모션에서 자동 확인한 할인 타이틀입니다.",
-      "image": null,
-      "store": "https://store.playstation.com/ko-kr/product/EP4137-PPSA32539_00-0441013565276703",
-      "currentPrice": 31430,
-      "originalPrice": 34800,
-      "discountPercent": 10,
-      "saleEndsAt": null,
-      "priceStatus": "verified",
-      "storeVerified": true,
-      "storeVerifiedAt": "2026-10-21T21:41:55.153Z",
-      "fetchedAt": "2026-10-21T21:41:55.153Z",
-      "dataQuality": "verified",
-      "priceCrosscheckError": 0.316,
-      "priceVerifiedBy": "listing-card-crosscheck-v1742",
-      "storeTitle": "Enshrouded (중국어(간체자), 한국어, 태국어, 영어, 일본어, 중국어(번체자))",
-      "imageStatus": "collision-removed",
-      "radarLowPrice": 31430,
-      "radarLowObservedAt": "2026-10-21T17:13:29.275Z",
-      "radarObservations": 11,
-      "radarHighestDiscount": 33,
-      "isRadarLow": true,
-      "nearRadarLow": true,
-      "radarLowDeltaPercent": 0,
-      "radarFirstSeenAt": "2026-10-17T04:18:53.301Z",
-      "radarNewDeal": false,
-      "radarTrend": {
-        "changePoints": 6,
-        "saleCycles": 3,
-        "averageGapDays": 2,
-        "medianDiscount": 10,
-        "medianSalePrice": 57658,
-        "currentCycleStartedAt": "2026-10-20T16:56:41.864Z",
-        "previousCycleBestPrice": 58500,
-        "previousCycleBestDiscount": 10,
-        "recentDirection": "weakening",
-        "recentCycleBest": [
-          {
-            "price": 56816,
-            "discount": 33
-          },
-          {
-            "price": 58500,
-            "discount": 10
-          },
-          {
-            "price": 31430,
-            "discount": 10
-          }
-        ]
-      },
-      "productId": "EP4137-PPSA32539_00-0441013565276703",
-      "releaseDate": "2026-10-15T15:00:00.000Z",
-      "rating": 4.8,
-      "ratingCount": 1662,
-      "classification": "PREMIUM_EDITION",
-      "kind": "edition",
-      "catalogGroupId": "product:EP4137-PPSA32539_00-0441013565276703",
-      "releasedConfirmed": true
-    },
-    {
       "id": "deal-auto-4ca4838be15312e0",
       "title": "Street Fighter 6",
       "type": "regular",
@@ -10136,7 +9764,7 @@
       "ko": true,
       "languageStatus": "verified-store-positive",
       "desc": "PS Store 공식 프로모션에서 자동 확인한 할인 타이틀입니다.",
-      "image": "https://image.api.playstation.com/vulcan/ap/rnd/202211/1407/XFU0aPBvtm3W2od1ZvhByAOv.png?w=230",
+      "image": "https://image.api.playstation.com/vulcan/ap/rnd/202211/1407/XFU0aPBvtm3W2od1ZvhByAOv.png?w=230&thumb=false",
       "store": "https://store.playstation.com/ko-kr/product/HP0102-PPSA02635_00-SF600000STANDARD",
       "currentPrice": 17920,
       "originalPrice": 44800,
@@ -10144,8 +9772,8 @@
       "saleEndsAt": null,
       "priceStatus": "verified",
       "storeVerified": true,
-      "storeVerifiedAt": "2026-10-21T21:41:55.153Z",
-      "fetchedAt": "2026-10-21T21:41:55.153Z",
+      "storeVerifiedAt": "2026-10-22T04:37:01.077Z",
+      "fetchedAt": "2026-10-22T04:37:01.077Z",
       "dataQuality": "verified",
       "priceCrosscheckError": 0,
       "priceVerifiedBy": "listing-card-crosscheck-v1742",
@@ -10153,7 +9781,7 @@
       "storeTitle": "Street Fighter 6 (중국어(간체자), 한국어, 영어, 일본어, 중국어(번체자))",
       "radarLowPrice": 17920,
       "radarLowObservedAt": "2026-10-15T16:58:09.357Z",
-      "radarObservations": 17,
+      "radarObservations": 18,
       "radarHighestDiscount": 60,
       "isRadarLow": true,
       "nearRadarLow": true,
@@ -10187,6 +9815,227 @@
       "releasedConfirmed": true
     },
     {
+      "id": "deal-auto-6fadc83e627be04a",
+      "title": "Outer Wilds",
+      "type": "regular",
+      "categories": [
+        "promo"
+      ],
+      "platform": [
+        "PS5"
+      ],
+      "genre": [
+        "유니크",
+        "어드벤처"
+      ],
+      "ko": true,
+      "languageStatus": "verified-store-positive",
+      "desc": "PS Store 공식 프로모션에서 자동 확인한 할인 타이틀입니다.",
+      "image": null,
+      "store": "https://store.playstation.com/ko-kr/product/UP2470-PPSA08101_00-OUTERWILDSSIEA00",
+      "currentPrice": 6264,
+      "originalPrice": 6960,
+      "discountPercent": 10,
+      "saleEndsAt": null,
+      "priceStatus": "verified",
+      "storeVerified": true,
+      "storeVerifiedAt": "2026-10-22T04:37:01.077Z",
+      "fetchedAt": "2026-10-22T04:37:01.077Z",
+      "dataQuality": "verified",
+      "priceCrosscheckError": 0,
+      "priceVerifiedBy": "listing-card-crosscheck-v1742",
+      "storeTitle": "Outer Wilds (중국어(간체자), 한국어, 영어, 일본어)",
+      "imageStatus": "collision-removed",
+      "radarLowPrice": 3720,
+      "radarLowObservedAt": "2026-10-11T05:43:09.215Z",
+      "radarObservations": 58,
+      "radarHighestDiscount": 90,
+      "isRadarLow": false,
+      "nearRadarLow": false,
+      "radarLowDeltaPercent": 68.4,
+      "radarFirstSeenAt": "2026-09-27T16:26:56.855Z",
+      "radarNewDeal": false,
+      "radarTrend": {
+        "changePoints": 32,
+        "saleCycles": 3,
+        "averageGapDays": 6,
+        "medianDiscount": 50,
+        "medianSalePrice": 20815,
+        "currentCycleStartedAt": "2026-10-09T00:41:25.130Z",
+        "previousCycleBestPrice": 8250,
+        "previousCycleBestDiscount": 70,
+        "recentDirection": "improving",
+        "recentCycleBest": [
+          {
+            "price": 16680,
+            "discount": 40
+          },
+          {
+            "price": 8250,
+            "discount": 70
+          },
+          {
+            "price": 3720,
+            "discount": 90
+          }
+        ]
+      },
+      "productId": "UP2470-PPSA08101_00-OUTERWILDSSIEA00",
+      "releaseDate": "2022-09-15T16:00:00.000Z",
+      "rating": 4.75,
+      "ratingCount": 13853,
+      "classification": "FULL_GAME",
+      "kind": "base",
+      "catalogGroupId": "product:UP2470-PPSA08101_00-OUTERWILDSSIEA00",
+      "releasedConfirmed": true
+    },
+    {
+      "id": "deal-auto-5861d4a37c175a80",
+      "title": "What Remains of Edith Finch",
+      "type": "regular",
+      "categories": [
+        "promo"
+      ],
+      "platform": [
+        "PS5"
+      ],
+      "genre": [
+        "공포",
+        "어드벤처"
+      ],
+      "ko": true,
+      "languageStatus": "verified-store-positive",
+      "desc": "PS Store 공식 프로모션에서 자동 확인한 할인 타이틀입니다.",
+      "image": null,
+      "store": "https://store.playstation.com/ko-kr/product/UP2470-PPSA06207_00-EFINCHPS5SIEA000",
+      "currentPrice": 19400,
+      "originalPrice": 38800,
+      "discountPercent": 50,
+      "saleEndsAt": null,
+      "priceStatus": "verified",
+      "storeVerified": true,
+      "storeVerifiedAt": "2026-10-22T04:37:01.077Z",
+      "fetchedAt": "2026-10-22T04:37:01.077Z",
+      "dataQuality": "verified",
+      "priceCrosscheckError": 0,
+      "priceVerifiedBy": "listing-card-crosscheck-v1742",
+      "storeTitle": "What Remains of Edith Finch (중국어(간체자), 한국어, 영어, 일본어)",
+      "imageStatus": "collision-removed",
+      "radarLowPrice": 5700,
+      "radarLowObservedAt": "2026-09-27T15:18:36.847Z",
+      "radarObservations": 50,
+      "radarHighestDiscount": 90,
+      "isRadarLow": false,
+      "nearRadarLow": false,
+      "radarLowDeltaPercent": 240.4,
+      "radarFirstSeenAt": "2026-09-27T16:26:56.855Z",
+      "radarNewDeal": false,
+      "radarTrend": {
+        "changePoints": 23,
+        "saleCycles": 2,
+        "averageGapDays": 14,
+        "medianDiscount": 70,
+        "medianSalePrice": 17165,
+        "currentCycleStartedAt": "2026-10-11T05:43:09.215Z",
+        "previousCycleBestPrice": 5700,
+        "previousCycleBestDiscount": 75,
+        "recentDirection": "insufficient",
+        "recentCycleBest": [
+          {
+            "price": 5700,
+            "discount": 75
+          },
+          {
+            "price": 7920,
+            "discount": 90
+          }
+        ]
+      },
+      "productId": "UP2470-PPSA06207_00-EFINCHPS5SIEA000",
+      "releaseDate": "2022-07-28T19:00:00.000Z",
+      "rating": 4.55,
+      "ratingCount": 28960,
+      "classification": "FULL_GAME",
+      "kind": "base",
+      "catalogGroupId": "product:UP2470-PPSA06207_00-EFINCHPS5SIEA000",
+      "releasedConfirmed": true
+    },
+    {
+      "id": "deal-auto-8d88bd26f26116a5",
+      "title": "【PS4 버전 구매자용】 FINAL FANTASY VII REMAKE",
+      "type": "regular",
+      "categories": [
+        "promo"
+      ],
+      "platform": [
+        "PS5"
+      ],
+      "genre": [
+        "롤플레잉 게임",
+        "유니크"
+      ],
+      "ko": true,
+      "languageStatus": "verified-store-positive",
+      "desc": "PS Store 공식 프로모션에서 자동 확인한 할인 타이틀입니다.",
+      "image": null,
+      "store": "https://store.playstation.com/ko-kr/product/HP0082-PPSA01773_00-7462776201452750",
+      "currentPrice": 3024,
+      "originalPrice": 3360,
+      "discountPercent": 10,
+      "saleEndsAt": null,
+      "priceStatus": "verified",
+      "storeVerified": true,
+      "storeVerifiedAt": "2026-10-22T04:37:01.077Z",
+      "fetchedAt": "2026-10-22T04:37:01.077Z",
+      "dataQuality": "verified",
+      "priceCrosscheckError": 0,
+      "priceVerifiedBy": "listing-card-crosscheck-v1742",
+      "storeTitle": "【PS4 버전 구매자용】 FINAL FANTASY VII REMAKE (중국어(간체자), 한국어, 중국어(번체자))",
+      "imageStatus": "collision-removed",
+      "radarLowPrice": 910,
+      "radarLowObservedAt": "2026-10-08T12:35:55.820Z",
+      "radarObservations": 13,
+      "radarHighestDiscount": 75,
+      "isRadarLow": false,
+      "nearRadarLow": false,
+      "radarLowDeltaPercent": 232.3,
+      "radarFirstSeenAt": "2026-10-06T06:34:01.762Z",
+      "radarNewDeal": false,
+      "radarTrend": {
+        "changePoints": 13,
+        "saleCycles": 3,
+        "averageGapDays": 8,
+        "medianDiscount": 20,
+        "medianSalePrice": 18240,
+        "currentCycleStartedAt": "2026-10-21T17:13:29.275Z",
+        "previousCycleBestPrice": 910,
+        "previousCycleBestDiscount": 75,
+        "recentDirection": "weakening",
+        "recentCycleBest": [
+          {
+            "price": 8750,
+            "discount": 75
+          },
+          {
+            "price": 910,
+            "discount": 75
+          },
+          {
+            "price": 3024,
+            "discount": 30
+          }
+        ]
+      },
+      "productId": "HP0082-PPSA01773_00-7462776201452750",
+      "releaseDate": "2021-06-09T15:00:00.000Z",
+      "rating": 4.69,
+      "ratingCount": 143185,
+      "classification": "FULL_GAME",
+      "kind": "base",
+      "catalogGroupId": "product:HP0082-PPSA01773_00-7462776201452750",
+      "releasedConfirmed": true
+    },
+    {
       "id": "deal-auto-58bd17dbad978e12",
       "title": "Street Fighter™ 6 Years 1-2 Fighters Edition",
       "type": "regular",
@@ -10202,7 +10051,7 @@
       "ko": true,
       "languageStatus": "verified-store-positive",
       "desc": "PS Store 공식 프로모션에서 자동 확인한 할인 타이틀입니다.",
-      "image": "https://image.api.playstation.com/vulcan/ap/rnd/202505/2004/19a29163af7681e5a48728d018de9539d00eb08a6738adec.png?w=230",
+      "image": "https://image.api.playstation.com/vulcan/ap/rnd/202505/2004/19a29163af7681e5a48728d018de9539d00eb08a6738adec.png?w=230&thumb=false",
       "store": "https://store.playstation.com/ko-kr/product/HP0102-PPSA02635_00-SF60000YEARS12FE",
       "currentPrice": 45370,
       "originalPrice": 69800,
@@ -10210,8 +10059,8 @@
       "saleEndsAt": null,
       "priceStatus": "verified",
       "storeVerified": true,
-      "storeVerifiedAt": "2026-10-21T21:41:55.153Z",
-      "fetchedAt": "2026-10-21T21:41:55.153Z",
+      "storeVerifiedAt": "2026-10-22T04:37:01.077Z",
+      "fetchedAt": "2026-10-22T04:37:01.077Z",
       "dataQuality": "verified",
       "priceCrosscheckError": 0,
       "priceVerifiedBy": "listing-card-crosscheck-v1742",
@@ -10219,7 +10068,7 @@
       "storeTitle": "Street Fighter™ 6 Years 1-2 Fighters Edition (중국어(간체자), 한국어, 영어, 일본어, 중국어(번체자))",
       "radarLowPrice": 45370,
       "radarLowObservedAt": "2026-10-15T16:58:09.357Z",
-      "radarObservations": 17,
+      "radarObservations": 18,
       "radarHighestDiscount": 35,
       "isRadarLow": true,
       "nearRadarLow": true,
@@ -10250,6 +10099,156 @@
       "classification": "PREMIUM_EDITION",
       "kind": "edition",
       "catalogGroupId": "product:HP0102-PPSA02635_00-SF60000YEARS12FE",
+      "releasedConfirmed": true
+    },
+    {
+      "id": "deal-auto-8624778d563574f0",
+      "title": "Enshrouded",
+      "type": "regular",
+      "categories": [
+        "promo"
+      ],
+      "platform": [
+        "PS5"
+      ],
+      "genre": [
+        "어드벤처",
+        "액션"
+      ],
+      "ko": true,
+      "languageStatus": "verified-store-positive",
+      "desc": "PS Store 공식 프로모션에서 자동 확인한 할인 타이틀입니다.",
+      "image": null,
+      "store": "https://store.playstation.com/ko-kr/product/EP4137-PPSA32539_00-0013250200429445",
+      "currentPrice": 16140,
+      "originalPrice": 17920,
+      "discountPercent": 10,
+      "saleEndsAt": null,
+      "priceStatus": "verified",
+      "storeVerified": true,
+      "storeVerifiedAt": "2026-10-22T04:37:01.077Z",
+      "fetchedAt": "2026-10-22T04:37:01.077Z",
+      "dataQuality": "verified",
+      "priceCrosscheckError": 0.067,
+      "priceVerifiedBy": "listing-card-crosscheck-v1742",
+      "storeTitle": "Enshrouded (중국어(간체자), 한국어, 태국어, 영어, 일본어, 중국어(번체자))",
+      "imageStatus": "collision-removed",
+      "radarLowPrice": 16140,
+      "radarLowObservedAt": "2026-10-22T04:37:01.077Z",
+      "radarObservations": 12,
+      "radarHighestDiscount": 33,
+      "isRadarLow": true,
+      "nearRadarLow": true,
+      "radarLowDeltaPercent": 0,
+      "radarFirstSeenAt": "2026-10-17T04:18:53.301Z",
+      "radarNewDeal": false,
+      "radarTrend": {
+        "changePoints": 7,
+        "saleCycles": 3,
+        "averageGapDays": 2,
+        "medianDiscount": 10,
+        "medianSalePrice": 56816,
+        "currentCycleStartedAt": "2026-10-20T16:56:41.864Z",
+        "previousCycleBestPrice": 58500,
+        "previousCycleBestDiscount": 10,
+        "recentDirection": "weakening",
+        "recentCycleBest": [
+          {
+            "price": 56816,
+            "discount": 33
+          },
+          {
+            "price": 58500,
+            "discount": 10
+          },
+          {
+            "price": 16140,
+            "discount": 10
+          }
+        ]
+      },
+      "productId": "EP4137-PPSA32539_00-0013250200429445",
+      "releaseDate": "2026-10-15T15:00:00.000Z",
+      "rating": 4.8,
+      "ratingCount": 1663,
+      "classification": "FULL_GAME",
+      "kind": "base",
+      "catalogGroupId": "product:EP4137-PPSA32539_00-0013250200429445",
+      "releasedConfirmed": true
+    },
+    {
+      "id": "deal-auto-04b380e71b67eabd",
+      "title": "Enshrouded",
+      "type": "regular",
+      "categories": [
+        "promo"
+      ],
+      "platform": [
+        "PS5"
+      ],
+      "genre": [
+        "어드벤처",
+        "액션"
+      ],
+      "ko": true,
+      "languageStatus": "verified-store-positive",
+      "desc": "PS Store 공식 프로모션에서 자동 확인한 할인 타이틀입니다.",
+      "image": null,
+      "store": "https://store.playstation.com/ko-kr/product/EP4137-PPSA32539_00-0441013565276703",
+      "currentPrice": 16140,
+      "originalPrice": 17920,
+      "discountPercent": 10,
+      "saleEndsAt": null,
+      "priceStatus": "verified",
+      "storeVerified": true,
+      "storeVerifiedAt": "2026-10-22T04:37:01.077Z",
+      "fetchedAt": "2026-10-22T04:37:01.077Z",
+      "dataQuality": "verified",
+      "priceCrosscheckError": 0.067,
+      "priceVerifiedBy": "listing-card-crosscheck-v1742",
+      "storeTitle": "Enshrouded (중국어(간체자), 한국어, 태국어, 영어, 일본어, 중국어(번체자))",
+      "imageStatus": "collision-removed",
+      "radarLowPrice": 16140,
+      "radarLowObservedAt": "2026-10-22T04:37:01.077Z",
+      "radarObservations": 12,
+      "radarHighestDiscount": 33,
+      "isRadarLow": true,
+      "nearRadarLow": true,
+      "radarLowDeltaPercent": 0,
+      "radarFirstSeenAt": "2026-10-17T04:18:53.301Z",
+      "radarNewDeal": false,
+      "radarTrend": {
+        "changePoints": 7,
+        "saleCycles": 3,
+        "averageGapDays": 2,
+        "medianDiscount": 10,
+        "medianSalePrice": 56816,
+        "currentCycleStartedAt": "2026-10-20T16:56:41.864Z",
+        "previousCycleBestPrice": 58500,
+        "previousCycleBestDiscount": 10,
+        "recentDirection": "weakening",
+        "recentCycleBest": [
+          {
+            "price": 56816,
+            "discount": 33
+          },
+          {
+            "price": 58500,
+            "discount": 10
+          },
+          {
+            "price": 16140,
+            "discount": 10
+          }
+        ]
+      },
+      "productId": "EP4137-PPSA32539_00-0441013565276703",
+      "releaseDate": "2026-10-15T15:00:00.000Z",
+      "rating": 4.8,
+      "ratingCount": 1662,
+      "classification": "PREMIUM_EDITION",
+      "kind": "edition",
+      "catalogGroupId": "product:EP4137-PPSA32539_00-0441013565276703",
       "releasedConfirmed": true
     }
   ]
