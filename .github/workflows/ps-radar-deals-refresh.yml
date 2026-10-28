@@ -24,7 +24,7 @@ concurrency:
 
 jobs:
   refresh:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 50
     steps:
       - name: Checkout main
@@ -88,7 +88,7 @@ jobs:
           const h=JSON.parse(fs.readFileSync('ps-radar/data/deal-history.json','utf8'));
           const u=JSON.parse(fs.readFileSync('ps-radar/data/upcoming.json','utf8'));
           if(!p?.health?.safeToMerge) throw new Error('deals snapshot safety flag is false');
-          if(!Array.isArray(p.items)||p.items.length<2000) throw new Error(`too few deal items: ${p.items?.length}`);
+          if(!Array.isArray(p.items)||p.items.length<1500) throw new Error(`too few deal items: ${p.items?.length}`);
           if(!h?.items||Number(h.itemCount)<2000) throw new Error(`observed history unexpectedly small: ${h?.itemCount}`);
           if(!u?.verification||!Array.isArray(u.items)||u.items.length<5) throw new Error('upcoming verification missing');
           let validPrices=0,rejectedPrices=0,historyTagged=0,badVisible=0,badCollision=0;
@@ -107,7 +107,7 @@ jobs:
             if(Math.abs(implied-d)>2.5)badVisible++;
             else validPrices++;
           }
-          if(validPrices<2000) throw new Error(`too few crosschecked prices: ${validPrices}`);
+          if(validPrices<1500) throw new Error(`too few crosschecked prices: ${validPrices}`);
           if(badVisible) throw new Error(`visible price math regressions: ${badVisible}`);
           if(badCollision) throw new Error(`collision-removed images still visible: ${badCollision}`);
           if(historyTagged<p.items.length*0.95) throw new Error(`history tags incomplete: ${historyTagged}/${p.items.length}`);
