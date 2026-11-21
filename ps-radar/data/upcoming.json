@@ -56,7 +56,7 @@
       "dataQuality": "verified",
       "verificationLevel": "product-page",
       "verifiedAt": "2026-09-27T13:10:00+09:00",
-      "releaseDateStatus": "future"
+      "releaseDateStatus": "past"
     },
     {
       "id": "up-crimson-desert-enhanced",
@@ -348,6 +348,6 @@
     "specificPageCount": 4,
     "officialListCount": 10,
     "partialCount": 0,
-    "checkedAt": "2026-11-15T11:02:57.386Z"
+    "checkedAt": "2026-11-21T11:11:52.473Z"
   }
 }
